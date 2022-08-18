@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CheatTable CheatEngineTableVersion="40">
+<CheatTable CheatEngineTableVersion="42">
   <CheatEntries>
     <CheatEntry>
       <ID>134</ID>
@@ -498,6 +498,66 @@ ed8_ps5_D3D11.exe+29373D: E8 2E 9C 01 00           - call ed8_ps5_D3D11.exe+2AD3
 </AssemblerScript>
         </CheatEntry>
         <CheatEntry>
+          <ID>159</ID>
+          <Description>"Set Field Min Z to zero"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(FieldMinZ_aob,ed8_ps5_D3D11.exe,F3 44 0F 58 D1 EB) // should be unique
+alloc(newmem,$1000,FieldMinZ_aob)
+
+label(code)
+label(return)
+
+newmem:
+  pxor xmm1,xmm1
+code:
+  addss xmm10,xmm1
+  jmp return
+
+FieldMinZ_aob:
+  jmp newmem
+return:
+registersymbol(FieldMinZ_aob)
+
+[DISABLE]
+
+FieldMinZ_aob:
+  db F3 44 0F 58 D1
+
+unregistersymbol(FieldMinZ_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B0320
+
+ed8_ps5_D3D11.exe+2B02F9: 76 35                       - jna ed8_ps5_D3D11.exe+2B0330
+ed8_ps5_D3D11.exe+2B02FB: 44 0F 28 D0                 - movaps xmm10,xmm0
+ed8_ps5_D3D11.exe+2B02FF: EB 2F                       - jmp ed8_ps5_D3D11.exe+2B0330
+ed8_ps5_D3D11.exe+2B0301: F3 0F 10 54 24 60           - movss xmm2,[rsp+60]
+ed8_ps5_D3D11.exe+2B0307: 41 0F 28 C2                 - movaps xmm0,xmm10
+ed8_ps5_D3D11.exe+2B030B: F3 0F 10 0D 65 AC 81 00     - movss xmm1,[ed8_ps5_D3D11.exe+ACAF78]
+ed8_ps5_D3D11.exe+2B0313: F3 0F 5C C2                 - subss xmm0,xmm2
+ed8_ps5_D3D11.exe+2B0317: 0F 2F C8                    - comiss xmm1,xmm0
+ed8_ps5_D3D11.exe+2B031A: 76 14                       - jna ed8_ps5_D3D11.exe+2B0330
+ed8_ps5_D3D11.exe+2B031C: 44 0F 28 D2                 - movaps xmm10,xmm2
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B0320: F3 44 0F 58 D1              - addss xmm10,xmm1
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B0325: EB 09                       - jmp ed8_ps5_D3D11.exe+2B0330
+ed8_ps5_D3D11.exe+2B0327: F3 44 0F 10 BD 68 01 00 00  - movss xmm15,[rbp+00000168]
+ed8_ps5_D3D11.exe+2B0330: F3 0F 10 87 08 0A 00 00     - movss xmm0,[rdi+00000A08]
+ed8_ps5_D3D11.exe+2B0338: F3 0F 10 BD 60 01 00 00     - movss xmm7,[rbp+00000160]
+ed8_ps5_D3D11.exe+2B0340: F3 0F 11 45 E0              - movss [rbp-20],xmm0
+ed8_ps5_D3D11.exe+2B0345: EB 09                       - jmp ed8_ps5_D3D11.exe+2B0350
+ed8_ps5_D3D11.exe+2B0347: F3 44 0F 10 BD 68 01 00 00  - movss xmm15,[rbp+00000168]
+ed8_ps5_D3D11.exe+2B0350: 0F 10 45 A0                 - movups xmm0,[rbp-60]
+ed8_ps5_D3D11.exe+2B0354: 48 8D 55 A0                 - lea rdx,[rbp-60]
+ed8_ps5_D3D11.exe+2B0358: F3 0F 5C BF 70 01 00 00     - subss xmm7,[rdi+00000170]
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
           <ID>141</ID>
           <Description>"Free Camera"</Description>
           <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
@@ -944,6 +1004,26 @@ ed8_ps5_D3D11.exe+2B6756: F3 0F 11 54 24 28        - movss [rsp+28],xmm2
               <Address>camerastatus</Address>
               <Offsets>
                 <Offset>714</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>160</ID>
+              <Description>"Zoom-1"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>7AC</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>161</ID>
+              <Description>"Zoom-2"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>7B0</Offset>
               </Offsets>
             </CheatEntry>
           </CheatEntries>
