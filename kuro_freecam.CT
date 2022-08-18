@@ -216,6 +216,13 @@ function checkKeys()
     else --If nothing is pressed, speed is normal
       writeFloat("speedModifier", 3)
     end
+
+    --Mouse Support
+    if isKeyPressed(VK_PRIOR) then --If Page Up is pressed, enable mouse
+      writeFloat("useMouse", 1)
+    elseif isKeyPressed(VK_NEXT) then --If Page Down is pressed, disable mouse
+      writeFloat("useMouse", 0)
+    end
   end
 end
 
