@@ -436,60 +436,60 @@ label(return3)
 newmem:
 
 toggleon:
-push rax
-push rcx
-push rdx
-push r8
-push r9
-push r10
-push r11
-sub rsp,28
-mov rcx,23 //VK_END
-call GetAsyncKeyState
-add rsp,28
-pop r11
-pop r10
-pop r9
-pop r8
-pop rdx
-pop rcx
-test ax,8001
-pop rax
-jz toggleoff
-fld dword [r9+00000170]
-fld1
-faddp st(1),st(0)
-fstp [r9+00000170]
-mov eax,[r9+00000170]
-jmp return2
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,23 //VK_END
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  fld dword [r9+00000170]
+  fld1
+  faddp st(1),st(0)
+  fstp [r9+00000170]
+  mov eax,[r9+00000170]
+  jmp return2
 
 toggleoff:
-push rax
-push rcx
-push rdx
-push r8
-push r9
-push r10
-push r11
-sub rsp,28
-mov rcx,24 //VK_HOME
-call GetAsyncKeyState
-add rsp,28
-pop r11
-pop r10
-pop r9
-pop r8
-pop rdx
-pop rcx
-test ax,8001
-pop rax
-jz code
-fld dword [r9+00000170]
-fld1
-fsubp st(1),st(0)
-fstp [r9+00000170]
-mov eax,[r9+00000170]
-jmp return3
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,24 //VK_HOME
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  fld dword [r9+00000170]
+  fld1
+  fsubp st(1),st(0)
+  fstp [r9+00000170]
+  mov eax,[r9+00000170]
+  jmp return3
 
 code:
   mov [fov],r9
@@ -619,7 +619,7 @@ ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
       <CheatEntries>
         <CheatEntry>
           <ID>21</ID>
-          <Description>"Page Up to Zoom In, Page Down to Zoom Out"</Description>
+          <Description>"Home Key to Zoom In, End Key to Zoom Out"</Description>
           <GroupHeader>1</GroupHeader>
         </CheatEntry>
         <CheatEntry>
@@ -777,6 +777,9 @@ freezeaction_aob:
 freezeaction_aob+75:
   db 90 90 90 90 90
 
+cutscenefreeze_aob+7A:
+  db 90 90 90 90 90 90
+
 [DISABLE]
 
 freezeaction_aob:
@@ -787,6 +790,9 @@ freezeaction_aob+75:
 
 cutscenefreeze_aob:
   db 74 06 48 8B 01
+
+cutscenefreeze_aob+7A:
+  db 0F 85 DB 00 00 00
 
 unregistersymbol(freezeaction_aob)
 unregistersymbol(cutscenefreeze_aob)
@@ -869,6 +875,40 @@ ed9.exe+10D39A: 0F 57 F6                 - xorps xmm6,xmm6
 ed9.exe+10D39D: 45 0F 57 C0              - xorps xmm8,xmm8
 ed9.exe+10D3A1: 45 0F 57 C9              - xorps xmm9,xmm9
 ed9.exe+10D3A5: 0F 57 FF                 - xorps xmm7,xmm7
+ed9.exe+10D3A8: 48 3B DD                 - cmp rbx,rbp
+ed9.exe+10D3AB: 74 40                    - je ed9.exe+10D3ED
+ed9.exe+10D3AD: 0F 1F 00                 - nop dword ptr [rax]
+ed9.exe+10D3B0: F3 0F 10 43 04           - movss xmm0,[rbx+04]
+ed9.exe+10D3B5: 41 0F 2F C2              - comiss xmm0,xmm10
+ed9.exe+10D3B9: 76 29                    - jna ed9.exe+10D3E4
+ed9.exe+10D3BB: 41 0F 28 D3              - movaps xmm2,xmm11
+ed9.exe+10D3BF: 48 8D 54 24 30           - lea rdx,[rsp+30]
+ed9.exe+10D3C4: 48 8B CB                 - mov rcx,rbx
+ed9.exe+10D3C7: E8 24 A7 25 00           - call ed9.exe+367AF0
+ed9.exe+10D3CC: 41 B6 01                 - mov r14l,01
+ed9.exe+10D3CF: F3 0F 58 30              - addss xmm6,[rax]
+ed9.exe+10D3D3: F3 44 0F 58 40 04        - addss xmm8,[rax+04]
+ed9.exe+10D3D9: F3 44 0F 58 48 08        - addss xmm9,[rax+08]
+ed9.exe+10D3DF: F3 0F 58 78 0C           - addss xmm7,[rax+0C]
+ed9.exe+10D3E4: 48 83 C3 40              - add rbx,40
+ed9.exe+10D3E8: 48 3B DD                 - cmp rbx,rbp
+ed9.exe+10D3EB: 75 C3                    - jne ed9.exe+10D3B0
+ed9.exe+10D3ED: 8B 87 34 07 00 00        - mov eax,[rdi+00000734]
+ed9.exe+10D3F3: D1 E8                    - shr eax,1
+ed9.exe+10D3F5: A8 01                    - test al,01
+// ---------- INJECTING HERE ----------
+ed9.exe+10D3F7: 0F 85 DB 00 00 00        - jne ed9.exe+10D4D8
+// ---------- DONE INJECTING  ----------
+ed9.exe+10D3FD: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+ed9.exe+10D404: 8B 84 3E C8 01 00 00     - mov eax,[rsi+rdi+000001C8]
+ed9.exe+10D40B: 89 41 08                 - mov [rcx+08],eax
+ed9.exe+10D40E: 8B 84 3E CC 01 00 00     - mov eax,[rsi+rdi+000001CC]
+ed9.exe+10D415: 89 41 0C                 - mov [rcx+0C],eax
+ed9.exe+10D418: 8B 84 3E D0 01 00 00     - mov eax,[rsi+rdi+000001D0]
+ed9.exe+10D41F: 89 41 10                 - mov [rcx+10],eax
+ed9.exe+10D422: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+ed9.exe+10D429: 8B 84 3E 04 02 00 00     - mov eax,[rsi+rdi+00000204]
+ed9.exe+10D430: 89 41 18                 - mov [rcx+18],eax
 }
 </AssemblerScript>
       <Hotkeys>
@@ -895,8 +935,8 @@ ed9.exe+10D3A5: 0F 57 FF                 - xorps xmm7,xmm7
       <AssemblerScript>[ENABLE]
 
 
-aobscanmodule(INJECT,ed9.exe,F3 0F 11 47 68 48 85 C9 0F) // should be unique
-alloc(newmem,$1000,INJECT)
+aobscanmodule(showinterface_aob,ed9.exe,F3 0F 11 47 68 48 85 C9 0F) // should be unique
+alloc(newmem,$1000,showinterface_aob)
 
 label(code)
 label(return)
@@ -910,17 +950,17 @@ code:
   movss [rdi+68],xmm0
   jmp return
 
-INJECT:
+showinterface_aob:
   jmp newmem
 return:
-registersymbol(INJECT)
+registersymbol(showinterface_aob)
 
 [DISABLE]
 
-INJECT:
+showinterface_aob:
   db F3 0F 11 47 68
 
-unregistersymbol(INJECT)
+unregistersymbol(showinterface_aob)
 dealloc(newmem)
 
 {
@@ -962,7 +1002,6 @@ ed9.exe+36D4C8: 4D 8B C6                 - mov r8,r14
       </Hotkeys>
     </CheatEntry>
   </CheatEntries>
-  <UserdefinedSymbols/>
   <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.  Credit also goes to DhaosCollider for AOB for FOV, to lock player movement, and for the fantastic idea of using the latter to allow WASD control.  My eternal gratitude to both!
 </Comments>
 </CheatTable>
