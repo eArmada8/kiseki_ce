@@ -747,52 +747,211 @@ ed9.exe+1903E7: C7 44 24 20 00 00 80 3F        - mov [rsp+20],3F800000
     </CheatEntry>
     <CheatEntry>
       <ID>5</ID>
-      <Description>"Force Pause Action (F5 on / F6 off)"</Description>
+      <Description>"Force Pause Action (Enable first, F5 pause / F6 unpause)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(freezeaction_aob,ed9.exe,E8 C9 C5 17 00) // should be unique
-aobscanmodule(cutscenefreeze_aob,ed9.exe,74 06 48 8B 01 FF 50 20) // should be unique
-
+aobscanmodule(freezeaction_aob,ed9.exe,FF 50 18 48 8D 7F 08 48 83 EE 01 75 EA 48 8B BC) // should be unique
+aobscanmodule(cutscenefreeze_aob,ed9.exe,48 8B 01 FF 50 20 48 8D) // should be unique
+alloc(newmem,$1000,freezeaction_aob)
 registersymbol(freezeaction_aob)
 registersymbol(cutscenefreeze_aob)
+registersymbol(freeze)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(code1)
+label(code2)
+label(code3)
+label(code4)
+label(code5)
+label(freeze)
+label(return)
+label(return1)
+label(return2)
+label(return3)
+label(return4)
+label(return5)
+
+newmem:
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,74 //VK_F5
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  mov [freeze],#1
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,75 //VK_F6
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  mov [freeze],#0
+
+code:
+  movss xmm1,[rbx+00001658]
+  jmp return
+
+code1:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  lea rdi,[rdi+08]
+  jmp return1
+@@:
+  popf
+  call qword ptr [rax+18]
+  lea rdi,[rdi+08]
+  jmp return1
+code2:
+  cmp [freeze],#0
+  jne @f
+  call ed9.exe+1E64C0
+@@:
+  jmp return2
+code3:
+  cmp [freeze],#0
+  jne @f
+  call ed9.exe+39ABD0
+@@:
+  jmp return3
+code4:
+  cmp [freeze],#0
+  jne @f
+  mov rax,[rcx]
+  call qword ptr [rax+20]
+@@:
+  jmp return4
+code5:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  jmp return5
+@@:
+  popf
+  jne ed9.exe+10D4D8
+  jmp return5
+
+freeze:
+  dd #0
+
+freezeaction_aob-76:
+  jmp newmem
+  nop 3
+return:
 
 freezeaction_aob:
-  db 90 90 90 90 90
+  jmp code1
+  nop 2
+return1:
 
-freezeaction_aob-29:
-  db 90 90 90
+freezeaction_aob+29:
+  jmp code2
+return2:
 
-freezeaction_aob+75:
-  db 90 90 90 90 90
+freezeaction_aob+9E:
+  jmp code3
+return3:
 
 cutscenefreeze_aob:
-  db 90 90 90 90 90 90 90 90
+  jmp code4
+  nop
+return4:
 
-cutscenefreeze_aob+7A:
-  db 90 90 90 90 90 90
+cutscenefreeze_aob+78:
+  jmp code5
+  nop
+return5:
 
 [DISABLE]
 
+freezeaction_aob-76:
+  db F3 0F 10 8B 58 16 00 00
+
 freezeaction_aob:
+  db FF 50 18 48 8D 7F 08
+
+freezeaction_aob+29:
   db E8 C9 C5 17 00
 
-freezeaction_aob-29:
-  db FF 50 18
-
-freezeaction_aob+75:
+freezeaction_aob+9E:
   db E8 64 0C 33 00
 
 cutscenefreeze_aob:
-  db 74 06 48 8B 01 FF 50 20
+  db 48 8B 01 FF 50 20
 
-cutscenefreeze_aob+7A:
+cutscenefreeze_aob+78:
   db 0F 85 DB 00 00 00
 
 unregistersymbol(freezeaction_aob)
 unregistersymbol(cutscenefreeze_aob)
+unregistersymbol(freeze)
+dealloc(newmem)
 
 {
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+69E53 - Safe injection point to check keypresses
+
+ed9.exe+69E26: 48 63 41 5C              - movsxd  rax,dword ptr [rcx+5C]
+ed9.exe+69E2A: 48 8D 14 40              - lea rdx,[rax+rax*2]
+ed9.exe+69E2E: 83 7C 91 28 01           - cmp dword ptr [rcx+rdx*4+28],01
+ed9.exe+69E33: 74 0A                    - je ed9.exe+69E3F
+ed9.exe+69E35: F3 0F 10 05 9B AC 69 00  - movss xmm0,[ed9.exe+704AD8]
+ed9.exe+69E3D: EB 08                    - jmp ed9.exe+69E47
+ed9.exe+69E3F: F3 0F 10 05 61 AE 69 00  - movss xmm0,[ed9.exe+704CA8]
+ed9.exe+69E47: F3 0F 59 F8              - mulss xmm7,xmm0
+ed9.exe+69E4B: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+69E4E: E8 2D A3 1D 00           - call ed9.exe+244180
+// ---------- INJECTING HERE ----------
+ed9.exe+69E53: F3 0F 10 8B 58 16 00 00  - movss xmm1,[rbx+00001658]
+// ---------- DONE INJECTING  ----------
+ed9.exe+69E5B: 0F 57 C0                 - xorps xmm0,xmm0
+ed9.exe+69E5E: 0F 2F C8                 - comiss xmm1,xmm0
+ed9.exe+69E61: 0F 28 F7                 - movaps xmm6,xmm7
+ed9.exe+69E64: F3 0F 11 BB 34 16 00 00  - movss [rbx+00001634],xmm7
+ed9.exe+69E6C: F3 0F 59 B3 40 16 00 00  - mulss xmm6,[rbx+00001640]
+ed9.exe+69E74: 76 07                    - jna ed9.exe+69E7D
+ed9.exe+69E76: 0F 28 F1                 - movaps xmm6,xmm1
+ed9.exe+69E79: F3 0F 59 F7              - mulss xmm6,xmm7
+ed9.exe+69E7D: 80 BB 68 16 00 00 00     - cmp byte ptr [rbx+00001668],00
+ed9.exe+69E84: F3 0F 11 7C 24 20        - movss [rsp+20],xmm7
+
 // ORIGINAL CODE - INJECTION POINT: ed9.exe+69EF2 - Freeze action
 
 ed9.exe+69EC3: 0F 28 CE                 - movaps xmm1,xmm6
@@ -858,11 +1017,11 @@ ed9.exe+10D367: 49 69 F7 A0 01 00 00     - imul rsi,r15,000001A0
 ed9.exe+10D36E: 44 0F 28 D9              - movaps xmm11,xmm1
 ed9.exe+10D372: 4A 8B 8C F9 98 06 00 00  - mov rcx,[rcx+r15*8+00000698]
 ed9.exe+10D37A: 48 85 C9                 - test rcx,rcx
-// ---------- INJECTING HERE ----------
 ed9.exe+10D37D: 74 06                    - je ed9.exe+10D385
-// ---------- DONE INJECTING  ----------
+// ---------- INJECTING HERE ----------
 ed9.exe+10D37F: 48 8B 01                 - mov rax,[rcx]
 ed9.exe+10D382: FF 50 20                 - call qword ptr [rax+20]
+// ---------- DONE INJECTING  ----------
 ed9.exe+10D385: 48 8D 9F B0 06 00 00     - lea rbx,[rdi+000006B0]
 ed9.exe+10D38C: 45 32 F6                 - xor r14l,r14l
 ed9.exe+10D38F: 48 8D AB 80 00 00 00     - lea rbp,[rbx+00000080]
@@ -907,22 +1066,6 @@ ed9.exe+10D429: 8B 84 3E 04 02 00 00     - mov eax,[rsi+rdi+00000204]
 ed9.exe+10D430: 89 41 18                 - mov [rcx+18],eax
 }
 </AssemblerScript>
-      <Hotkeys>
-        <Hotkey>
-          <Action>Activate</Action>
-          <Keys>
-            <Key>116</Key>
-          </Keys>
-          <ID>0</ID>
-        </Hotkey>
-        <Hotkey>
-          <Action>Deactivate</Action>
-          <Keys>
-            <Key>117</Key>
-          </Keys>
-          <ID>1</ID>
-        </Hotkey>
-      </Hotkeys>
     </CheatEntry>
     <CheatEntry>
       <ID>6</ID>
