@@ -753,29 +753,21 @@ ed9.exe+1903E7: C7 44 24 20 00 00 80 3F        - mov [rsp+20],3F800000
 
 aobscanmodule(freezeaction_aob,ed9.exe,E8 C9 C5 17 00) // should be unique
 aobscanmodule(cutscenefreeze_aob,ed9.exe,74 06 48 8B 01 FF 50 20) // should be unique
-alloc(newmem,$1000,cutscenefreeze_aob)
 
-label(code)
-label(return)
-
-newmem:
-
-code:
-  jmp ed9.exe+10D385
-  mov rax,[rcx]
-  jmp return
-
-cutscenefreeze_aob:
-  jmp newmem
-return:
 registersymbol(freezeaction_aob)
 registersymbol(cutscenefreeze_aob)
 
 freezeaction_aob:
   db 90 90 90 90 90
 
+freezeaction_aob-29:
+  db 90 90 90
+
 freezeaction_aob+75:
   db 90 90 90 90 90
+
+cutscenefreeze_aob:
+  db 90 90 90 90 90 90 90 90
 
 cutscenefreeze_aob+7A:
   db 90 90 90 90 90 90
@@ -785,25 +777,29 @@ cutscenefreeze_aob+7A:
 freezeaction_aob:
   db E8 C9 C5 17 00
 
+freezeaction_aob-29:
+  db FF 50 18
+
 freezeaction_aob+75:
   db E8 64 0C 33 00
 
 cutscenefreeze_aob:
-  db 74 06 48 8B 01
+  db 74 06 48 8B 01 FF 50 20
 
 cutscenefreeze_aob+7A:
   db 0F 85 DB 00 00 00
 
 unregistersymbol(freezeaction_aob)
 unregistersymbol(cutscenefreeze_aob)
-dealloc(newmem)
 
 {
 // ORIGINAL CODE - INJECTION POINT: ed9.exe+69EF2 - Freeze action
 
 ed9.exe+69EC3: 0F 28 CE                 - movaps xmm1,xmm6
 ed9.exe+69EC6: 48 8B 01                 - mov rax,[rcx]
+// ---------- INJECTING HERE ----------
 ed9.exe+69EC9: FF 50 18                 - call qword ptr [rax+18]
+// ---------- DONE INJECTING  ----------
 ed9.exe+69ECC: 48 8D 7F 08              - lea rdi,[rdi+08]
 ed9.exe+69ED0: 48 83 EE 01              - sub rsi,01
 ed9.exe+69ED4: 75 EA                    - jne ed9.exe+69EC0
