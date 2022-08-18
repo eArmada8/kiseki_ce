@@ -418,20 +418,22 @@ ed9.exe+20BF3C: F3 0F 11 83 40 02 00 00  - movss [rbx+00000240],xmm0
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(fov_aob,ed9.exe,41 8B 81 70 01 00 00) // should be unique
+aobscanmodule(fov_aob,ed9.exe,F3 0F 10 97 70 01 00 00) // should be unique
 aobscanmodule(unlockfov1_aob,ed9.exe,F3 0F 11 80 70 01 00 00 4C 89 A0 74 01 00 00 44 89 A0 7C 01 00 00 E9) // should be unique
 aobscanmodule(unlockfov2_aob,ed9.exe,F3 0F 11 43 08 48 83 C4 30) // should be unique
 alloc(newmem,$1000,fov_aob)
 alloc(fov,8)
 registersymbol(fov_aob)
 registersymbol(fov)
+registersymbol(fov_max)
 registersymbol(unlockfov1_aob)
 registersymbol(unlockfov2_aob)
 
 label(code)
+label(fov_step)
+label(fov_min)
+label(fov_max)
 label(return)
-label(return2)
-label(return3)
 
 newmem:
 
@@ -456,12 +458,11 @@ toggleon:
   test ax,8001
   pop rax
   jz toggleoff
-  fld dword [r9+00000170]
-  fld1
-  faddp st(1),st(0)
-  fstp [r9+00000170]
-  mov eax,[r9+00000170]
-  jmp return2
+  movss xmm2,[rdi+00000170]
+  addss xmm2,[fov_step]
+  minss xmm2,[fov_max]
+  movss [rdi+00000170],xmm2
+  jmp code
 
 toggleoff:
   push rax
@@ -484,24 +485,29 @@ toggleoff:
   test ax,8001
   pop rax
   jz code
-  fld dword [r9+00000170]
-  fld1
-  fsubp st(1),st(0)
-  fstp [r9+00000170]
-  mov eax,[r9+00000170]
-  jmp return3
+  movss xmm2,[rdi+00000170]
+  subss xmm2,[fov_step]
+  maxss xmm2,[fov_min]
+  movss [rdi+00000170],xmm2
 
 code:
-  mov [fov],r9
-  mov eax,[r9+00000170]
+  mov [fov],rdi
+  movss xmm2,[rdi+00000170]
   jmp return
+
+fov_step:
+  dd (float)0.3
+
+fov_min:
+  dd (float)0.1
+
+fov_max:
+  dd (float)15
 
 fov_aob:
   jmp newmem
-  nop 2
+  nop 3
 return:
-return2:
-return3:
 
 unlockfov1_aob:
   db 90 90 90 90 90 90 90 90
@@ -512,7 +518,7 @@ unlockfov2_aob:
 [DISABLE]
 
 fov_aob:
-  db 41 8B 81 70 01 00 00
+  db F3 0F 10 97 70 01 00 00
 
 unlockfov1_aob:
   db F3 0F 11 80 70 01 00 00
@@ -524,35 +530,36 @@ unregistersymbol(unlockfov1_aob)
 unregistersymbol(unlockfov2_aob)
 unregistersymbol(fov_aob)
 unregistersymbol(fov)
+unregistersymbol(fov_max)
 dealloc(fov)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+10B726 - Read FOV
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+10B54A - Read FOV
 
-ed9.exe+10B708: 0F 28 C1                    - movaps xmm0,xmm1
-ed9.exe+10B70B: F3 0F 58 C2                 - addss xmm0,xmm2
-ed9.exe+10B70F: 0F 2F F0                    - comiss xmm6,xmm0
-ed9.exe+10B712: 77 25                       - ja ed9.exe+10B739
-ed9.exe+10B714: 0F 28 C6                    - movaps xmm0,xmm6
-ed9.exe+10B717: F3 0F 58 C2                 - addss xmm0,xmm2
-ed9.exe+10B71B: 0F 2F C8                    - comiss xmm1,xmm0
-ed9.exe+10B71E: 77 19                       - ja ed9.exe+10B739
-ed9.exe+10B720: 40 88 73 7C                 - mov [rbx+7C],sil
-ed9.exe+10B724: EB 13                       - jmp ed9.exe+10B739
+ed9.exe+10B51B: E8 A0 17 00 00           - call ed9.exe+10CCC0
+ed9.exe+10B520: 48 8B 4B 08              - mov rcx,[rbx+08]
+ed9.exe+10B524: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+10B527: 48 81 C1 2C 01 00 00     - add rcx,0000012C
+ed9.exe+10B52E: E8 8D 17 00 00           - call ed9.exe+10CCC0
+ed9.exe+10B533: 48 8B 4B 08              - mov rcx,[rbx+08]
+ed9.exe+10B537: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+10B53A: 48 81 C1 68 01 00 00     - add rcx,00000168
+ed9.exe+10B541: E8 6A 1B F6 FF           - call ed9.exe+6D0B0
+ed9.exe+10B546: 48 8B 7B 08              - mov rdi,[rbx+08]
 // ---------- INJECTING HERE ----------
-ed9.exe+10B726: 41 8B 81 70 01 00 00        - mov eax,[r9+00000170]
+ed9.exe+10B54A: F3 0F 10 97 70 01 00 00  - movss xmm2,[rdi+00000170]
 // ---------- DONE INJECTING  ----------
-ed9.exe+10B72D: 89 43 28                    - mov [rbx+28],eax
-ed9.exe+10B730: F3 41 0F 10 B1 70 01 00 00  - movss xmm6,[r9+00000170]
-ed9.exe+10B739: 44 0F 28 84 24 80 00 00 00  - movaps xmm8,[rsp+00000080]
-ed9.exe+10B742: F3 0F 10 55 B7              - movss xmm2,[rbp-49]
-ed9.exe+10B747: 4C 8D 45 B7                 - lea r8,[rbp-49]
-ed9.exe+10B74B: F3 0F 10 4D BB              - movss xmm1,[rbp-45]
-ed9.exe+10B750: 48 8D 55 F7                 - lea rdx,[rbp-09]
-ed9.exe+10B754: F3 0F 10 45 BF              - movss xmm0,[rbp-41]
-ed9.exe+10B759: F3 0F 59 D6                 - mulss xmm2,xmm6
-ed9.exe+10B75D: 89 75 B7                    - mov [rbp-49],esi
+ed9.exe+10B552: F2 0F 10 87 78 01 00 00  - movsd xmm0,[rdi+00000178]
+ed9.exe+10B55A: 0F 2E D2                 - ucomiss xmm2,xmm2
+ed9.exe+10B55D: F2 0F 11 45 C7           - movsd [rbp-39],xmm0
+ed9.exe+10B562: 0F 9A C0                 - setp al
+ed9.exe+10B565: 3C 01                    - cmp al,01
+ed9.exe+10B567: 74 18                    - je ed9.exe+10B581
+ed9.exe+10B569: F2 0F 11 45 C7           - movsd [rbp-39],xmm0
+ed9.exe+10B56E: F3 0F 10 87 70 01 00 00  - movss xmm0,[rdi+00000170]
+ed9.exe+10B576: E8 95 85 54 00           - call ed9.exe+653B10
+ed9.exe+10B57B: 66 83 F8 01              - cmp ax,01
 
 // ORIGINAL CODE - INJECTION POINT: ed9.exe+1D205B - Unlock FOV1
 
@@ -624,13 +631,20 @@ ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
         </CheatEntry>
         <CheatEntry>
           <ID>22</ID>
-          <Description>"Camera Distance (Default 5 outside, 2.5 indoors)"</Description>
+          <Description>"Camera Distance"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
           <Address>fov</Address>
           <Offsets>
             <Offset>170</Offset>
           </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>23</ID>
+          <Description>"Maximum Camera Distance"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>fov_max</Address>
         </CheatEntry>
       </CheatEntries>
     </CheatEntry>
