@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="40">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>134</ID>
+      <Description>"Camera Status"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{ Game   : ed8_ps5_D3D11.exe
+
+  Adapted from Cyber's CS4 script
+}
+
+[ENABLE]
+
+aobscanmodule(camerastatus_aob,ed8_ps5_D3D11.exe,F3 44 0F 11 50 08 F3 44 0F 11 40 10) // should be unique
+alloc(newmem,$100,camerastatus_aob)
+alloc(camerastatus,8)
+
+label(code)
+label(return)
+
+registersymbol(camerastatus)
+
+newmem:
+  mov [camerastatus],rax
+
+code:
+  movss [rax+08],xmm10
+  jmp return
+
+camerastatus_aob:
+  jmp newmem
+  nop
+return:
+registersymbol(camerastatus_aob)
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+camerastatus_aob:
+  db F3 44 0F 11 50 08
+
+unregistersymbol(camerastatus_aob)
+unregistersymbol(camerastatus)
+dealloc(camerastatus)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B7284
+
+ed8_ps5_D3D11.exe+2B724D: F3 44 0F 10 50 18        - movss xmm10,[rax+18]
+ed8_ps5_D3D11.exe+2B7253: F3 44 0F 10 40 20        - movss xmm8,[rax+20]
+ed8_ps5_D3D11.exe+2B7259: F3 0F 10 78 24           - movss xmm7,[rax+24]
+ed8_ps5_D3D11.exe+2B725E: F3 0F 10 70 28           - movss xmm6,[rax+28]
+ed8_ps5_D3D11.exe+2B7263: 48 8D 87 58 02 00 00     - lea rax,[rdi+00000258]
+ed8_ps5_D3D11.exe+2B726A: F3 0F 11 85 E0 00 00 00  - movss [rbp+000000E0],xmm0
+ed8_ps5_D3D11.exe+2B7272: F3 44 0F 11 20           - movss [rax],xmm12
+ed8_ps5_D3D11.exe+2B7277: 48 8D 4C 24 50           - lea rcx,[rsp+50]
+ed8_ps5_D3D11.exe+2B727C: F3 44 0F 11 58 04        - movss [rax+04],xmm11
+ed8_ps5_D3D11.exe+2B7282: 33 F6                    - xor esi,esi
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B7284: F3 44 0F 11 50 08        - movss [rax+08],xmm10
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B728A: F3 44 0F 11 40 10        - movss [rax+10],xmm8
+ed8_ps5_D3D11.exe+2B7290: F3 0F 11 78 14           - movss [rax+14],xmm7
+ed8_ps5_D3D11.exe+2B7295: F3 0F 11 70 18           - movss [rax+18],xmm6
+ed8_ps5_D3D11.exe+2B729A: F3 44 0F 11 48 20        - movss [rax+20],xmm9
+ed8_ps5_D3D11.exe+2B72A0: F3 44 0F 11 70 24        - movss [rax+24],xmm14
+ed8_ps5_D3D11.exe+2B72A6: F3 44 0F 11 78 28        - movss [rax+28],xmm15
+ed8_ps5_D3D11.exe+2B72AC: C7 40 2C 00 00 80 3F     - mov [rax+2C],3F800000
+ed8_ps5_D3D11.exe+2B72B3: F3 0F 11 48 0C           - movss [rax+0C],xmm1
+ed8_ps5_D3D11.exe+2B72B8: F3 0F 11 40 1C           - movss [rax+1C],xmm0
+ed8_ps5_D3D11.exe+2B72BD: F3 44 0F 11 68 2C        - movss [rax+2C],xmm13
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>150</ID>
+          <Description>"Force Pause Animation"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(gamepause_aob,ed8_ps5_D3D11.exe,F3 0F 10 81 A0 4B 00 00) // should be unique
+alloc(newmem,$100,gamepause_aob)
+
+label(code)
+label(return)
+label(return2)
+label(return3)
+
+newmem:
+
+toggleon:
+push rax
+push rcx
+push rdx
+push r8
+push r9
+push r10
+push r11
+sub rsp,28
+mov rcx,74 //VK_F5
+call GetAsyncKeyState
+add rsp,28
+pop r11
+pop r10
+pop r9
+pop r8
+pop rdx
+pop rcx
+test ax,8001
+pop rax
+jz toggleoff
+mov [ecx+00004BA0],(float)0
+movss xmm0,[rcx+00004BA0]
+jmp return2
+
+toggleoff:
+push rax
+push rcx
+push rdx
+push r8
+push r9
+push r10
+push r11
+sub rsp,28
+mov rcx,75 //VK_F6
+call GetAsyncKeyState
+add rsp,28
+pop r11
+pop r10
+pop r9
+pop r8
+pop rdx
+pop rcx
+test ax,8001
+pop rax
+jz code
+mov [ecx+00004BA0],(float)1
+movss xmm0,[rcx+00004BA0]
+jmp return3
+
+code:
+  movss xmm0,[rcx+00004BA0]
+  jmp return
+
+gamepause_aob:
+  jmp newmem
+  nop 3
+return:
+return2:
+return3:
+registersymbol(gamepause_aob)
+
+[DISABLE]
+
+gamepause_aob:
+  db F3 0F 10 81 A0 4B 00 00
+
+unregistersymbol(gamepause_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+40A4B0
+
+ed8_ps5_D3D11.exe+40A492: B8 FF FF FF FF           - mov eax,FFFFFFFF
+ed8_ps5_D3D11.exe+40A497: 48 8B 5C 24 30           - mov rbx,[rsp+30]
+ed8_ps5_D3D11.exe+40A49C: 48 83 C4 20              - add rsp,20
+ed8_ps5_D3D11.exe+40A4A0: 5F                       - pop rdi
+ed8_ps5_D3D11.exe+40A4A1: C3                       - ret 
+ed8_ps5_D3D11.exe+40A4A2: 48 8B 5C 24 30           - mov rbx,[rsp+30]
+ed8_ps5_D3D11.exe+40A4A7: 41 8B C0                 - mov eax,r8d
+ed8_ps5_D3D11.exe+40A4AA: 48 83 C4 20              - add rsp,20
+ed8_ps5_D3D11.exe+40A4AE: 5F                       - pop rdi
+ed8_ps5_D3D11.exe+40A4AF: C3                       - ret 
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+40A4B0: F3 0F 10 81 A0 4B 00 00  - movss xmm0,[rcx+00004BA0]
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+40A4B8: C3                       - ret 
+ed8_ps5_D3D11.exe+40A4B9: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BA: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BB: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BC: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BD: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BE: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4BF: CC                       - int 3 
+ed8_ps5_D3D11.exe+40A4C0: F3 0F 10 81 C0 4B 00 00  - movss xmm0,[rcx+00004BC0]
+ed8_ps5_D3D11.exe+40A4C8: C3                       - ret 
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>153</ID>
+          <Description>"Hide HUD (some elements require free cam mode)"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+//aobscanmodule(fieldhud_aob,ed8_ps5_D3D11.exe,F3 0F 5F C1 F3 0F 11 83 98 03 00 00) // should be unique
+aobscanmodule(minimap_aob,ed8_ps5_D3D11.exe,F3 0F 10 83 44 01 00 00 F3) // should be unique
+
+//registersymbol(fieldhud_aob)
+registersymbol(minimap_aob)
+
+//fieldhud_aob:
+//  db 90 90 90 90
+
+minimap_aob:
+  db 90 90 90 90 90 90 90 90
+
+minimap_aob+18A:
+  db 90 90 90 90 90 90 90
+
+[DISABLE]
+
+//fieldhud_aob:
+//  db F3 0F 5F C1
+
+minimap_aob:
+  db F3 0F 10 83 44 01 00 00
+
+minimap_aob+18A:
+  db 0F 10 81 38 01 00 00
+
+//unregistersymbol(fieldhud_aob)
+unregistersymbol(minimap_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+3E3704 - FIELD HUD
+
+ed8_ps5_D3D11.exe+3E36D1: 0F 28 CA                 - movaps xmm1,xmm2
+ed8_ps5_D3D11.exe+3E36D4: F3 0F 5C C7              - subss xmm0,xmm7
+ed8_ps5_D3D11.exe+3E36D8: 41 0F 2F C0              - comiss xmm0,xmm8
+ed8_ps5_D3D11.exe+3E36DC: F3 0F 11 83 9C 03 00 00  - movss [rbx+0000039C],xmm0
+ed8_ps5_D3D11.exe+3E36E4: 77 07                    - ja ed8_ps5_D3D11.exe+3E36ED
+ed8_ps5_D3D11.exe+3E36E6: 0F 57 0D 43 03 80 00     - xorps xmm1,[ed8_ps5_D3D11.exe+BE3A30]
+ed8_ps5_D3D11.exe+3E36ED: F3 0F 58 8B 98 03 00 00  - addss xmm1,[rbx+00000398]
+ed8_ps5_D3D11.exe+3E36F5: F3 0F 11 8B 98 03 00 00  - movss [rbx+00000398],xmm1
+ed8_ps5_D3D11.exe+3E36FD: F3 0F 5D CE              - minss xmm1,xmm6
+ed8_ps5_D3D11.exe+3E3701: 0F 57 C0                 - xorps xmm0,xmm0
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+3E3704: F3 0F 5F C1              - maxss xmm0,xmm1
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+3E3708: F3 0F 11 83 98 03 00 00  - movss [rbx+00000398],xmm0
+ed8_ps5_D3D11.exe+3E3710: E8 3B F0 F9 FF           - call ed8_ps5_D3D11.exe+382750
+ed8_ps5_D3D11.exe+3E3715: 48 8B C8                 - mov rcx,rax
+ed8_ps5_D3D11.exe+3E3718: E8 93 62 FC FF           - call ed8_ps5_D3D11.exe+3A99B0
+ed8_ps5_D3D11.exe+3E371D: 84 C0                    - test al,al
+ed8_ps5_D3D11.exe+3E371F: 74 06                    - je ed8_ps5_D3D11.exe+3E3727
+ed8_ps5_D3D11.exe+3E3721: 44 0F 28 CE              - movaps xmm9,xmm6
+ed8_ps5_D3D11.exe+3E3725: EB 17                    - jmp ed8_ps5_D3D11.exe+3E373E
+ed8_ps5_D3D11.exe+3E3727: F3 0F 10 83 98 03 00 00  - movss xmm0,[rbx+00000398]
+ed8_ps5_D3D11.exe+3E372F: 0F 28 D6                 - movaps xmm2,xmm6
+
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+6FD3B5 - MINI MAP
+
+ed8_ps5_D3D11.exe+6FD392: 74 21                    - je ed8_ps5_D3D11.exe+6FD3B5
+ed8_ps5_D3D11.exe+6FD394: 48 8B 01                 - mov rax,[rcx]
+ed8_ps5_D3D11.exe+6FD397: FF 50 18                 - call qword ptr [rax+18]
+ed8_ps5_D3D11.exe+6FD39A: 0F BA E0 10              - bt eax,10
+ed8_ps5_D3D11.exe+6FD39E: 73 15                    - jae ed8_ps5_D3D11.exe+6FD3B5
+ed8_ps5_D3D11.exe+6FD3A0: 48 8B 8B C0 02 00 00     - mov rcx,[rbx+000002C0]
+ed8_ps5_D3D11.exe+6FD3A7: B2 01                    - mov dl,01
+ed8_ps5_D3D11.exe+6FD3A9: 48 8B 01                 - mov rax,[rcx]
+ed8_ps5_D3D11.exe+6FD3AC: FF 90 A0 00 00 00        - call qword ptr [rax+000000A0]
+ed8_ps5_D3D11.exe+6FD3B2: 0F 28 F0                 - movaps xmm6,xmm0
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+6FD3B5: F3 0F 10 83 44 01 00 00  - movss xmm0,[rbx+00000144]
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+6FD3BD: F3 0F 59 C6              - mulss xmm0,xmm6
+ed8_ps5_D3D11.exe+6FD3C1: 0F 28 74 24 20           - movaps xmm6,[rsp+20]
+ed8_ps5_D3D11.exe+6FD3C6: 48 83 C4 30              - add rsp,30
+ed8_ps5_D3D11.exe+6FD3CA: 5B                       - pop rbx
+ed8_ps5_D3D11.exe+6FD3CB: C3                       - ret
+ed8_ps5_D3D11.exe+6FD3CC: CC                       - int 3
+ed8_ps5_D3D11.exe+6FD3CD: CC                       - int 3
+ed8_ps5_D3D11.exe+6FD3CE: CC                       - int 3
+ed8_ps5_D3D11.exe+6FD3CF: CC                       - int 3
+ed8_ps5_D3D11.exe+6FD3D0: 40 53                    - push rbx
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>118</Key>
+              </Keys>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>158</ID>
+          <Description>"Disable Dialogue"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(dialogue_aob,ed8_ps5_D3D11.exe,89 43 64 F3 0F 10 83 00 01 00 00 0F 2E 83 FC 00 00 00 7A 09) // should be unique
+alloc(newmem,$1000,dialogue_aob)
+alloc(dialoguestatus,8)
+
+label(code)
+label(return)
+
+registersymbol(dialoguestatus)
+
+newmem:
+  mov [dialoguestatus],rbx
+
+code:
+//  mov [rbx+64],eax
+  movss xmm0,[rbx+00000100]
+  jmp return
+
+dialogue_aob:
+  jmp newmem
+  nop 6
+return:
+registersymbol(dialogue_aob)
+
+dialogue_aob+06E:
+  db 90 90 90
+
+[DISABLE]
+
+dialogue_aob:
+  db 89 43 64 F3 0F 10 83 00 01 00 00
+
+dialogue_aob+06E:
+  db 89 43 64
+
+unregistersymbol(dialogue_aob)
+unregistersymbol(dialoguestatus)
+dealloc(dialoguestatus)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+7610FA
+
+ed8_ps5_D3D11.exe+7610CB: 0F 82 E4 00 00 00        - jb ed8_ps5_D3D11.exe+7611B5
+ed8_ps5_D3D11.exe+7610D1: A8 02                    - test al,02
+ed8_ps5_D3D11.exe+7610D3: 74 6A                    - je ed8_ps5_D3D11.exe+76113F
+ed8_ps5_D3D11.exe+7610D5: F3 0F 10 83 00 01 00 00  - movss xmm0,[rbx+00000100]
+ed8_ps5_D3D11.exe+7610DD: 48 81 C1 E8 00 00 00     - add rcx,000000E8
+ed8_ps5_D3D11.exe+7610E4: 0F 2E 83 FC 00 00 00     - ucomiss xmm0,[rbx+000000FC]
+ed8_ps5_D3D11.exe+7610EB: 7A 02                    - jp ed8_ps5_D3D11.exe+7610EF
+ed8_ps5_D3D11.exe+7610ED: 74 05                    - je ed8_ps5_D3D11.exe+7610F4
+ed8_ps5_D3D11.exe+7610EF: E8 EC 71 A0 FF           - call ed8_ps5_D3D11.exe+1682E0
+ed8_ps5_D3D11.exe+7610F4: 8B 83 F8 00 00 00        - mov eax,[rbx+000000F8]
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+7610FA: 89 43 64                 - mov [rbx+64],eax
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+7610FD: F3 0F 10 83 00 01 00 00  - movss xmm0,[rbx+00000100]
+ed8_ps5_D3D11.exe+761105: 0F 2E 83 FC 00 00 00     - ucomiss xmm0,[rbx+000000FC]
+ed8_ps5_D3D11.exe+76110C: 7A 09                    - jp ed8_ps5_D3D11.exe+761117
+ed8_ps5_D3D11.exe+76110E: 75 07                    - jne ed8_ps5_D3D11.exe+761117
+ed8_ps5_D3D11.exe+761110: 83 A3 B8 00 00 00 FD     - and dword ptr [rbx+000000B8],-03
+ed8_ps5_D3D11.exe+761117: F3 0F 10 83 10 01 00 00  - movss xmm0,[rbx+00000110]
+ed8_ps5_D3D11.exe+76111F: 0F 2F C6                 - comiss xmm0,xmm6
+ed8_ps5_D3D11.exe+761122: 0F 86 82 00 00 00        - jbe ed8_ps5_D3D11.exe+7611AA
+ed8_ps5_D3D11.exe+761128: F3 0F 5C C6              - subss xmm0,xmm6
+ed8_ps5_D3D11.exe+76112C: F3 0F 11 83 10 01 00 00  - movss [rbx+00000110],xmm0
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>157</ID>
+              <Description>"Set to 0 if dialogue still on screen (needs one dialogue change to refresh)"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>dialoguestatus</Address>
+              <Offsets>
+                <Offset>64</Offset>
+              </Offsets>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>148</ID>
+          <Description>"Increase Tilt Limit (Field)"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(tiltlimitfield_aob,ed8_ps5_D3D11.exe,F3 0F 59 C6 F3 0F 59 CE F3 41) // should be unique
+alloc(newmem,$100,tiltlimitfield_aob)
+
+label(code)
+label(return)
+
+registersymbol(tiltlimitfieldup)
+registersymbol(tiltlimitfielddown)
+
+newmem:
+
+code:
+  movss xmm1,[tiltlimitfielddown]
+  movss xmm0,[tiltlimitfieldup]
+  mulss xmm0,xmm6
+  mulss xmm1,xmm6
+  jmp return
+
+tiltlimitfielddown:
+dd (float)-89
+
+tiltlimitfieldup:
+dd (float)89
+
+tiltlimitfield_aob:
+  jmp newmem
+  nop 3
+return:
+registersymbol(tiltlimitfield_aob)
+
+[DISABLE]
+
+tiltlimitfield_aob:
+  db F3 0F 59 C6 F3 0F 59 CE
+
+unregistersymbol(tiltlimitfield_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B0A56
+
+ed8_ps5_D3D11.exe+2B0A1D: F3 41 0F 59 CC           - mulss xmm1,xmm12
+ed8_ps5_D3D11.exe+2B0A22: F3 0F 59 0D DE F3 7F 00  - mulss xmm1,[ed8_ps5_D3D11.exe+AAFE08]
+ed8_ps5_D3D11.exe+2B0A2A: F3 0F 59 C8              - mulss xmm1,xmm0
+ed8_ps5_D3D11.exe+2B0A2E: 0F 28 C3                 - movaps xmm0,xmm3
+ed8_ps5_D3D11.exe+2B0A31: F3 44 0F 5C F9           - subss xmm15,xmm1
+ed8_ps5_D3D11.exe+2B0A36: E8 C5 89 EC FF           - call ed8_ps5_D3D11.exe+179400
+ed8_ps5_D3D11.exe+2B0A3B: F6 87 BE 09 00 00 80     - test byte ptr [rdi+000009BE],-80
+ed8_ps5_D3D11.exe+2B0A42: 44 0F 28 C0              - movaps xmm8,xmm0
+ed8_ps5_D3D11.exe+2B0A46: F3 0F 10 8F 90 09 00 00  - movss xmm1,[rdi+00000990]
+ed8_ps5_D3D11.exe+2B0A4E: F3 0F 10 87 94 09 00 00  - movss xmm0,[rdi+00000994]
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B0A56: F3 0F 59 C6              - mulss xmm0,xmm6
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B0A5A: F3 0F 59 CE              - mulss xmm1,xmm6
+ed8_ps5_D3D11.exe+2B0A5E: F3 41 0F 5D C7           - minss xmm0,xmm15
+ed8_ps5_D3D11.exe+2B0A63: 44 0F 28 F9              - movaps xmm15,xmm1
+ed8_ps5_D3D11.exe+2B0A67: F3 44 0F 5F F8           - maxss xmm15,xmm0
+ed8_ps5_D3D11.exe+2B0A6C: 75 7A                    - jne ed8_ps5_D3D11.exe+2B0AE8
+ed8_ps5_D3D11.exe+2B0A6E: 44 0F 2E F7              - ucomiss xmm14,xmm7
+ed8_ps5_D3D11.exe+2B0A72: 7A 47                    - jp ed8_ps5_D3D11.exe+2B0ABB
+ed8_ps5_D3D11.exe+2B0A74: 75 45                    - jne ed8_ps5_D3D11.exe+2B0ABB
+ed8_ps5_D3D11.exe+2B0A76: 41 0F 28 C4              - movaps xmm0,xmm12
+ed8_ps5_D3D11.exe+2B0A7A: F3 0F 58 87 44 02 00 00  - addss xmm0,[rdi+00000244]
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>149</ID>
+          <Description>"Disable Tilt Limit (Battle)"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(tiltlimitbattle_aob,ed8_ps5_D3D11.exe,F3 0F 5D F9 F3 0F 5F F8) // should be unique
+
+registersymbol(tiltlimitbattle_aob)
+
+tiltlimitbattle_aob:
+  db 90 90 90 90 90 90 90 90
+
+[DISABLE]
+
+tiltlimitbattle_aob:
+  db F3 0F 5D F9 F3 0F 5F F8
+
+unregistersymbol(tiltlimitbattle_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+293712
+
+ed8_ps5_D3D11.exe+2936F4: EB 4C                    - jmp ed8_ps5_D3D11.exe+293742
+ed8_ps5_D3D11.exe+2936F6: 8B 83 C8 01 00 00        - mov eax,[rbx+000001C8]
+ed8_ps5_D3D11.exe+2936FC: 83 F8 11                 - cmp eax,11
+ed8_ps5_D3D11.exe+2936FF: 75 06                    - jne ed8_ps5_D3D11.exe+293707
+ed8_ps5_D3D11.exe+293701: 41 0F 28 CC              - movaps xmm1,xmm12
+ed8_ps5_D3D11.exe+293705: EB 08                    - jmp ed8_ps5_D3D11.exe+29370F
+ed8_ps5_D3D11.exe+293707: 83 C0 F8                 - add eax,-08
+ed8_ps5_D3D11.exe+29370A: 83 F8 03                 - cmp eax,03
+ed8_ps5_D3D11.exe+29370D: 77 03                    - ja ed8_ps5_D3D11.exe+293712
+ed8_ps5_D3D11.exe+29370F: 0F 57 C0                 - xorps xmm0,xmm0
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+293712: F3 0F 5D F9              - minss xmm7,xmm1
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+293716: F3 0F 5F F8              - maxss xmm7,xmm0
+ed8_ps5_D3D11.exe+29371A: 0F 28 C7                 - movaps xmm0,xmm7
+ed8_ps5_D3D11.exe+29371D: E8 0E 9C 01 00           - call ed8_ps5_D3D11.exe+2AD330
+ed8_ps5_D3D11.exe+293722: F3 0F 11 06              - movss [rsi],xmm0
+ed8_ps5_D3D11.exe+293726: 40 38 BB CD 01 00 00     - cmp [rbx+000001CD],dil
+ed8_ps5_D3D11.exe+29372D: 74 0B                    - je ed8_ps5_D3D11.exe+29373A
+ed8_ps5_D3D11.exe+29372F: F3 0F 5C B3 D0 01 00 00  - subss xmm6,[rbx+000001D0]
+ed8_ps5_D3D11.exe+293737: 40 B5 01                 - mov bpl,01
+ed8_ps5_D3D11.exe+29373A: 0F 28 C6                 - movaps xmm0,xmm6
+ed8_ps5_D3D11.exe+29373D: E8 2E 9C 01 00           - call ed8_ps5_D3D11.exe+2AD370
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>141</ID>
+          <Description>"Free Camera"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+globalalloc(speedModifier,8)
+speedModifier:
+dd (float)3
+//code from here to '[DISABLE]' will be used to enable the cheat
+
+aobscanmodule(detachcamera_aob,ed8_ps5_D3D11.exe,F3 44 0F 11 48 20 F3 44 0F 11 70 24) // should be unique
+aobscanmodule(detachcamerarotation_aob,ed8_ps5_D3D11.exe,F3 0F 11 87 64 09 00 00 41 0F 28 CF)
+
+registersymbol(detachcamera_aob)
+registersymbol(detachcamerarotation_aob)
+
+detachcamera_aob:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+detachcamerarotation_aob:
+  db 90 90 90 90 90 90 90 90 41 0F 28 CF 0F 28 C6 E8 1F 50 77 00 0F 28 F0 E8 64 94 EC FF 90 90 90 90 90 90 90 90
+
+detachcamerarotation_aob-122F:
+  db 90 90 90 90 90 90 90
+
+{$lua}
+
+function checkKeys()
+
+  --Read and assign speed modifier value
+  local speed = readFloat("speedModifier")
+
+  --Mouse Rotation in Radians
+  --Use math.rad() to convert from degrees if game values aren't in radians
+  local tilt = readFloat("[camerastatus]+70C") -- Vertical (tilt)
+  local pan = readFloat("[camerastatus]+710") -- Horizontal (pan)
+  local roll = readFloat("[camerastatus]+714") -- roll
+
+  --Camera Coordinates
+  local camx = readFloat("[camerastatus]+20") -- Camera X
+  local camy = readFloat("[camerastatus]+28") -- Camera Y
+  local camz = readFloat("[camerastatus]+24") -- Camera Z
+
+  --Sine and Cosine of Rotation Values
+  local siny = math.sin(pan) -- Sine of Horizontal (pan)
+  local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+  local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+  local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+
+  --Forward
+  if isKeyPressed(VK_NUMPAD8) then
+    writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Left
+  if isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
+  end
+  --Back
+  if isKeyPressed(VK_NUMPAD5) then
+    writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Right
+  if isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
+  end
+  --Forward/Right
+  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Forward/Left
+  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Back/Left
+  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Back/Right
+  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Up
+  if isKeyPressed(VK_SUBTRACT) then
+   writeFloat("[camerastatus]+24", camz + (speed * 0.02))
+  end
+  --Down
+  if isKeyPressed(VK_ADD) then
+   writeFloat("[camerastatus]+24", camz - (speed * 0.02))
+  end
+  --Pan right
+  if isKeyPressed(VK_RIGHT) then
+      writeFloat("[camerastatus]+710", pan - (speed * 0.01))
+  end
+  --Pan left
+  if isKeyPressed(VK_LEFT) then
+      writeFloat("[camerastatus]+710", pan + (speed * 0.01))
+  end
+  --Tilt up
+  if isKeyPressed(VK_UP) then
+      writeFloat("[camerastatus]+70C", tilt - (speed * 0.01))
+  end
+  --Tilt down
+  if isKeyPressed(VK_DOWN) then
+      writeFloat("[camerastatus]+70C", tilt + (speed * 0.01))
+  end
+  --Roll left
+  if isKeyPressed(VK_NUMPAD7) then
+      writeFloat("[camerastatus]+714", roll - (speed * 0.01))
+  end
+  --Roll right
+  if isKeyPressed(VK_NUMPAD9) then
+      writeFloat("[camerastatus]+714", roll + (speed * 0.01))
+  end
+  --Roll neutral
+  if isKeyPressed(VK_NUMPAD3) then
+      writeFloat("[camerastatus]+714", 0)
+  end
+
+  --Speed Modifiers
+  if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+    writeFloat("speedModifier", 12)
+  elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+    writeFloat("speedModifier", 6)
+  elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+    writeFloat("speedModifier", .5)
+  else --If nothing is pressed, speed is normal
+    writeFloat("speedModifier", 3)
+  end
+end
+
+t=createTimer(nil)
+timer_setInterval(t, 10)
+timer_onTimer(t, checkKeys)
+timer_setEnabled(t, true)
+
+{$asm}
+
+[DISABLE]
+{$lua}
+
+timer_setEnabled(t, false)
+
+{$asm}
+//code from here till the end of the code will be used to disable the cheat
+detachcamera_aob:
+  db F3 44 0F 11 48 20 F3 44 0F 11 70 24 F3 44 0F 11 78 28
+
+detachcamerarotation_aob:
+  db F3 0F 11 87 64 09 00 00 41 0F 28 CF 0F 28 C6 E8 1F 50 77 00 0F 28 F0 E8 64 94 EC FF F3 0F 11 87 68 09 00 00
+
+detachcamerarotation_aob-122F:
+  db 80 B8 80 B8 06 00 00
+
+unregistersymbol(detachcamera_aob)
+unregistersymbol(detachcamerarotation_aob)
+
+{
+
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B729A - CAMERA X Y Z
+
+ed8_ps5_D3D11.exe+2B7263: 48 8D 87 58 02 00 00     - lea rax,[rdi+00000258]
+ed8_ps5_D3D11.exe+2B726A: F3 0F 11 85 E0 00 00 00  - movss [rbp+000000E0],xmm0
+ed8_ps5_D3D11.exe+2B7272: F3 44 0F 11 20           - movss [rax],xmm12
+ed8_ps5_D3D11.exe+2B7277: 48 8D 4C 24 50           - lea rcx,[rsp+50]
+ed8_ps5_D3D11.exe+2B727C: F3 44 0F 11 58 04        - movss [rax+04],xmm11
+ed8_ps5_D3D11.exe+2B7282: 33 F6                    - xor esi,esi
+ed8_ps5_D3D11.exe+2B7284: F3 44 0F 11 50 08        - movss [rax+08],xmm10
+ed8_ps5_D3D11.exe+2B728A: F3 44 0F 11 40 10        - movss [rax+10],xmm8
+ed8_ps5_D3D11.exe+2B7290: F3 0F 11 78 14           - movss [rax+14],xmm7
+ed8_ps5_D3D11.exe+2B7295: F3 0F 11 70 18           - movss [rax+18],xmm6
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B729A: F3 44 0F 11 48 20        - movss [rax+20],xmm9
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B72A0: F3 44 0F 11 70 24        - movss [rax+24],xmm14
+ed8_ps5_D3D11.exe+2B72A6: F3 44 0F 11 78 28        - movss [rax+28],xmm15
+ed8_ps5_D3D11.exe+2B72AC: C7 40 2C 00 00 80 3F     - mov [rax+2C],3F800000
+ed8_ps5_D3D11.exe+2B72B3: F3 0F 11 48 0C           - movss [rax+0C],xmm1
+ed8_ps5_D3D11.exe+2B72B8: F3 0F 11 40 1C           - movss [rax+1C],xmm0
+ed8_ps5_D3D11.exe+2B72BD: F3 44 0F 11 68 2C        - movss [rax+2C],xmm13
+ed8_ps5_D3D11.exe+2B72C3: F3 0F 10 87 C4 00 00 00  - movss xmm0,[rdi+000000C4]
+ed8_ps5_D3D11.exe+2B72CB: F3 0F 10 9F C0 00 00 00  - movss xmm3,[rdi+000000C0]
+ed8_ps5_D3D11.exe+2B72D3: F3 0F 10 97 20 01 00 00  - movss xmm2,[rdi+00000120]
+ed8_ps5_D3D11.exe+2B72DB: F3 0F 11 8D E8 00 00 00  - movss [rbp+000000E8],xmm1
+
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2AED51 - CAMERA ROTATION CMP
+
+ed8_ps5_D3D11.exe+2AED24: E8 27 3A 0D 00              - call ed8_ps5_D3D11.exe+382750
+ed8_ps5_D3D11.exe+2AED29: 48 8B D8                    - mov rbx,rax
+ed8_ps5_D3D11.exe+2AED2C: E8 1F 3A 0D 00              - call ed8_ps5_D3D11.exe+382750
+ed8_ps5_D3D11.exe+2AED31: 0F B7 93 E0 B3 06 00        - movzx edx,word ptr [rbx+0006B3E0]
+ed8_ps5_D3D11.exe+2AED38: 41 BD 01 00 00 00           - mov r13d,00000001
+ed8_ps5_D3D11.exe+2AED3E: 45 8B C5                    - mov r8d,r13d
+ed8_ps5_D3D11.exe+2AED41: 48 8B C8                    - mov rcx,rax
+ed8_ps5_D3D11.exe+2AED44: E8 77 42 0F 00              - call ed8_ps5_D3D11.exe+3A2FC0
+ed8_ps5_D3D11.exe+2AED49: 48 8B F0                    - mov rsi,rax
+ed8_ps5_D3D11.exe+2AED4C: E8 FF 39 0D 00              - call ed8_ps5_D3D11.exe+382750
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2AED51: 80 B8 80 B8 06 00 00        - cmp byte ptr [rax+0006B880],00
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2AED58: 74 10                       - je ed8_ps5_D3D11.exe+2AED6A
+ed8_ps5_D3D11.exe+2AED5A: E8 F1 39 0D 00              - call ed8_ps5_D3D11.exe+382750
+ed8_ps5_D3D11.exe+2AED5F: 48 8B C8                    - mov rcx,rax
+ed8_ps5_D3D11.exe+2AED62: E8 D9 2D 11 00              - call ed8_ps5_D3D11.exe+3C1B40
+ed8_ps5_D3D11.exe+2AED67: 48 8B F0                    - mov rsi,rax
+ed8_ps5_D3D11.exe+2AED6A: 45 0F 57 C9                 - xorps xmm9,xmm9
+ed8_ps5_D3D11.exe+2AED6E: 48 85 F6                    - test rsi,rsi
+ed8_ps5_D3D11.exe+2AED71: 74 1A                       - je ed8_ps5_D3D11.exe+2AED8D
+ed8_ps5_D3D11.exe+2AED73: F3 44 0F 10 AE 10 07 00 00  - movss xmm13,[rsi+00000710]
+ed8_ps5_D3D11.exe+2AED7C: F3 44 0F 10 A6 84 03 00 00  - movss xmm12,[rsi+00000384]
+
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2AFF80 - CAMERA ROTATION PAN / TILT
+
+ed8_ps5_D3D11.exe+2AFF58: 0F 28 D4                 - movaps xmm2,xmm4
+ed8_ps5_D3D11.exe+2AFF5B: 0F 28 DC                 - movaps xmm3,xmm4
+ed8_ps5_D3D11.exe+2AFF5E: F3 0F 59 D6              - mulss xmm2,xmm6
+ed8_ps5_D3D11.exe+2AFF62: F3 41 0F 59 D8           - mulss xmm3,xmm8
+ed8_ps5_D3D11.exe+2AFF67: F3 41 0F 59 E7           - mulss xmm4,xmm15
+ed8_ps5_D3D11.exe+2AFF6C: 0F 28 F2                 - movaps xmm6,xmm2
+ed8_ps5_D3D11.exe+2AFF6F: 44 0F 28 C3              - movaps xmm8,xmm3
+ed8_ps5_D3D11.exe+2AFF73: 44 0F 28 FC              - movaps xmm15,xmm4
+ed8_ps5_D3D11.exe+2AFF77: 41 0F 28 C0              - movaps xmm0,xmm8
+ed8_ps5_D3D11.exe+2AFF7B: E8 2D 50 77 00           - call ed8_ps5_D3D11.exe+A24FAD
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2AFF80: F3 0F 11 87 64 09 00 00  - movss [rdi+00000964],xmm0
+ed8_ps5_D3D11.exe+2AFF88: 41 0F 28 CF              - movaps xmm1,xmm15
+ed8_ps5_D3D11.exe+2AFF8C: 0F 28 C6                 - movaps xmm0,xmm6
+ed8_ps5_D3D11.exe+2AFF8F: E8 1F 50 77 00           - call ed8_ps5_D3D11.exe+A24FB3
+ed8_ps5_D3D11.exe+2AFF94: 0F 28 F0                 - movaps xmm6,xmm0
+ed8_ps5_D3D11.exe+2AFF97: E8 64 94 EC FF           - call ed8_ps5_D3D11.exe+179400
+ed8_ps5_D3D11.exe+2AFF9C: F3 0F 11 87 68 09 00 00  - movss [rdi+00000968],xmm0
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2AFFA4: 0F 28 C6                 - movaps xmm0,xmm6
+ed8_ps5_D3D11.exe+2AFFA7: E8 54 94 EC FF           - call ed8_ps5_D3D11.exe+179400
+ed8_ps5_D3D11.exe+2AFFAC: 44 0F 28 C0              - movaps xmm8,xmm0
+ed8_ps5_D3D11.exe+2AFFB0: 48 85 F6                 - test rsi,rsi
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>96</Key>
+              </Keys>
+              <ID>0</ID>
+              <ActivateSound>Activate</ActivateSound>
+              <DeactivateSound>Deactivate</DeactivateSound>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>145</ID>
+              <Description>"Unlock Rotation - Battle (Optional)"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+aobscanmodule(camerarotationbattle1_aob,ed8_ps5_D3D11.exe,0F 28 C1 F3 0F 11 8B 64 09 00 00)
+aobscanmodule(camerarotationbattle2_aob,ed8_ps5_D3D11.exe,F3 0F 11 8B 6C 09 00 00 F3 0F 11)
+
+registersymbol(camerarotationbattle1_aob)
+registersymbol(camerarotationbattle2_aob)
+
+camerarotationbattle1_aob+3:
+  db 90 90 90 90 90 90 90 90
+
+camerarotationbattle2_aob:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+camerarotationbattle1_aob+3:
+  db F3 0F 11 8B 64 09 00 00
+
+camerarotationbattle2_aob:
+  db F3 0F 11 8B 6C 09 00 00 F3 0F 11 83 68 09 00 00
+
+unregistersymbol(camerarotationbattle1_aob)
+unregistersymbol(camerarotationbattle2_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B420B
+
+ed8_ps5_D3D11.exe+2B41CB: F3 0F 11 83 E0 04 00 00        - movss [rbx+000004E0],xmm0
+ed8_ps5_D3D11.exe+2B41D3: C7 83 E4 04 00 00 00 00 00 00  - mov [rbx+000004E4],00000000
+ed8_ps5_D3D11.exe+2B41DD: 44 0F 28 4C 24 60              - movaps xmm9,[rsp+60]
+ed8_ps5_D3D11.exe+2B41E3: 0F 8A 90 00 00 00              - jp ed8_ps5_D3D11.exe+2B4279
+ed8_ps5_D3D11.exe+2B41E9: 0F 85 8A 00 00 00              - jne ed8_ps5_D3D11.exe+2B4279
+ed8_ps5_D3D11.exe+2B41EF: 0F 10 8B D0 04 00 00           - movups xmm1,[rbx+000004D0]
+ed8_ps5_D3D11.exe+2B41F6: 4C 8D 83 44 09 00 00           - lea r8,[rbx+00000944]
+ed8_ps5_D3D11.exe+2B41FD: 48 8B CB                       - mov rcx,rbx
+ed8_ps5_D3D11.exe+2B4200: F3 44 0F 11 44 24 28           - movss [rsp+28],xmm8
+ed8_ps5_D3D11.exe+2B4207: 48 8D 55 DF                    - lea rdx,[rbp-21]
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B420B: 0F 28 C1                       - movaps xmm0,xmm1
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B420E: F3 0F 11 8B 64 09 00 00        - movss [rbx+00000964],xmm1
+ed8_ps5_D3D11.exe+2B4216: 0F C6 C1 55                    - shufps xmm0,xmm1,55
+ed8_ps5_D3D11.exe+2B421A: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
+ed8_ps5_D3D11.exe+2B421E: F3 0F 11 8B 6C 09 00 00        - movss [rbx+0000096C],xmm1
+ed8_ps5_D3D11.exe+2B4226: F3 0F 11 83 68 09 00 00        - movss [rbx+00000968],xmm0
+ed8_ps5_D3D11.exe+2B422E: F3 0F 10 9B 88 09 00 00        - movss xmm3,[rbx+00000988]
+ed8_ps5_D3D11.exe+2B4236: F3 44 0F 11 54 24 20           - movss [rsp+20],xmm10
+ed8_ps5_D3D11.exe+2B423D: E8 2E A5 FF FF                 - call ed8_ps5_D3D11.exe+2AE770
+ed8_ps5_D3D11.exe+2B4242: F3 0F 10 45 DF                 - movss xmm0,[rbp-21]
+ed8_ps5_D3D11.exe+2B4247: F3 0F 10 4D E3                 - movss xmm1,[rbp-1D]
+}
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>144</ID>
+              <Description>"Unlock Rotation - Cutscene (Optional)"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+
+aobscanmodule(camerarotationcutscene1_aob,ed8_ps5_D3D11.exe,F3 0F 11 93 64 09 00 00) // should be unique
+aobscanmodule(camerarotationcutscene2_aob,ed8_ps5_D3D11.exe,F3 0F 11 83 68 09 00 00 F3 0F 11 8B)
+
+registersymbol(camerarotationcutscene1_aob)
+registersymbol(camerarotationcutscene2_aob)
+
+camerarotationcutscene1_aob:
+  db 90 90 90 90 90 90 90 90
+
+camerarotationcutscene2_aob:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+camerarotationcutscene1_aob:
+  db F3 0F 11 93 64 09 00 00
+
+camerarotationcutscene2_aob:
+  db F3 0F 11 83 68 09 00 00 F3 0F 11 8B 6C 09 00 00
+
+unregistersymbol(camerarotationcutscene1_aob)
+unregistersymbol(camerarotationcutscene2_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_ps5_D3D11.exe+2B671B
+
+ed8_ps5_D3D11.exe+2B66E6: 48 8D 8B A8 04 00 00     - lea rcx,[rbx+000004A8]
+ed8_ps5_D3D11.exe+2B66ED: F3 0F 10 83 E4 04 00 00  - movss xmm0,[rbx+000004E4]
+ed8_ps5_D3D11.exe+2B66F5: 0F 2E 83 E0 04 00 00     - ucomiss xmm0,[rbx+000004E0]
+ed8_ps5_D3D11.exe+2B66FC: 7A 06                    - jp ed8_ps5_D3D11.exe+2B6704
+ed8_ps5_D3D11.exe+2B66FE: 0F 84 12 01 00 00        - je ed8_ps5_D3D11.exe+2B6816
+ed8_ps5_D3D11.exe+2B6704: 0F 28 D6                 - movaps xmm2,xmm6
+ed8_ps5_D3D11.exe+2B6707: 48 8D 54 24 40           - lea rdx,[rsp+40]
+ed8_ps5_D3D11.exe+2B670C: E8 6F 28 FC FF           - call ed8_ps5_D3D11.exe+278F80
+ed8_ps5_D3D11.exe+2B6711: 0F 10 93 D0 04 00 00     - movups xmm2,[rbx+000004D0]
+ed8_ps5_D3D11.exe+2B6718: 0F 28 C2                 - movaps xmm0,xmm2
+// ---------- INJECTING HERE ----------
+ed8_ps5_D3D11.exe+2B671B: F3 0F 11 93 64 09 00 00  - movss [rbx+00000964],xmm2
+// ---------- DONE INJECTING  ----------
+ed8_ps5_D3D11.exe+2B6723: 0F 28 CA                 - movaps xmm1,xmm2
+ed8_ps5_D3D11.exe+2B6726: 0F C6 C2 55              - shufps xmm0,xmm2,55
+ed8_ps5_D3D11.exe+2B672A: 0F C6 CA AA              - shufps xmm1,xmm2,-56
+ed8_ps5_D3D11.exe+2B672E: F3 0F 11 83 68 09 00 00  - movss [rbx+00000968],xmm0
+ed8_ps5_D3D11.exe+2B6736: F3 0F 11 8B 6C 09 00 00  - movss [rbx+0000096C],xmm1
+ed8_ps5_D3D11.exe+2B673E: F6 83 42 09 00 00 20     - test byte ptr [rbx+00000942],20
+ed8_ps5_D3D11.exe+2B6745: 74 4E                    - je ed8_ps5_D3D11.exe+2B6795
+ed8_ps5_D3D11.exe+2B6747: F3 0F 10 9B 88 09 00 00  - movss xmm3,[rbx+00000988]
+ed8_ps5_D3D11.exe+2B674F: 4C 8D 83 44 09 00 00     - lea r8,[rbx+00000944]
+ed8_ps5_D3D11.exe+2B6756: F3 0F 11 54 24 28        - movss [rsp+28],xmm2
+}
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>140</ID>
+          <Description>"Camera Coordinates"</Description>
+          <Options moHideChildren="1"/>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>135</ID>
+              <Description>"Camera X"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>20</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>139</ID>
+              <Description>"Camera Y"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>28</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>138</ID>
+              <Description>"Camera Z"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>24</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>137</ID>
+              <Description>"Camera Pan"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>710</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>136</ID>
+              <Description>"Camera Tilt"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>70C</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>142</ID>
+              <Description>"Camera Roll"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>camerastatus</Address>
+              <Offsets>
+                <Offset>714</Offset>
+              </Offsets>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <Comments>Based on the script by Cyber for Trails of Cold Steel IV
+</Comments>
+</CheatTable>
