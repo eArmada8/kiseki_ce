@@ -12,7 +12,7 @@ speedModifier:
 dd (float)3
 
 aobscanmodule(detachcameraviawrite_aob,ed9.exe,89 41 08 8B 84 3E CC 01 00 00) // should be unique
-aobscanmodule(cameracoordinates_aob,ed9.exe,F3 45 0F 10 70 08 F3 45) // should be unique
+aobscanmodule(cameracoordinates_aob,ed9.exe,48 8B 8F 90 06 00 00 8B 84 3E C8) // should be unique
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,detachcameraviawrite_aob)
 registersymbol(cameracoordinates_aob)
@@ -23,14 +23,15 @@ label(code)
 label(return)
 
 newmem:
-  mov [cameracoordinates],r8
+
 code:
-  movss xmm14,[r8+08]
+  mov rcx,[rdi+00000690]
+  mov [cameracoordinates],rcx
   jmp return
 
 cameracoordinates_aob:
   jmp newmem
-  nop
+  nop 2
 return:
 
 detachcameraviawrite_aob:
@@ -191,7 +192,7 @@ timer_setEnabled(t, false)
 
 {$asm}
 cameracoordinates_aob:
-  db F3 45 0F 10 70 08
+  db 48 8B 8F 90 06 00 00
 
 detachcameraviawrite_aob:
   db 89 41 08 8B 84 3E CC 01 00 00 89 41 0C 8B 84 3E D0 01 00 00 89 41 10 48 8B 8F 90 06 00 00 8B 84 3E 04 02 00 00 89 41 18 8B 84 3E 08 02 00 00 89 41 1C 8B 84 3E 0C 02 00 00 89 41 20 8B 84 3E 40 02 00 00 48 8B 8F 90 06 00 00 89 41 28 8B 84 3E 44 02 00 00 89 41 2C 8B 84 3E 48 02 00 00 89 41 30
@@ -203,33 +204,7 @@ dealloc(cameracoordinates)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+410AD0
-
-ed9.exe+410A9B: 44 0F 29 58 98                    - movaps [rax-68],xmm11
-ed9.exe+410AA0: 44 0F 29 60 88                    - movaps [rax-78],xmm12
-ed9.exe+410AA5: 44 0F 29 6C 24 20                 - movaps [rsp+20],xmm13
-ed9.exe+410AAB: 44 0F 29 74 24 10                 - movaps [rsp+10],xmm14
-ed9.exe+410AB1: 44 0F 29 3C 24                    - movaps [rsp],xmm15
-ed9.exe+410AB6: 45 85 D2                          - test r10d,r10d
-ed9.exe+410AB9: 0F 84 FA 00 00 00                 - je ed9.exe+410BB9
-ed9.exe+410ABF: F3 44 0F 10 1A                    - movss xmm11,[rdx]
-ed9.exe+410AC4: F3 44 0F 10 62 04                 - movss xmm12,[rdx+04]
-ed9.exe+410ACA: F3 44 0F 10 6A 08                 - movss xmm13,[rdx+08]
-// ---------- INJECTING HERE ----------
-ed9.exe+410AD0: F3 45 0F 10 70 08                 - movss xmm14,[r8+08]
-// ---------- DONE INJECTING  ----------
-ed9.exe+410AD6: F3 45 0F 10 78 0C                 - movss xmm15,[r8+0C]
-ed9.exe+410ADC: F3 44 0F 10 15 FB 6E 2F 00        - movss xmm10,[ed9.exe+7079E0]
-ed9.exe+410AE5: 66 66 66 0F 1F 84 00 00 00 00 00  - nop word ptr [rax+rax+00000000]
-ed9.exe+410AF0: 41 0F 28 CD                       - movaps xmm1,xmm13
-ed9.exe+410AF4: 41 8B C1                          - mov eax,r9d
-ed9.exe+410AF7: 48 03 C0                          - add rax,rax
-ed9.exe+410AFA: 45 0F 28 CB                       - movaps xmm9,xmm11
-ed9.exe+410AFE: 41 0F 28 D6                       - movaps xmm2,xmm14
-ed9.exe+410B02: F3 0F 10 84 C1 B4 00 00 00        - movss xmm0,[rcx+rax*8+000000B4]
-ed9.exe+410B0B: F3 0F 10 B4 C1 A8 00 00 00        - movss xmm6,[rcx+rax*8+000000A8]
-
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+10D40B
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+10D3FD, ed9.exe+10D40B
 
 ed9.exe+10D3DF: F3 0F 58 78 0C        - addss xmm7,[rax+0C]
 ed9.exe+10D3E4: 48 83 C3 40           - add rbx,40
@@ -239,7 +214,9 @@ ed9.exe+10D3ED: 8B 87 34 07 00 00     - mov eax,[rdi+00000734]
 ed9.exe+10D3F3: D1 E8                 - shr eax,1
 ed9.exe+10D3F5: A8 01                 - test al,01
 ed9.exe+10D3F7: 0F 85 DB 00 00 00     - jne ed9.exe+10D4D8
+// ---------- INJECTING HERE ----------
 ed9.exe+10D3FD: 48 8B 8F 90 06 00 00  - mov rcx,[rdi+00000690]
+// ---------- DONE INJECTING  ----------
 ed9.exe+10D404: 8B 84 3E C8 01 00 00  - mov eax,[rsi+rdi+000001C8]
 // ---------- INJECTING HERE ----------
 ed9.exe+10D40B: 89 41 08              - mov [rcx+08],eax
@@ -472,7 +449,7 @@ ed9.exe+1903E7: C7 44 24 20 00 00 80 3F        - mov [rsp+20],3F800000
   <UserdefinedSymbols>
     <SymbolEntry>
       <Name>speedModifier</Name>
-      <Address>15E3D600000</Address>
+      <Address>2319E2C0000</Address>
     </SymbolEntry>
   </UserdefinedSymbols>
   <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.
