@@ -752,7 +752,24 @@ ed9.exe+1903E7: C7 44 24 20 00 00 80 3F        - mov [rsp+20],3F800000
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(freezeaction_aob,ed9.exe,E8 C9 C5 17 00) // should be unique
+aobscanmodule(cutscenefreeze_aob,ed9.exe,74 06 48 8B 01 FF 50 20) // should be unique
+alloc(newmem,$1000,cutscenefreeze_aob)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  jmp ed9.exe+10D385
+  mov rax,[rcx]
+  jmp return
+
+cutscenefreeze_aob:
+  jmp newmem
+return:
 registersymbol(freezeaction_aob)
+registersymbol(cutscenefreeze_aob)
 
 freezeaction_aob:
   db 90 90 90 90 90
@@ -768,10 +785,15 @@ freezeaction_aob:
 freezeaction_aob+75:
   db E8 64 0C 33 00
 
+cutscenefreeze_aob:
+  db 74 06 48 8B 01
+
 unregistersymbol(freezeaction_aob)
+unregistersymbol(cutscenefreeze_aob)
+dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+69EF2
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+69EF2 - Freeze action
 
 ed9.exe+69EC3: 0F 28 CE                 - movaps xmm1,xmm6
 ed9.exe+69EC6: 48 8B 01                 - mov rax,[rcx]
@@ -796,6 +818,57 @@ ed9.exe+69F12: 48 8B 0D 97 AD 73 00     - mov rcx,[ed9.exe+7A4CB0]
 ed9.exe+69F19: F6 81 34 07 00 00 01     - test byte ptr [rcx+00000734],01
 ed9.exe+69F20: 74 0F                    - je ed9.exe+69F31
 ed9.exe+69F22: 44 8B 81 30 07 00 00     - mov r8d,[rcx+00000730]
+ed9.exe+69F29: 0F 28 CE                 - movaps xmm1,xmm6
+ed9.exe+69F2C: E8 EF 33 0A 00           - call ed9.exe+10D320
+ed9.exe+69F31: 48 8B 0D 90 AD 73 00     - mov rcx,[ed9.exe+7A4CC8]
+ed9.exe+69F38: 0F 28 CE                 - movaps xmm1,xmm6
+ed9.exe+69F3B: E8 20 CE 17 00           - call ed9.exe+1E6D60
+ed9.exe+69F40: 48 8B 0D F1 AD 73 00     - mov rcx,[ed9.exe+7A4D38]
+ed9.exe+69F47: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+69F4A: E8 11 8D 2E 00           - call ed9.exe+352C60
+ed9.exe+69F4F: 4C 8B 05 5A AD 73 00     - mov r8,[ed9.exe+7A4CB0]
+ed9.exe+69F56: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+69F59: 48 8B 0D E8 33 74 00     - mov rcx,[ed9.exe+7AD348]
+ed9.exe+69F60: 4D 8B 80 90 06 00 00     - mov r8,[r8+00000690]
+// ---------- INJECTING HERE ----------
+ed9.exe+69F67: E8 64 0C 33 00           - call ed9.exe+39ABD0
+// ---------- DONE INJECTING  ----------
+ed9.exe+69F6C: 48 8B 0D BD AD 73 00     - mov rcx,[ed9.exe+7A4D30]
+ed9.exe+69F73: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+69F76: E8 D5 CE 2B 00           - call ed9.exe+326E50
+ed9.exe+69F7B: 48 8B 0D 96 AD 73 00     - mov rcx,[ed9.exe+7A4D18]
+ed9.exe+69F82: 41 0F 28 C8              - movaps xmm1,xmm8
+ed9.exe+69F86: E8 A5 1C 24 00           - call ed9.exe+2ABC30
+ed9.exe+69F8B: 48 8B 0D FE AC 73 00     - mov rcx,[ed9.exe+7A4C90]
+ed9.exe+69F92: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+69F95: E8 16 7E FF FF           - call ed9.exe+61DB0
+ed9.exe+69F9A: 48 8B 0D EF AC 73 00     - mov rcx,[ed9.exe+7A4C90]
+
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+10D37D - Prevent cutsccene from taking camera control
+
+ed9.exe+10D34C: 44 0F 29 5C 24 50        - movaps [rsp+50],xmm11
+ed9.exe+10D352: 48 8B 05 3F 6E 67 00     - mov rax,[ed9.exe+784198]
+ed9.exe+10D359: 48 33 C4                 - xor rax,rsp
+ed9.exe+10D35C: 48 89 44 24 40           - mov [rsp+40],rax
+ed9.exe+10D361: 4D 63 F8                 - movsxd  r15,r8d
+ed9.exe+10D364: 48 8B F9                 - mov rdi,rcx
+ed9.exe+10D367: 49 69 F7 A0 01 00 00     - imul rsi,r15,000001A0
+ed9.exe+10D36E: 44 0F 28 D9              - movaps xmm11,xmm1
+ed9.exe+10D372: 4A 8B 8C F9 98 06 00 00  - mov rcx,[rcx+r15*8+00000698]
+ed9.exe+10D37A: 48 85 C9                 - test rcx,rcx
+// ---------- INJECTING HERE ----------
+ed9.exe+10D37D: 74 06                    - je ed9.exe+10D385
+// ---------- DONE INJECTING  ----------
+ed9.exe+10D37F: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+10D382: FF 50 20                 - call qword ptr [rax+20]
+ed9.exe+10D385: 48 8D 9F B0 06 00 00     - lea rbx,[rdi+000006B0]
+ed9.exe+10D38C: 45 32 F6                 - xor r14l,r14l
+ed9.exe+10D38F: 48 8D AB 80 00 00 00     - lea rbp,[rbx+00000080]
+ed9.exe+10D396: 45 0F 57 D2              - xorps xmm10,xmm10
+ed9.exe+10D39A: 0F 57 F6                 - xorps xmm6,xmm6
+ed9.exe+10D39D: 45 0F 57 C0              - xorps xmm8,xmm8
+ed9.exe+10D3A1: 45 0F 57 C9              - xorps xmm9,xmm9
+ed9.exe+10D3A5: 0F 57 FF                 - xorps xmm7,xmm7
 }
 </AssemblerScript>
       <Hotkeys>
