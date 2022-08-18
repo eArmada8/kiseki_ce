@@ -3,7 +3,7 @@
   <CheatEntries>
     <CheatEntry>
       <ID>1</ID>
-      <Description>"Free Camera"</Description>
+      <Description>"Free Camera (Num 0 Toggle)"</Description>
       <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
@@ -49,6 +49,7 @@ moveplayer_aob:
 {$lua}
 
 function checkKeys()
+  if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
   if (getAddressSafe("[cameracoordinates]")) then
     --Read and assign speed modifier value
     local speed = readFloat("speedModifier")
@@ -411,8 +412,8 @@ ed9.exe+20BF3C: F3 0F 11 83 40 02 00 00  - movss [rbx+00000240],xmm0
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
-      <ID>31</ID>
-      <Description>"Set Custom FOV"</Description>
+      <ID>2</ID>
+      <Description>"Set Custom Camera Distance (F4 Toggle)"</Description>
       <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
@@ -429,8 +430,66 @@ registersymbol(unlockfov2_aob)
 
 label(code)
 label(return)
+label(return2)
+label(return3)
 
 newmem:
+
+toggleon:
+push rax
+push rcx
+push rdx
+push r8
+push r9
+push r10
+push r11
+sub rsp,28
+mov rcx,23 //VK_END
+call GetAsyncKeyState
+add rsp,28
+pop r11
+pop r10
+pop r9
+pop r8
+pop rdx
+pop rcx
+test ax,8001
+pop rax
+jz toggleoff
+fld dword [r9+00000170]
+fld1
+faddp st(1),st(0)
+fstp [r9+00000170]
+mov eax,[r9+00000170]
+jmp return2
+
+toggleoff:
+push rax
+push rcx
+push rdx
+push r8
+push r9
+push r10
+push r11
+sub rsp,28
+mov rcx,24 //VK_HOME
+call GetAsyncKeyState
+add rsp,28
+pop r11
+pop r10
+pop r9
+pop r8
+pop rdx
+pop rcx
+test ax,8001
+pop rax
+jz code
+fld dword [r9+00000170]
+fld1
+fsubp st(1),st(0)
+fstp [r9+00000170]
+mov eax,[r9+00000170]
+jmp return3
 
 code:
   mov [fov],r9
@@ -441,6 +500,8 @@ fov_aob:
   jmp newmem
   nop 2
 return:
+return2:
+return3:
 
 unlockfov1_aob:
   db 90 90 90 90 90 90 90 90
@@ -546,10 +607,24 @@ ed9.exe+6D0F3: 48 0F 47 C1        - cmova rax,rcx
 ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
 }
 </AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>115</Key>
+          </Keys>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
       <CheatEntries>
         <CheatEntry>
-          <ID>32</ID>
-          <Description>"FOV (Default 2.5)"</Description>
+          <ID>21</ID>
+          <Description>"Page Up to Zoom In, Page Down to Zoom Out"</Description>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>22</ID>
+          <Description>"Camera Distance (Default 5 outside, 2.5 indoors)"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
           <Address>fov</Address>
@@ -560,7 +635,7 @@ ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
-      <ID>20</ID>
+      <ID>3</ID>
       <Description>"Set Camera Min Z to Floor (Use No Clip)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
@@ -623,7 +698,7 @@ ed9.exe+1D2086: E8 C5 11 00 00              - call ed9.exe+1D3250
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
-      <ID>30</ID>
+      <ID>4</ID>
       <Description>"No Clip"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
@@ -670,7 +745,151 @@ ed9.exe+1903E7: C7 44 24 20 00 00 80 3F        - mov [rsp+20],3F800000
 }
 </AssemblerScript>
     </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"Force Pause Action (F5 on / F6 off)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(freezeaction_aob,ed9.exe,E8 C9 C5 17 00) // should be unique
+registersymbol(freezeaction_aob)
+
+freezeaction_aob:
+  db 90 90 90 90 90
+
+freezeaction_aob+75:
+  db 90 90 90 90 90
+
+[DISABLE]
+
+freezeaction_aob:
+  db E8 C9 C5 17 00
+
+freezeaction_aob+75:
+  db E8 64 0C 33 00
+
+unregistersymbol(freezeaction_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+69EF2
+
+ed9.exe+69EC3: 0F 28 CE                 - movaps xmm1,xmm6
+ed9.exe+69EC6: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+69EC9: FF 50 18                 - call qword ptr [rax+18]
+ed9.exe+69ECC: 48 8D 7F 08              - lea rdi,[rdi+08]
+ed9.exe+69ED0: 48 83 EE 01              - sub rsi,01
+ed9.exe+69ED4: 75 EA                    - jne ed9.exe+69EC0
+ed9.exe+69ED6: 48 8B BC 24 88 00 00 00  - mov rdi,[rsp+00000088]
+ed9.exe+69EDE: 48 8B B4 24 80 00 00 00  - mov rsi,[rsp+00000080]
+ed9.exe+69EE6: 48 8B 0D DB AD 73 00     - mov rcx,[ed9.exe+7A4CC8]
+ed9.exe+69EED: 48 8D 54 24 20           - lea rdx,[rsp+20]
+// ---------- INJECTING HERE ----------
+ed9.exe+69EF2: E8 C9 C5 17 00           - call ed9.exe+1E64C0
+// ---------- DONE INJECTING  ----------
+ed9.exe+69EF7: 80 BB 68 16 00 00 00     - cmp byte ptr [rbx+00001668],00
+ed9.exe+69EFE: 75 31                    - jne ed9.exe+69F31
+ed9.exe+69F00: 48 8B 05 C1 AD 73 00     - mov rax,[ed9.exe+7A4CC8]
+ed9.exe+69F07: 0F B6 88 90 19 00 00     - movzx ecx,byte ptr [rax+00001990]
+ed9.exe+69F0E: 84 C9                    - test cl,cl
+ed9.exe+69F10: 75 1F                    - jne ed9.exe+69F31
+ed9.exe+69F12: 48 8B 0D 97 AD 73 00     - mov rcx,[ed9.exe+7A4CB0]
+ed9.exe+69F19: F6 81 34 07 00 00 01     - test byte ptr [rcx+00000734],01
+ed9.exe+69F20: 74 0F                    - je ed9.exe+69F31
+ed9.exe+69F22: 44 8B 81 30 07 00 00     - mov r8d,[rcx+00000730]
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Activate</Action>
+          <Keys>
+            <Key>116</Key>
+          </Keys>
+          <ID>0</ID>
+        </Hotkey>
+        <Hotkey>
+          <Action>Deactivate</Action>
+          <Keys>
+            <Key>117</Key>
+          </Keys>
+          <ID>1</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"Hide HUD / Dialogue / Interface (F7 Toggle)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+
+aobscanmodule(INJECT,ed9.exe,F3 0F 11 47 68 48 85 C9 0F) // should be unique
+alloc(newmem,$1000,INJECT)
+
+label(code)
+label(return)
+
+newmem:
+  push rax
+  xor eax,eax
+  movd xmm0,eax
+  pop rax
+code:
+  movss [rdi+68],xmm0
+  jmp return
+
+INJECT:
+  jmp newmem
+return:
+registersymbol(INJECT)
+
+[DISABLE]
+
+INJECT:
+  db F3 0F 11 47 68
+
+unregistersymbol(INJECT)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+36D499
+
+ed9.exe+36D464: 89 47 58                 - mov [rdi+58],eax
+ed9.exe+36D467: 8B 87 FC 01 00 00        - mov eax,[rdi+000001FC]
+ed9.exe+36D46D: 89 47 5C                 - mov [rdi+5C],eax
+ed9.exe+36D470: 8B 87 00 02 00 00        - mov eax,[rdi+00000200]
+ed9.exe+36D476: 89 47 60                 - mov [rdi+60],eax
+ed9.exe+36D479: F3 0F 10 86 D4 00 00 00  - movss xmm0,[rsi+000000D4]
+ed9.exe+36D481: F3 0F 59 87 1C 02 00 00  - mulss xmm0,[rdi+0000021C]
+ed9.exe+36D489: 48 8B 4F 70              - mov rcx,[rdi+70]
+ed9.exe+36D48D: 8B 87 D8 00 00 00        - mov eax,[rdi+000000D8]
+ed9.exe+36D493: 89 87 DC 00 00 00        - mov [rdi+000000DC],eax
+// ---------- INJECTING HERE ----------
+ed9.exe+36D499: F3 0F 11 47 68           - movss [rdi+68],xmm0
+// ---------- DONE INJECTING  ----------
+ed9.exe+36D49E: 48 85 C9                 - test rcx,rcx
+ed9.exe+36D4A1: 0F 84 57 03 00 00        - je ed9.exe+36D7FE
+ed9.exe+36D4A7: 8B 87 BC 00 00 00        - mov eax,[rdi+000000BC]
+ed9.exe+36D4AD: 83 E0 0E                 - and eax,0E
+ed9.exe+36D4B0: 4C 89 A4 24 F8 02 00 00  - mov [rsp+000002F8],r12
+ed9.exe+36D4B8: 3C 0E                    - cmp al,0E
+ed9.exe+36D4BA: 0F 85 97 00 00 00        - jne ed9.exe+36D557
+ed9.exe+36D4C0: 4C 8D 77 38              - lea r14,[rdi+38]
+ed9.exe+36D4C4: 48 83 C1 08              - add rcx,08
+ed9.exe+36D4C8: 4D 8B C6                 - mov r8,r14
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>118</Key>
+          </Keys>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
   </CheatEntries>
+  <UserdefinedSymbols/>
   <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.  Credit also goes to DhaosCollider for AOB for FOV, to lock player movement, and for the fantastic idea of using the latter to allow WASD control.  My eternal gratitude to both!
 </Comments>
 </CheatTable>
