@@ -425,15 +425,21 @@ alloc(newmem,$1000,fov_aob)
 alloc(fov,8)
 registersymbol(fov_aob)
 registersymbol(fov)
+registersymbol(fov_set)
 registersymbol(fov_max)
 registersymbol(unlockfov1_aob)
 registersymbol(unlockfov2_aob)
 
 label(code)
+label(writecode)
+label(dialoguezoomcode)
+label(fov_set)
 label(fov_step)
 label(fov_min)
 label(fov_max)
 label(return)
+label(writereturn)
+label(dialoguezoomcodereturn)
 
 newmem:
 
@@ -461,6 +467,7 @@ toggleon:
   movss xmm2,[rdi+00000170]
   addss xmm2,[fov_step]
   minss xmm2,[fov_max]
+  movss [fov_set],xmm2
   movss [rdi+00000170],xmm2
   jmp code
 
@@ -488,12 +495,31 @@ toggleoff:
   movss xmm2,[rdi+00000170]
   subss xmm2,[fov_step]
   maxss xmm2,[fov_min]
+  movss [fov_set],xmm2
   movss [rdi+00000170],xmm2
 
 code:
   mov [fov],rdi
   movss xmm2,[rdi+00000170]
   jmp return
+
+writecode:
+  cmp [fov_set],(float)0
+  je @f
+  movss xmm0,[fov_set]
+@@:
+  movss [rax+00000170],xmm0
+  jmp writereturn
+
+dialoguezoomcode:
+  cmp [fov_set],(float)0
+  jne @f
+  movss [rax+00000170],xmm0
+@@:
+  jmp dialoguezoomcodereturn
+
+fov_set:
+  dd (float)0
 
 fov_step:
   dd (float)0.3
@@ -510,7 +536,14 @@ fov_aob:
 return:
 
 unlockfov1_aob:
-  db 90 90 90 90 90 90 90 90
+  jmp writecode
+  nop 3
+writereturn:
+
+unlockfov1_aob+44:
+  jmp dialoguezoomcode
+  nop 3
+dialoguezoomcodereturn:
 
 unlockfov2_aob:
   db 90 90 90 90 90
@@ -523,6 +556,9 @@ fov_aob:
 unlockfov1_aob:
   db F3 0F 11 80 70 01 00 00
 
+unlockfov1_aob+44:
+  db F3 0F 11 80 70 01 00 00
+
 unlockfov2_aob:
   db F3 0F 11 43 08
 
@@ -530,6 +566,7 @@ unregistersymbol(unlockfov1_aob)
 unregistersymbol(unlockfov2_aob)
 unregistersymbol(fov_aob)
 unregistersymbol(fov)
+unregistersymbol(fov_set)
 unregistersymbol(fov_max)
 dealloc(fov)
 dealloc(newmem)
@@ -586,6 +623,20 @@ ed9.exe+1D2083: 48 8B CF                    - mov rcx,rdi
 ed9.exe+1D2086: E8 C5 11 00 00              - call ed9.exe+1D3250
 ed9.exe+1D208B: 48 8B 47 08                 - mov rax,[rdi+08]
 ed9.exe+1D208F: F3 0F 11 80 68 01 00 00     - movss [rax+00000168],xmm0
+ed9.exe+1D2097: F3 0F 11 80 6C 01 00 00     - movss [rax+0000016C],xmm0
+// ---------- INJECTING HERE ----------
+ed9.exe+1D209F: F3 0F 11 80 70 01 00 00     - movss [rax+00000170],xmm0
+// ---------- DONE INJECTING  ----------
+ed9.exe+1D20A7: 4C 89 A0 74 01 00 00        - mov [rax+00000174],r12
+ed9.exe+1D20AE: 44 89 A0 7C 01 00 00        - mov [rax+0000017C],r12d
+ed9.exe+1D20B5: 44 39 A7 44 04 00 00        - cmp [rdi+00000444],r12d
+ed9.exe+1D20BC: 0F 84 6D 02 00 00           - je ed9.exe+1D232F
+ed9.exe+1D20C2: 0F 10 97 98 00 00 00        - movups xmm2,[rdi+00000098]
+ed9.exe+1D20C9: 48 8B 47 08                 - mov rax,[rdi+08]
+ed9.exe+1D20CD: 48 05 F0 00 00 00           - add rax,000000F0
+ed9.exe+1D20D3: 0F 10 E2                    - movups xmm4,xmm2
+ed9.exe+1D20D6: 0F 10 DA                    - movups xmm3,xmm2
+ed9.exe+1D20D9: 0F 28 C2                    - movaps xmm0,xmm2
 
 // ORIGINAL CODE - INJECTION POINT: ed9.exe+6D0D1 - Unlock FOV2
 
@@ -631,7 +682,7 @@ ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
         </CheatEntry>
         <CheatEntry>
           <ID>22</ID>
-          <Description>"Camera Distance"</Description>
+          <Description>"Current Camera Distance (read-only)"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
           <Address>fov</Address>
@@ -641,6 +692,13 @@ ed9.exe+6D0F7: 8B 4B 14           - mov ecx,[rbx+14]
         </CheatEntry>
         <CheatEntry>
           <ID>23</ID>
+          <Description>"Custom Camera Distance"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>fov_set</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>24</ID>
           <Description>"Maximum Camera Distance"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
