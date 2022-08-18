@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>2386</ID>
+      <Description>"Camera Status"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{ Game   : TokyoXanadu.exe
+
+  Adapted from Cyber's CS4 script
+}
+
+[ENABLE]
+
+aobscanmodule(camerastatus_aob,TokyoXanadu.exe,F3 0F 11 40 08 F3 0F 10 44 24 2C) // should be unique
+alloc(newmem,$100,camerastatus_aob)
+alloc(camerastatus,8)
+
+label(code)
+label(return)
+
+registersymbol(camerastatus)
+
+newmem:
+  mov [camerastatus],eax
+
+code:
+  movss [eax+08],xmm0
+  jmp return
+
+camerastatus_aob:
+  jmp newmem
+return:
+registersymbol(camerastatus_aob)
+
+[DISABLE]
+
+camerastatus_aob:
+  db F3 0F 11 40 08
+
+unregistersymbol(camerastatus_aob)
+unregistersymbol(camerastatus)
+dealloc(camerastatus)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+81D5C
+
+TokyoXanadu.exe+81D26: F3 0F 11 4C 24 14        - movss [esp+14],xmm1
+TokyoXanadu.exe+81D2C: F3 0F 10 74 24 10        - movss xmm6,[esp+10]
+TokyoXanadu.exe+81D32: EB 06                    - jmp TokyoXanadu.exe+81D3A
+TokyoXanadu.exe+81D34: F3 0F 10 44 24 0C        - movss xmm0,[esp+0C]
+TokyoXanadu.exe+81D3A: F3 0F 11 86 9C 01 00 00  - movss [esi+0000019C],xmm0
+TokyoXanadu.exe+81D42: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
+TokyoXanadu.exe+81D48: 8D 86 9C 01 00 00        - lea eax,[esi+0000019C]
+TokyoXanadu.exe+81D4E: 83 EC 10                 - sub esp,10
+TokyoXanadu.exe+81D51: F3 0F 11 40 04           - movss [eax+04],xmm0
+TokyoXanadu.exe+81D56: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+81D5C: F3 0F 11 40 08           - movss [eax+08],xmm0
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+81D61: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
+TokyoXanadu.exe+81D67: C7 40 0C 00 00 00 00     - mov [eax+0C],00000000
+TokyoXanadu.exe+81D6E: F3 0F 11 50 10           - movss [eax+10],xmm2
+TokyoXanadu.exe+81D73: F3 0F 10 54 24 38        - movss xmm2,[esp+38]
+TokyoXanadu.exe+81D79: F3 0F 11 78 18           - movss [eax+18],xmm7
+TokyoXanadu.exe+81D7E: F3 0F 10 7C 24 40        - movss xmm7,[esp+40]
+TokyoXanadu.exe+81D84: F3 0F 11 68 14           - movss [eax+14],xmm5
+TokyoXanadu.exe+81D89: C7 40 1C 00 00 00 00     - mov [eax+1C],00000000
+TokyoXanadu.exe+81D90: F3 0F 11 78 20           - movss [eax+20],xmm7
+TokyoXanadu.exe+81D95: F3 0F 11 40 24           - movss [eax+24],xmm0
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>2421</ID>
+          <Description>"Force Pause Animation"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(notinmenu_aob,TokyoXanadu.exe,0F 95 C0 C3 CC CC CC 56) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov al,1
+  // setne al
+  ret
+  int 3
+  jmp return
+
+notinmenu_aob:
+  jmp newmem
+return:
+
+registersymbol(notinmenu_aob)
+
+[DISABLE]
+
+notinmenu_aob:
+  db 0F 95 C0 C3 CC
+
+unregistersymbol(notinmenu_aob)
+unregistersymbol(forcecameralockwhileinmenu_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+8D219 - out of menu test
+
+TokyoXanadu.exe+8D1FE: 0F B6 CB              - movzx ecx,bl
+TokyoXanadu.exe+8D201: 84 C0                 - test al,al
+TokyoXanadu.exe+8D203: BA 01 00 00 00        - mov edx,00000001
+TokyoXanadu.exe+8D208: 0F 45 CA              - cmovne ecx,edx
+TokyoXanadu.exe+8D20B: 8A C1                 - mov al,cl
+TokyoXanadu.exe+8D20D: 5B                    - pop ebx
+TokyoXanadu.exe+8D20E: C3                    - ret
+TokyoXanadu.exe+8D20F: CC                    - int 3
+TokyoXanadu.exe+8D210: 33 C0                 - xor eax,eax
+TokyoXanadu.exe+8D212: 83 B9 64 01 00 00 FE  - cmp dword ptr [ecx+00000164],-02
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+8D219: 0F 95 C0              - setne al
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+8D21C: C3                    - ret
+TokyoXanadu.exe+8D21D: CC                    - int 3
+TokyoXanadu.exe+8D21E: CC                    - int 3
+TokyoXanadu.exe+8D21F: CC                    - int 3
+TokyoXanadu.exe+8D220: 56                    - push esi
+TokyoXanadu.exe+8D221: 8B F1                 - mov esi,ecx
+TokyoXanadu.exe+8D223: E8 E8 7E 1F 00        - call TokyoXanadu.exe+285110
+TokyoXanadu.exe+8D228: 84 C0                 - test al,al
+TokyoXanadu.exe+8D22A: 74 04                 - je TokyoXanadu.exe+8D230
+TokyoXanadu.exe+8D22C: 32 C0                 - xor al,al
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Activate</Action>
+              <Keys>
+                <Key>116</Key>
+              </Keys>
+              <ID>0</ID>
+              <ActivateSound>Activate</ActivateSound>
+            </Hotkey>
+            <Hotkey>
+              <Action>Deactivate</Action>
+              <Keys>
+                <Key>117</Key>
+              </Keys>
+              <ID>1</ID>
+              <DeactivateSound>Deactivate</DeactivateSound>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>2422</ID>
+              <Description>"Unlock camera during pause (use with free camera)"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+aobscanmodule(forcecameralockwhileinmenu_aob,TokyoXanadu.exe,75 24 8B 86 F0 AA 03 00) // should be unique
+aobscanmodule(tiltlockduringfreeze_aob,TokyoXanadu.exe,0F 85 73 02 00 00 8B 86) // should be unique
+
+forcecameralockwhileinmenu_aob:
+  db 90 90
+
+tiltlockduringfreeze_aob:
+  db 90 90 90 90 90 90
+
+registersymbol(forcecameralockwhileinmenu_aob)
+registersymbol(tiltlockduringfreeze_aob)
+
+[DISABLE]
+
+forcecameralockwhileinmenu_aob:
+  db 75 24
+
+tiltlockduringfreeze_aob:
+  db 0F 85 73 02 00 00
+
+unregistersymbol(forcecameralockwhileinmenu_aob)
+unregistersymbol(tiltlockduringfreeze_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+13E843 - force lock camera while in menu
+
+TokyoXanadu.exe+13E81F: 8B 86 58 AB 03 00     - mov eax,[esi+0003AB58]
+TokyoXanadu.exe+13E825: 85 C0                 - test eax,eax
+TokyoXanadu.exe+13E827: 74 09                 - je TokyoXanadu.exe+13E832
+TokyoXanadu.exe+13E829: 83 B8 F4 02 00 00 03  - cmp dword ptr [eax+000002F4],03
+TokyoXanadu.exe+13E830: 74 37                 - je TokyoXanadu.exe+13E869
+TokyoXanadu.exe+13E832: 8B 8E EC AA 03 00     - mov ecx,[esi+0003AAEC]
+TokyoXanadu.exe+13E838: 85 C9                 - test ecx,ecx
+TokyoXanadu.exe+13E83A: 74 09                 - je TokyoXanadu.exe+13E845
+TokyoXanadu.exe+13E83C: E8 CF E9 F4 FF        - call TokyoXanadu.exe+8D210
+TokyoXanadu.exe+13E841: 84 C0                 - test al,al
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+13E843: 75 24                 - jne TokyoXanadu.exe+13E869
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+13E845: 8B 86 F0 AA 03 00     - mov eax,[esi+0003AAF0]
+TokyoXanadu.exe+13E84B: 85 C0                 - test eax,eax
+TokyoXanadu.exe+13E84D: 74 07                 - je TokyoXanadu.exe+13E856
+TokyoXanadu.exe+13E84F: 66 83 78 38 FF        - cmp word ptr [eax+38],-01
+TokyoXanadu.exe+13E854: 75 13                 - jne TokyoXanadu.exe+13E869
+TokyoXanadu.exe+13E856: 8B 8E F4 AA 03 00     - mov ecx,[esi+0003AAF4]
+TokyoXanadu.exe+13E85C: 85 C9                 - test ecx,ecx
+TokyoXanadu.exe+13E85E: 74 0B                 - je TokyoXanadu.exe+13E86B
+TokyoXanadu.exe+13E860: E8 5B 91 0F 00        - call TokyoXanadu.exe+2379C0
+TokyoXanadu.exe+13E865: 84 C0                 - test al,al
+
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+1369C9 - disable tilt controls
+
+TokyoXanadu.exe+1369A4: 8B 86 60 B0 03 00  - mov eax,[esi+0003B060]
+TokyoXanadu.exe+1369AA: 85 C0              - test eax,eax
+TokyoXanadu.exe+1369AC: 74 0A              - je TokyoXanadu.exe+1369B8
+TokyoXanadu.exe+1369AE: 80 78 10 00        - cmp byte ptr [eax+10],00
+TokyoXanadu.exe+1369B2: 0F 85 8A 02 00 00  - jne TokyoXanadu.exe+136C42
+TokyoXanadu.exe+1369B8: 8B 8E EC AA 03 00  - mov ecx,[esi+0003AAEC]
+TokyoXanadu.exe+1369BE: 85 C9              - test ecx,ecx
+TokyoXanadu.exe+1369C0: 74 0D              - je TokyoXanadu.exe+1369CF
+TokyoXanadu.exe+1369C2: E8 49 68 F5 FF     - call TokyoXanadu.exe+8D210
+TokyoXanadu.exe+1369C7: 84 C0              - test al,al
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+1369C9: 0F 85 73 02 00 00  - jne TokyoXanadu.exe+136C42
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+1369CF: 8B 86 F0 AA 03 00  - mov eax,[esi+0003AAF0]
+TokyoXanadu.exe+1369D5: 85 C0              - test eax,eax
+TokyoXanadu.exe+1369D7: 74 0B              - je TokyoXanadu.exe+1369E4
+TokyoXanadu.exe+1369D9: 66 83 78 38 FF     - cmp word ptr [eax+38],-01
+TokyoXanadu.exe+1369DE: 0F 85 5E 02 00 00  - jne TokyoXanadu.exe+136C42
+TokyoXanadu.exe+1369E4: 8B 8E F4 AA 03 00  - mov ecx,[esi+0003AAF4]
+TokyoXanadu.exe+1369EA: 85 C9              - test ecx,ecx
+TokyoXanadu.exe+1369EC: 74 0D              - je TokyoXanadu.exe+1369FB
+TokyoXanadu.exe+1369EE: E8 CD 0F 10 00     - call TokyoXanadu.exe+2379C0
+TokyoXanadu.exe+1369F3: 84 C0              - test al,al
+}
+</AssemblerScript>
+              <Hotkeys>
+                <Hotkey>
+                  <Action>Toggle Activation</Action>
+                  <Keys>
+                    <Key>118</Key>
+                  </Keys>
+                  <ID>0</ID>
+                </Hotkey>
+              </Hotkeys>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2406</ID>
+          <Description>"Disable Dialogue"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(dialogue1_aob,TokyoXanadu.exe,89 46 2C F3 0F 10 86 8C 00 00 00 0F 2E 86 88 00 00 00 9F F6 C4 44 7A 6E) // should be unique
+alloc(newmem,$1000)
+aobscanmodule(dialogue2_aob,TokyoXanadu.exe,89 46 2C F3 0F 10 86 8C 00 00 00 0F 2E 86 88 00 00 00 9F F6 C4 44 7A 18) // should be unique
+alloc(newmem2,$1000)
+alloc(dialoguestatus,8)
+
+label(code)
+label(return)
+
+registersymbol(dialoguestatus)
+
+newmem:
+  mov [dialoguestatus],esi
+
+code:
+  mov eax,00000000
+  mov [esi+2C],eax
+  movss xmm0,[esi+0000008C]
+  jmp return
+
+dialogue1_aob:
+  jmp newmem
+  nop 6
+return:
+registersymbol(dialogue1_aob)
+
+label(code2)
+label(return2)
+
+newmem2:
+
+code2:
+  mov eax,00000000
+  mov [esi+2C],eax
+  movss xmm0,[esi+0000008C]
+  jmp return2
+
+dialogue2_aob:
+  jmp newmem2
+  nop 6
+return2:
+registersymbol(dialogue2_aob)
+
+[DISABLE]
+
+dialogue1_aob:
+  db 89 46 2C F3 0F 10 86 8C 00 00 00
+
+dialogue2_aob:
+  db 89 46 2C F3 0F 10 86 8C 00 00 00
+
+unregistersymbol(dialogue1_aob)
+unregistersymbol(dialogue2_aob)
+unregistersymbol(dialoguestatus)
+dealloc(dialoguestatus)
+dealloc(newmem)
+dealloc(newmem2)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+2BC5BE - dialogue1_aob
+
+TokyoXanadu.exe+2BC59D: 9F                       - lahf
+TokyoXanadu.exe+2BC59E: F6 C4 44                 - test ah,44
+TokyoXanadu.exe+2BC5A1: 7B 15                    - jnp TokyoXanadu.exe+2BC5B8
+TokyoXanadu.exe+2BC5A3: F3 0F 10 45 08           - movss xmm0,[ebp+08]
+TokyoXanadu.exe+2BC5A8: 51                       - push ecx
+TokyoXanadu.exe+2BC5A9: 8D 4E 78                 - lea ecx,[esi+78]
+TokyoXanadu.exe+2BC5AC: F3 0F 11 04 24           - movss [esp],xmm0
+TokyoXanadu.exe+2BC5B1: E8 AA 4A D9 FF           - call TokyoXanadu.exe+51060
+TokyoXanadu.exe+2BC5B6: DD D8                    - fstp st(0)
+TokyoXanadu.exe+2BC5B8: 8B 86 84 00 00 00        - mov eax,[esi+00000084]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+2BC5BE: 89 46 2C                 - mov [esi+2C],eax
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+2BC5C1: F3 0F 10 86 8C 00 00 00  - movss xmm0,[esi+0000008C]
+TokyoXanadu.exe+2BC5C9: 0F 2E 86 88 00 00 00     - ucomiss xmm0,[esi+00000088]
+TokyoXanadu.exe+2BC5D0: 9F                       - lahf
+TokyoXanadu.exe+2BC5D1: F6 C4 44                 - test ah,44
+TokyoXanadu.exe+2BC5D4: 7A 6E                    - jp TokyoXanadu.exe+2BC644
+TokyoXanadu.exe+2BC5D6: 83 66 6C FD              - and dword ptr [esi+6C],-03
+TokyoXanadu.exe+2BC5DA: 5F                       - pop edi
+TokyoXanadu.exe+2BC5DB: 5E                       - pop esi
+TokyoXanadu.exe+2BC5DC: 5D                       - pop ebp
+TokyoXanadu.exe+2BC5DD: C2 04 00                 - ret 0004
+
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+2BC614 - dialogue2_aob
+
+TokyoXanadu.exe+2BC5F3: 9F                       - lahf
+TokyoXanadu.exe+2BC5F4: F6 C4 44                 - test ah,44
+TokyoXanadu.exe+2BC5F7: 7B 15                    - jnp TokyoXanadu.exe+2BC60E
+TokyoXanadu.exe+2BC5F9: F3 0F 10 45 08           - movss xmm0,[ebp+08]
+TokyoXanadu.exe+2BC5FE: 51                       - push ecx
+TokyoXanadu.exe+2BC5FF: 8D 4E 78                 - lea ecx,[esi+78]
+TokyoXanadu.exe+2BC602: F3 0F 11 04 24           - movss [esp],xmm0
+TokyoXanadu.exe+2BC607: E8 54 4A D9 FF           - call TokyoXanadu.exe+51060
+TokyoXanadu.exe+2BC60C: DD D8                    - fstp st(0)
+TokyoXanadu.exe+2BC60E: 8B 86 84 00 00 00        - mov eax,[esi+00000084]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+2BC614: 89 46 2C                 - mov [esi+2C],eax
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+2BC617: F3 0F 10 86 8C 00 00 00  - movss xmm0,[esi+0000008C]
+TokyoXanadu.exe+2BC61F: 0F 2E 86 88 00 00 00     - ucomiss xmm0,[esi+00000088]
+TokyoXanadu.exe+2BC626: 9F                       - lahf
+TokyoXanadu.exe+2BC627: F6 C4 44                 - test ah,44
+TokyoXanadu.exe+2BC62A: 7A 18                    - jp TokyoXanadu.exe+2BC644
+TokyoXanadu.exe+2BC62C: 83 66 6C FA              - and dword ptr [esi+6C],-06
+TokyoXanadu.exe+2BC630: F6 46 6C 20              - test byte ptr [esi+6C],20
+TokyoXanadu.exe+2BC634: 74 0E                    - je TokyoXanadu.exe+2BC644
+TokyoXanadu.exe+2BC636: 8B CE                    - mov ecx,esi
+TokyoXanadu.exe+2BC638: E8 83 3C DE FF           - call TokyoXanadu.exe+A02C0
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>2408</ID>
+              <Description>"Set to 0 if dialogue still on screen (needs one dialogue change to refresh)"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[dialoguestatus]+2C</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2418</ID>
+          <Description>"Hide HUD / Minimap (go into menu after disabling to re-enable)"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(minimap_aob,TokyoXanadu.exe,F3 0F 10 87 F4 01 00 00 F3 0F 11 45 90) // should be unique
+alloc(newmem,$1000)
+aobscanmodule(DrawHUD_aob,TokyoXanadu.exe,75 64 8B 83 F0 AA 03 00) // should be unique
+alloc(newmem2,$1000)
+
+label(code)
+label(return)
+label(code2)
+label(return2)
+
+newmem:
+
+code:
+  mov [edi+000001F4],(float)0
+  movss xmm0,[edi+000001F4]
+  jmp return
+
+minimap_aob:
+  jmp newmem
+  nop 3
+return:
+registersymbol(minimap_aob)
+
+newmem2:
+
+code2:
+  jmp TokyoXanadu.exe+135F65
+  mov eax,[ebx+0003AAF0]
+  jmp return2
+
+DrawHUD_aob:
+  jmp newmem2
+  nop 3
+return2:
+registersymbol(DrawHUD_aob)
+
+[DISABLE]
+
+minimap_aob:
+  db F3 0F 10 87 F4 01 00 00
+
+DrawHUD_aob:
+  db 75 64 8B 83 F0 AA 03 00
+
+unregistersymbol(minimap_aob)
+unregistersymbol(DrawHUD_aob)
+dealloc(newmem)
+dealloc(newmem2)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+1E157E
+
+TokyoXanadu.exe+1E1563: 83 EC 7C                 - sub esp,7C
+TokyoXanadu.exe+1E1566: A1 70 DE AA 00           - mov eax,[TokyoXanadu.exe+6ADE70]
+TokyoXanadu.exe+1E156B: 33 C5                    - xor eax,ebp
+TokyoXanadu.exe+1E156D: 89 45 FC                 - mov [ebp-04],eax
+TokyoXanadu.exe+1E1570: 53                       - push ebx
+TokyoXanadu.exe+1E1571: 56                       - push esi
+TokyoXanadu.exe+1E1572: 57                       - push edi
+TokyoXanadu.exe+1E1573: 8B F9                    - mov edi,ecx
+TokyoXanadu.exe+1E1575: 89 7D 88                 - mov [ebp-78],edi
+TokyoXanadu.exe+1E1578: 8A 8F 64 05 00 00        - mov cl,[edi+00000564]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+1E157E: F3 0F 10 87 F4 01 00 00  - movss xmm0,[edi+000001F4]
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+1E1586: F3 0F 11 45 90           - movss [ebp-70],xmm0
+TokyoXanadu.exe+1E158B: 84 C9                    - test cl,cl
+TokyoXanadu.exe+1E158D: 74 0D                    - je TokyoXanadu.exe+1E159C
+TokyoXanadu.exe+1E158F: F3 0F 10 87 54 05 00 00  - movss xmm0,[edi+00000554]
+TokyoXanadu.exe+1E1597: F3 0F 11 45 90           - movss [ebp-70],xmm0
+TokyoXanadu.exe+1E159C: F3 0F 10 97 40 03 00 00  - movss xmm2,[edi+00000340]
+TokyoXanadu.exe+1E15A4: F3 0F 10 8F B0 03 00 00  - movss xmm1,[edi+000003B0]
+TokyoXanadu.exe+1E15AC: F3 0F 59 D0              - mulss xmm2,xmm0
+TokyoXanadu.exe+1E15B0: F3 0F 59 C8              - mulss xmm1,xmm0
+TokyoXanadu.exe+1E15B4: 0F 57 ED                 - xorps xmm5,xmm5
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2402</ID>
+          <Description>"Unlock Tilt"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(tiltupper_aob,TokyoXanadu.exe,F3 0F 10 0D 3C D3 97 00) // should be unique
+alloc(newmem,$100,tiltupper_aob)
+aobscanmodule(tiltlower_aob,TokyoXanadu.exe,F3 0F 10 0D 4C D3 97 00) // should be unique
+alloc(newmem2,$100,tiltlower_aob)
+
+label(code)
+label(return)
+
+registersymbol(tiltupperlimit)
+
+newmem:
+
+code:
+  movss xmm1,[tiltupperlimit]
+  //movss xmm1,[TokyoXanadu.exe+57D33C]
+  jmp return
+
+tiltupperlimit:
+dd (float)1.553
+
+tiltupper_aob:
+  jmp newmem
+  nop 3
+return:
+registersymbol(tiltupper_aob)
+
+label(code2)
+label(return2)
+
+registersymbol(tiltlowerlimit)
+
+newmem2:
+
+code2:
+  movss xmm1,[tiltlowerlimit]
+  //movss xmm1,[TokyoXanadu.exe+57D34C]
+  jmp return2
+
+tiltlowerlimit:
+dd (float)-1.553
+
+tiltlower_aob:
+  jmp newmem2
+  nop 3
+return2:
+registersymbol(tiltlower_aob)
+
+[DISABLE]
+
+tiltupper_aob:
+  db F3 0F 10 0D 3C D3 97 00
+tiltlower_aob:
+  db F3 0F 10 0D 4C D3 97 00
+
+unregistersymbol(tiltupper_aob)
+unregistersymbol(tiltupperlimit)
+dealloc(newmem)
+unregistersymbol(tiltlower_aob)
+unregistersymbol(tiltlowerlimit)
+dealloc(newmem2)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7BF64
+
+TokyoXanadu.exe+7BF35: F3 0F 58 C1                 - addss xmm0,xmm1
+TokyoXanadu.exe+7BF39: F3 0F 11 44 24 40           - movss [esp+40],xmm0
+TokyoXanadu.exe+7BF3F: E8 1C 0B 08 00              - call TokyoXanadu.exe+FCA60
+TokyoXanadu.exe+7BF44: 80 B8 1C AB 03 00 00        - cmp byte ptr [eax+0003AB1C],00
+TokyoXanadu.exe+7BF4B: 74 11                       - je TokyoXanadu.exe+7BF5E
+TokyoXanadu.exe+7BF4D: 8B 44 24 1C                 - mov eax,[esp+1C]
+TokyoXanadu.exe+7BF51: F3 0F 10 40 24              - movss xmm0,[eax+24]
+TokyoXanadu.exe+7BF56: F3 0F 11 44 24 40           - movss [esp+40],xmm0
+TokyoXanadu.exe+7BF5C: EB 06                       - jmp TokyoXanadu.exe+7BF64
+TokyoXanadu.exe+7BF5E: F3 0F 10 44 24 40           - movss xmm0,[esp+40]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7BF64: F3 0F 10 0D 3C D3 97 00     - movss xmm1,[TokyoXanadu.exe+57D33C]
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7BF6C: 0F 2F C1                    - comiss xmm0,xmm1
+TokyoXanadu.exe+7BF6F: 77 0D                       - ja TokyoXanadu.exe+7BF7E
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7BF71: F3 0F 10 0D 4C D3 97 00     - movss xmm1,[TokyoXanadu.exe+57D34C]
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7BF79: 0F 2F C8                    - comiss xmm1,xmm0
+TokyoXanadu.exe+7BF7C: 76 06                       - jna TokyoXanadu.exe+7BF84
+TokyoXanadu.exe+7BF7E: F3 0F 11 4C 24 40           - movss [esp+40],xmm1
+TokyoXanadu.exe+7BF84: F3 0F 10 45 0C              - movss xmm0,[ebp+0C]
+TokyoXanadu.exe+7BF89: F3 0F 10 9C 24 98 00 00 00  - movss xmm3,[esp+00000098]
+TokyoXanadu.exe+7BF92: 0F 57 D2                    - xorps xmm2,xmm2
+TokyoXanadu.exe+7BF95: 0F 2E C2                    - ucomiss xmm0,xmm2
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2431</ID>
+          <Description>"Decrease min Z"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(MinZ_aob,TokyoXanadu.exe,F3 0F 11 54 24 0C E8 B8) // should be unique
+alloc(newmem,$100)
+
+label(code)
+label(return)
+label(EnableAggressiveMinZ)
+
+registersymbol(EnableAggressiveMinZ)
+registersymbol(MinZ_aob)
+
+newmem:
+
+code:
+  pushf
+  cmp [EnableAggressiveMinZ],#0
+  je @f
+  popf
+  addss xmm2,xmm0
+  addss xmm2,xmm0
+  movss [esp+0C],xmm2
+  jmp return
+  @@:
+  popf
+  jmp return
+
+EnableAggressiveMinZ:
+dd #0
+
+MinZ_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+MinZ_aob:
+  db F3 0F 11 54 24 0C
+
+unregistersymbol(MinZ_aob)
+unregistersymbol(EnableAggressiveMinZ)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7D59D
+
+TokyoXanadu.exe+7D576: A8 01                    - test al,01
+TokyoXanadu.exe+7D578: 74 0E                    - je TokyoXanadu.exe+7D588
+TokyoXanadu.exe+7D57A: F3 0F 10 15 0C 30 9A 00  - movss xmm2,[TokyoXanadu.exe+5A300C]
+TokyoXanadu.exe+7D582: F3 0F 11 54 24 64        - movss [esp+64],xmm2
+TokyoXanadu.exe+7D588: 0F 28 D0                 - movaps xmm2,xmm0
+TokyoXanadu.exe+7D58B: F3 0F 5C 54 24 64        - subss xmm2,[esp+64]
+TokyoXanadu.exe+7D591: 0F 28 C3                 - movaps xmm0,xmm3
+TokyoXanadu.exe+7D594: F3 0F 5C C2              - subss xmm0,xmm2
+TokyoXanadu.exe+7D598: 0F 2F C8                 - comiss xmm1,xmm0
+TokyoXanadu.exe+7D59B: 76 06                    - jna TokyoXanadu.exe+7D5A3
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7D59D: F3 0F 11 54 24 0C        - movss [esp+0C],xmm2
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7D5A3: E8 B8 F4 07 00           - call TokyoXanadu.exe+FCA60
+TokyoXanadu.exe+7D5A8: 80 B8 10 DF 03 00 01     - cmp byte ptr [eax+0003DF10],01
+TokyoXanadu.exe+7D5AF: 75 50                    - jne TokyoXanadu.exe+7D601
+TokyoXanadu.exe+7D5B1: 8B 87 CC 00 00 00        - mov eax,[edi+000000CC]
+TokyoXanadu.exe+7D5B7: F7 D0                    - not eax
+TokyoXanadu.exe+7D5B9: A8 04                    - test al,04
+TokyoXanadu.exe+7D5BB: 74 44                    - je TokyoXanadu.exe+7D601
+TokyoXanadu.exe+7D5BD: E8 9E F4 07 00           - call TokyoXanadu.exe+FCA60
+TokyoXanadu.exe+7D5C2: F3 0F 10 80 14 DF 03 00  - movss xmm0,[eax+0003DF14]
+TokyoXanadu.exe+7D5CA: F3 0F 59 44 24 1C        - mulss xmm0,[esp+1C]
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>2432</ID>
+              <Description>"Aggressive decrease"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+EnableAggressiveMinZ:
+dd #1
+
+[DISABLE]
+EnableAggressiveMinZ:
+dd #0
+
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2397</ID>
+          <Description>"Free Camera"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+globalalloc(speedModifier,8)
+speedModifier:
+dd (float)3
+//code from here to '[DISABLE]' will be used to enable the cheat
+
+aobscanmodule(detachcamera_aob,TokyoXanadu.exe,F3 0F 11 78 20 F3 0F 11 40 24) // should be unique
+aobscanmodule(detachcamerarotation_aob,TokyoXanadu.exe,F3 0F 11 87 20 05 00 00) // should be unique
+
+registersymbol(detachcamera_aob)
+registersymbol(detachcamerarotation_aob)
+
+detachcamera_aob:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+detachcamerarotation_aob:
+  db 90 90 90 90 90 90 90 90
+
+detachcamerarotation_aob+53:
+  db 90 90 90 90 90 90
+
+detachcamerarotation_aob-20B0:
+  db 90 90 90 90 90 90 90
+
+{$lua}
+
+function checkKeys()
+
+  --Read and assign speed modifier value
+  local speed = readFloat("speedModifier")
+
+  --Mouse Rotation in Radians
+  --Use math.rad() to convert from degrees if game values aren't in radians
+  local tilt = readFloat("[camerastatus]+384") -- Vertical (tilt)
+  local pan = readFloat("[camerastatus]+388") -- Horizontal (pan)
+  local roll = readFloat("[camerastatus]+38C") -- roll
+
+  --Camera Coordinates
+  local camx = readFloat("[camerastatus]+20") -- Camera X
+  local camy = readFloat("[camerastatus]+28") -- Camera Y
+  local camz = readFloat("[camerastatus]+24") -- Camera Z
+
+  --Sine and Cosine of Rotation Values
+  local siny = math.sin(pan) -- Sine of Horizontal (pan)
+  local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+  local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+  local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+
+  --Forward
+  if isKeyPressed(VK_NUMPAD8) then
+    writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Left
+  if isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
+  end
+  --Back
+  if isKeyPressed(VK_NUMPAD5) then
+    writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Right
+  if isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
+  end
+  --Forward/Right
+  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Forward/Left
+  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+  end
+  --Back/Left
+  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Back/Right
+  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+    writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
+    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+  end
+  --Up
+  if isKeyPressed(VK_SUBTRACT) then
+   writeFloat("[camerastatus]+24", camz + (speed * 0.02))
+  end
+  --Down
+  if isKeyPressed(VK_ADD) then
+   writeFloat("[camerastatus]+24", camz - (speed * 0.02))
+  end
+  --Pan right
+  if isKeyPressed(VK_RIGHT) then
+      writeFloat("[camerastatus]+388", pan - (speed * 0.01))
+  end
+  --Pan left
+  if isKeyPressed(VK_LEFT) then
+      writeFloat("[camerastatus]+388", pan + (speed * 0.01))
+  end
+  --Tilt up
+  if isKeyPressed(VK_UP) then
+      writeFloat("[camerastatus]+384", tilt - (speed * 0.01))
+  end
+  --Tilt down
+  if isKeyPressed(VK_DOWN) then
+      writeFloat("[camerastatus]+384", tilt + (speed * 0.01))
+  end
+  --Roll left
+  if isKeyPressed(VK_NUMPAD7) then
+      writeFloat("[camerastatus]+38C", roll - (speed * 0.01))
+  end
+  --Roll right
+  if isKeyPressed(VK_NUMPAD9) then
+      writeFloat("[camerastatus]+38C", roll + (speed * 0.01))
+  end
+  --Roll neutral
+  if isKeyPressed(VK_NUMPAD3) then
+      writeFloat("[camerastatus]+38C", 0)
+  end
+
+  --Speed Modifiers
+  if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+    writeFloat("speedModifier", 12)
+  elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+    writeFloat("speedModifier", 6)
+  elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+    writeFloat("speedModifier", .5)
+  else --If nothing is pressed, speed is normal
+    writeFloat("speedModifier", 3)
+  end
+end
+
+t=createTimer(nil)
+timer_setInterval(t, 10)
+timer_onTimer(t, checkKeys)
+timer_setEnabled(t, true)
+
+{$asm}
+
+[DISABLE]
+{$lua}
+
+timer_setEnabled(t, false)
+
+{$asm}
+//code from here till the end of the code will be used to disable the cheat
+detachcamera_aob:
+  db F3 0F 11 78 20 F3 0F 11 40 24 F3 0F 11 50 28
+
+detachcamerarotation_aob:
+  db F3 0F 11 87 20 05 00 00
+
+detachcamerarotation_aob+53:
+  db D9 9F 24 05 00 00
+
+detachcamerarotation_aob-20B0:
+  db 83 B8 68 48 03 00 00
+
+unregistersymbol(detachcamera_aob)
+unregistersymbol(detachcamerarotation_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+81D90 - XYZ
+
+TokyoXanadu.exe+81D56: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
+camerastatus_aob: E9 9F E2 D7 03           - jmp 04200000
+TokyoXanadu.exe+81D61: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
+TokyoXanadu.exe+81D67: C7 40 0C 00 00 00 00     - mov [eax+0C],00000000
+TokyoXanadu.exe+81D6E: F3 0F 11 50 10           - movss [eax+10],xmm2
+TokyoXanadu.exe+81D73: F3 0F 10 54 24 38        - movss xmm2,[esp+38]
+TokyoXanadu.exe+81D79: F3 0F 11 78 18           - movss [eax+18],xmm7
+TokyoXanadu.exe+81D7E: F3 0F 10 7C 24 40        - movss xmm7,[esp+40]
+TokyoXanadu.exe+81D84: F3 0F 11 68 14           - movss [eax+14],xmm5
+TokyoXanadu.exe+81D89: C7 40 1C 00 00 00 00     - mov [eax+1C],00000000
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+81D90: F3 0F 11 78 20           - movss [eax+20],xmm7
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+81D95: F3 0F 11 40 24           - movss [eax+24],xmm0
+TokyoXanadu.exe+81D9A: F3 0F 11 50 28           - movss [eax+28],xmm2
+TokyoXanadu.exe+81D9F: C7 40 2C 00 00 80 3F     - mov [eax+2C],3F800000
+TokyoXanadu.exe+81DA6: F3 0F 11 58 0C           - movss [eax+0C],xmm3
+TokyoXanadu.exe+81DAB: F3 0F 11 70 1C           - movss [eax+1C],xmm6
+TokyoXanadu.exe+81DB0: F3 0F 11 48 2C           - movss [eax+2C],xmm1
+TokyoXanadu.exe+81DB5: F3 0F 10 86 BC 00 00 00  - movss xmm0,[esi+000000BC]
+TokyoXanadu.exe+81DBD: F3 0F 11 44 24 0C        - movss [esp+0C],xmm0
+TokyoXanadu.exe+81DC3: F3 0F 10 86 B8 00 00 00  - movss xmm0,[esi+000000B8]
+TokyoXanadu.exe+81DCB: F3 0F 11 44 24 08        - movss [esp+08],xmm0
+
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7D133 - ROTATION
+
+TokyoXanadu.exe+7D102: E8 C9 C7 FF FF              - call TokyoXanadu.exe+798D0
+TokyoXanadu.exe+7D107: F3 0F 10 00                 - movss xmm0,[eax]
+TokyoXanadu.exe+7D10B: F3 0F 11 84 24 DC 00 00 00  - movss [esp+000000DC],xmm0
+TokyoXanadu.exe+7D114: F3 0F 10 40 08              - movss xmm0,[eax+08]
+TokyoXanadu.exe+7D119: F3 0F 11 44 24 70           - movss [esp+70],xmm0
+TokyoXanadu.exe+7D11F: F3 0F 10 40 04              - movss xmm0,[eax+04]
+TokyoXanadu.exe+7D124: 0F 5A C0                    - cvtps2pd xmm0,xmm0
+TokyoXanadu.exe+7D127: 83 C4 14                    - add esp,14
+TokyoXanadu.exe+7D12A: E8 D9 FB 40 00              - call TokyoXanadu.exe+48CD08
+TokyoXanadu.exe+7D12F: F2 0F 5A C0                 - cvtsd2ss xmm0,xmm0
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7D133: F3 0F 11 87 20 05 00 00     - movss [edi+00000520],xmm0
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7D13B: F3 0F 10 84 24 C8 00 00 00  - movss xmm0,[esp+000000C8]
+TokyoXanadu.exe+7D144: 0F 5A C0                    - cvtps2pd xmm0,xmm0
+TokyoXanadu.exe+7D147: F2 0F 11 44 24 68           - movsd [esp+68],xmm0
+TokyoXanadu.exe+7D14D: DD 44 24 68                 - fld qword ptr [esp+68]
+TokyoXanadu.exe+7D151: F3 0F 10 44 24 5C           - movss xmm0,[esp+5C]
+TokyoXanadu.exe+7D157: 0F 5A C0                    - cvtps2pd xmm0,xmm0
+TokyoXanadu.exe+7D15A: F2 0F 11 44 24 68           - movsd [esp+68],xmm0
+TokyoXanadu.exe+7D160: DD 44 24 68                 - fld qword ptr [esp+68]
+TokyoXanadu.exe+7D164: E8 49 F9 40 00              - call TokyoXanadu.exe+48CAB2
+TokyoXanadu.exe+7D169: D9 9C 24 C8 00 00 00        - fstp dword ptr [esp+000000C8]
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>96</Key>
+              </Keys>
+              <ID>0</ID>
+              <ActivateSound>Activate</ActivateSound>
+              <DeactivateSound>Deactivate</DeactivateSound>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>2420</ID>
+              <Description>"Unlock pan/tilt during dialogue (turn off when not needed)"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+aobscanmodule(dialoguejump_aob,TokyoXanadu.exe,0F 84 48 03 00 00 F6) // should be unique
+alloc(newmem,$1000)
+aobscanmodule(dialoguejump2_aob,TokyoXanadu.exe,0F 84 16 01 00 00 F3) // should be unique
+alloc(newmem2,$1000)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  jmp TokyoXanadu.exe+7A4AE
+  //je TokyoXanadu.exe+7A4AE
+  jmp return
+
+dialoguejump_aob:
+  jmp newmem
+  nop
+return:
+registersymbol(dialoguejump_aob)
+
+label(code2)
+label(return2)
+
+newmem2:
+
+code2:
+  jmp TokyoXanadu.exe+7A6EE
+  //je TokyoXanadu.exe+7A6EE
+  jmp return2
+
+dialoguejump2_aob:
+  jmp newmem2
+  nop
+return2:
+registersymbol(dialoguejump2_aob)
+
+[DISABLE]
+
+dialoguejump_aob:
+  db 0F 84 48 03 00 00
+
+dialoguejump2_aob:
+  db 0F 84 16 01 00 00
+
+unregistersymbol(dialoguejump_aob)
+unregistersymbol(dialoguejump2_aob)
+dealloc(newmem)
+dealloc(newmem2)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7A160 - AOB1
+
+TokyoXanadu.exe+7A13F: CC                       - int 3 
+TokyoXanadu.exe+7A140: 55                       - push ebp
+TokyoXanadu.exe+7A141: 8B EC                    - mov ebp,esp
+TokyoXanadu.exe+7A143: 83 E4 F8                 - and esp,-08
+TokyoXanadu.exe+7A146: F3 0F 10 45 08           - movss xmm0,[ebp+08]
+TokyoXanadu.exe+7A14B: 83 EC 24                 - sub esp,24
+TokyoXanadu.exe+7A14E: 56                       - push esi
+TokyoXanadu.exe+7A14F: 8B F1                    - mov esi,ecx
+TokyoXanadu.exe+7A151: F6 86 CC 00 00 00 04     - test byte ptr [esi+000000CC],04
+TokyoXanadu.exe+7A158: F3 0F 11 86 40 01 00 00  - movss [esi+00000140],xmm0
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7A160: 0F 84 48 03 00 00        - je TokyoXanadu.exe+7A4AE
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7A166: F6 86 FE 04 00 00 20     - test byte ptr [esi+000004FE],20
+TokyoXanadu.exe+7A16D: F3 0F 10 86 00 05 00 00  - movss xmm0,[esi+00000500]
+TokyoXanadu.exe+7A175: F3 0F 10 9E 04 05 00 00  - movss xmm3,[esi+00000504]
+TokyoXanadu.exe+7A17D: F3 0F 10 A6 08 05 00 00  - movss xmm4,[esi+00000508]
+TokyoXanadu.exe+7A185: F3 0F 11 44 24 18        - movss [esp+18],xmm0
+TokyoXanadu.exe+7A18B: F3 0F 11 5C 24 1C        - movss [esp+1C],xmm3
+TokyoXanadu.exe+7A191: F3 0F 11 64 24 20        - movss [esp+20],xmm4
+TokyoXanadu.exe+7A197: 74 66                    - je TokyoXanadu.exe+7A1FF
+TokyoXanadu.exe+7A199: F3 0F 10 96 10 05 00 00  - movss xmm2,[esi+00000510]
+TokyoXanadu.exe+7A1A1: F3 0F 10 8E 14 05 00 00  - movss xmm1,[esi+00000514]
+
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7A5D2 - AOB2
+
+TokyoXanadu.exe+7A5B6: A8 08                    - test al,08
+TokyoXanadu.exe+7A5B8: 74 14                    - je TokyoXanadu.exe+7A5CE
+TokyoXanadu.exe+7A5BA: 8B 4D 0C                 - mov ecx,[ebp+0C]
+TokyoXanadu.exe+7A5BD: 8B 01                    - mov eax,[ecx]
+TokyoXanadu.exe+7A5BF: 89 46 04                 - mov [esi+04],eax
+TokyoXanadu.exe+7A5C2: 8B 41 04                 - mov eax,[ecx+04]
+TokyoXanadu.exe+7A5C5: 89 46 08                 - mov [esi+08],eax
+TokyoXanadu.exe+7A5C8: 8B 41 08                 - mov eax,[ecx+08]
+TokyoXanadu.exe+7A5CB: 89 46 0C                 - mov [esi+0C],eax
+TokyoXanadu.exe+7A5CE: F6 46 02 20              - test byte ptr [esi+02],20
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7A5D2: 0F 84 16 01 00 00        - je TokyoXanadu.exe+7A6EE
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7A5D8: F3 0F 10 97 10 05 00 00  - movss xmm2,[edi+00000510]
+TokyoXanadu.exe+7A5E0: F3 0F 5C 97 00 05 00 00  - subss xmm2,[edi+00000500]
+TokyoXanadu.exe+7A5E8: F3 0F 10 87 14 05 00 00  - movss xmm0,[edi+00000514]
+TokyoXanadu.exe+7A5F0: F3 0F 5C 87 04 05 00 00  - subss xmm0,[edi+00000504]
+TokyoXanadu.exe+7A5F8: F3 0F 10 8F 18 05 00 00  - movss xmm1,[edi+00000518]
+TokyoXanadu.exe+7A600: F3 0F 5C 8F 08 05 00 00  - subss xmm1,[edi+00000508]
+TokyoXanadu.exe+7A608: F3 0F 59 D2              - mulss xmm2,xmm2
+TokyoXanadu.exe+7A60C: F3 0F 59 C0              - mulss xmm0,xmm0
+TokyoXanadu.exe+7A610: F3 0F 59 C9              - mulss xmm1,xmm1
+TokyoXanadu.exe+7A614: F3 0F 58 D0              - addss xmm2,xmm0
+}
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2393</ID>
+          <Description>"Camera Coordinates"</Description>
+          <Options moHideChildren="1"/>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>2387</ID>
+              <Description>"Camera X"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+20</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2388</ID>
+              <Description>"Camera Y"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+28</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2389</ID>
+              <Description>"Camera Z"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+24</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2390</ID>
+              <Description>"Camera Tilt"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+384</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2391</ID>
+              <Description>"Camera Pan"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+388</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2392</ID>
+              <Description>"Camera Roll"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+38C</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2423</ID>
+              <Description>"Zoom-1"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+3A4</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2424</ID>
+              <Description>"Zoom-2"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>[camerastatus]+3A8</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <Comments>Based on the CS4 table by Cyber
+</Comments>
+</CheatTable>

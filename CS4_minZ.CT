@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"Set Field Min Z to zero"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(FieldMinZ_aob,ed8_4_PC.exe,F3 44 0F 58 D1 F3 0F 10 87) // should be unique
+alloc(newmem,$1000,FieldMinZ_aob)
+
+label(code)
+label(return)
+
+newmem:
+  pxor xmm1,xmm1
+
+code:
+  addss xmm10,xmm1
+  jmp return
+
+FieldMinZ_aob:
+  jmp newmem
+return:
+registersymbol(FieldMinZ_aob)
+
+[DISABLE]
+
+FieldMinZ_aob:
+  db F3 44 0F 58 D1
+
+unregistersymbol(FieldMinZ_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_4_PC.exe+1E4338
+
+ed8_4_PC.exe+1E4311: 76 2A                       - jna ed8_4_PC.exe+1E433D
+ed8_4_PC.exe+1E4313: 44 0F 28 D0                 - movaps xmm10,xmm0
+ed8_4_PC.exe+1E4317: EB 24                       - jmp ed8_4_PC.exe+1E433D
+ed8_4_PC.exe+1E4319: F3 0F 10 54 24 5C           - movss xmm2,[rsp+5C]
+ed8_4_PC.exe+1E431F: 41 0F 28 C2                 - movaps xmm0,xmm10
+ed8_4_PC.exe+1E4323: F3 0F 10 0D 3D A7 6A 00     - movss xmm1,[ed8_4_PC.exe+88EA68]
+ed8_4_PC.exe+1E432B: F3 0F 5C C2                 - subss xmm0,xmm2
+ed8_4_PC.exe+1E432F: 0F 2F C8                    - comiss xmm1,xmm0
+ed8_4_PC.exe+1E4332: 76 09                       - jna ed8_4_PC.exe+1E433D
+ed8_4_PC.exe+1E4334: 44 0F 28 D2                 - movaps xmm10,xmm2
+// ---------- INJECTING HERE ----------
+ed8_4_PC.exe+1E4338: F3 44 0F 58 D1              - addss xmm10,xmm1
+// ---------- DONE INJECTING  ----------
+ed8_4_PC.exe+1E433D: F3 0F 10 87 14 09 00 00     - movss xmm0,[rdi+00000914]
+ed8_4_PC.exe+1E4345: F3 0F 11 45 E4              - movss [rbp-1C],xmm0
+ed8_4_PC.exe+1E434A: F3 0F 5C BF 6C 01 00 00     - subss xmm7,[rdi+0000016C]
+ed8_4_PC.exe+1E4352: 45 0F 28 C7                 - movaps xmm8,xmm15
+ed8_4_PC.exe+1E4356: 48 8D 55 B0                 - lea rdx,[rbp-50]
+ed8_4_PC.exe+1E435A: F3 44 0F 5C 87 64 01 00 00  - subss xmm8,[rdi+00000164]
+ed8_4_PC.exe+1E4363: 41 0F 28 F6                 - movaps xmm6,xmm14
+ed8_4_PC.exe+1E4367: 48 8D 4D 40                 - lea rcx,[rbp+40]
+ed8_4_PC.exe+1E436B: F3 0F 5C B7 68 01 00 00     - subss xmm6,[rdi+00000168]
+ed8_4_PC.exe+1E4373: F3 0F 11 7D B8              - movss [rbp-48],xmm7
+}
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
