@@ -75,38 +75,69 @@ TokyoXanadu.exe+81D95: F3 0F 11 40 24           - movss [eax+24],xmm0
       <CheatEntries>
         <CheatEntry>
           <ID>2421</ID>
-          <Description>"Force Pause Animation"</Description>
+          <Description>"Force Pause Animation (Enable first, F5 pause / F6 unpause)"</Description>
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
-aobscanmodule(notinmenu_aob,TokyoXanadu.exe,0F 95 C0 C3 CC CC CC 56) // should be unique
-alloc(newmem,$1000)
+aobscanmodule(notinmenu_aob,TokyoXanadu.exe,83 B9 64 01 00 00 FE) // should be unique
+alloc(newmem,$1000,notinmenu_aob)
+registersymbol(notinmenu_aob)
+registersymbol(freeze)
 
+label(toggleon)
+label(toggleoff)
+label(compcode)
 label(code)
+label(freeze)
 label(return)
 
 newmem:
 
-code:
+toggleon:
+  pushad
+  push 74 //VK_F5
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz toggleoff
+  mov [freeze],#1
+  jmp compcode
+
+toggleoff:
+  pushad
+  push 75 //VK_F6
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz compcode
+  mov [freeze],#0
+
+compcode:
+  cmp [freeze],#0
+  je code
   mov al,1
-  // setne al
-  ret
-  int 3
   jmp return
+
+code:
+  cmp dword ptr [ecx+00000164],-02
+  setne al
+  jmp return
+
+freeze:
+  dd #0
 
 notinmenu_aob:
   jmp newmem
+  db 90 90 90 90 90
 return:
-
-registersymbol(notinmenu_aob)
 
 [DISABLE]
 
 notinmenu_aob:
-  db 0F 95 C0 C3 CC
+  db 83 B9 64 01 00 00 FE 0F 95 C0
 
 unregistersymbol(notinmenu_aob)
-unregistersymbol(forcecameralockwhileinmenu_aob)
+unregistersymbol(freeze)
 dealloc(newmem)
 
 {
@@ -121,8 +152,8 @@ TokyoXanadu.exe+8D20D: 5B                    - pop ebx
 TokyoXanadu.exe+8D20E: C3                    - ret
 TokyoXanadu.exe+8D20F: CC                    - int 3
 TokyoXanadu.exe+8D210: 33 C0                 - xor eax,eax
-TokyoXanadu.exe+8D212: 83 B9 64 01 00 00 FE  - cmp dword ptr [ecx+00000164],-02
 // ---------- INJECTING HERE ----------
+TokyoXanadu.exe+8D212: 83 B9 64 01 00 00 FE  - cmp dword ptr [ecx+00000164],-02
 TokyoXanadu.exe+8D219: 0F 95 C0              - setne al
 // ---------- DONE INJECTING  ----------
 TokyoXanadu.exe+8D21C: C3                    - ret
@@ -137,24 +168,6 @@ TokyoXanadu.exe+8D22A: 74 04                 - je TokyoXanadu.exe+8D230
 TokyoXanadu.exe+8D22C: 32 C0                 - xor al,al
 }
 </AssemblerScript>
-          <Hotkeys>
-            <Hotkey>
-              <Action>Activate</Action>
-              <Keys>
-                <Key>116</Key>
-              </Keys>
-              <ID>0</ID>
-              <ActivateSound>Activate</ActivateSound>
-            </Hotkey>
-            <Hotkey>
-              <Action>Deactivate</Action>
-              <Keys>
-                <Key>117</Key>
-              </Keys>
-              <ID>1</ID>
-              <DeactivateSound>Deactivate</DeactivateSound>
-            </Hotkey>
-          </Hotkeys>
           <CheatEntries>
             <CheatEntry>
               <ID>2422</ID>
@@ -574,29 +587,22 @@ aobscanmodule(MinZ_aob,TokyoXanadu.exe,F3 0F 11 54 24 0C E8 B8) // should be uni
 alloc(newmem,$100)
 
 label(code)
+label(DepthMultiplier)
 label(return)
-label(EnableAggressiveMinZ)
 
-registersymbol(EnableAggressiveMinZ)
+registersymbol(DepthMultiplier)
 registersymbol(MinZ_aob)
 
 newmem:
+  mulss xmm0,[DepthMultiplier]
+  addss xmm2,xmm0
 
 code:
-  pushf
-  cmp [EnableAggressiveMinZ],#0
-  je @f
-  popf
-  addss xmm2,xmm0
-  addss xmm2,xmm0
   movss [esp+0C],xmm2
   jmp return
-  @@:
-  popf
-  jmp return
 
-EnableAggressiveMinZ:
-dd #0
+DepthMultiplier:
+dd (float)1
 
 MinZ_aob:
   jmp newmem
@@ -609,7 +615,7 @@ MinZ_aob:
   db F3 0F 11 54 24 0C
 
 unregistersymbol(MinZ_aob)
-unregistersymbol(EnableAggressiveMinZ)
+unregistersymbol(DepthMultiplier)
 dealloc(newmem)
 
 {
@@ -643,17 +649,17 @@ TokyoXanadu.exe+7D5CA: F3 0F 59 44 24 1C        - mulss xmm0,[esp+1C]
           <CheatEntries>
             <CheatEntry>
               <ID>2432</ID>
-              <Description>"Aggressive decrease"</Description>
-              <VariableType>Auto Assembler Script</VariableType>
-              <AssemblerScript>[ENABLE]
-EnableAggressiveMinZ:
-dd #1
-
-[DISABLE]
-EnableAggressiveMinZ:
-dd #0
-
-</AssemblerScript>
+              <Description>"Depth Multiplier"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>DepthMultiplier</Address>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>4011</ID>
+                  <Description>"1.0 = standard, 1.5 = more aggressive, 2.0 = below the floor"</Description>
+                  <GroupHeader>1</GroupHeader>
+                </CheatEntry>
+              </CheatEntries>
             </CheatEntry>
           </CheatEntries>
         </CheatEntry>
