@@ -3,75 +3,9 @@
   <CheatEntries>
     <CheatEntry>
       <ID>2386</ID>
-      <Description>"Camera Status"</Description>
+      <Description>"Camera Options"</Description>
       <Options moHideChildren="1"/>
-      <VariableType>Auto Assembler Script</VariableType>
-      <AssemblerScript>{ Game   : TokyoXanadu.exe
-
-  Adapted from Cyber's CS4 script
-}
-
-[ENABLE]
-
-aobscanmodule(camerastatus_aob,TokyoXanadu.exe,F3 0F 11 40 08 F3 0F 10 44 24 2C) // should be unique
-alloc(newmem,$100,camerastatus_aob)
-alloc(camerastatus,8)
-
-label(code)
-label(return)
-
-registersymbol(camerastatus)
-
-newmem:
-  mov [camerastatus],eax
-
-code:
-  movss [eax+08],xmm0
-  jmp return
-
-camerastatus_aob:
-  jmp newmem
-return:
-registersymbol(camerastatus_aob)
-
-[DISABLE]
-
-camerastatus_aob:
-  db F3 0F 11 40 08
-
-unregistersymbol(camerastatus_aob)
-unregistersymbol(camerastatus)
-dealloc(camerastatus)
-dealloc(newmem)
-
-{
-// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+81D5C
-
-TokyoXanadu.exe+81D26: F3 0F 11 4C 24 14        - movss [esp+14],xmm1
-TokyoXanadu.exe+81D2C: F3 0F 10 74 24 10        - movss xmm6,[esp+10]
-TokyoXanadu.exe+81D32: EB 06                    - jmp TokyoXanadu.exe+81D3A
-TokyoXanadu.exe+81D34: F3 0F 10 44 24 0C        - movss xmm0,[esp+0C]
-TokyoXanadu.exe+81D3A: F3 0F 11 86 9C 01 00 00  - movss [esi+0000019C],xmm0
-TokyoXanadu.exe+81D42: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
-TokyoXanadu.exe+81D48: 8D 86 9C 01 00 00        - lea eax,[esi+0000019C]
-TokyoXanadu.exe+81D4E: 83 EC 10                 - sub esp,10
-TokyoXanadu.exe+81D51: F3 0F 11 40 04           - movss [eax+04],xmm0
-TokyoXanadu.exe+81D56: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
-// ---------- INJECTING HERE ----------
-TokyoXanadu.exe+81D5C: F3 0F 11 40 08           - movss [eax+08],xmm0
-// ---------- DONE INJECTING  ----------
-TokyoXanadu.exe+81D61: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
-TokyoXanadu.exe+81D67: C7 40 0C 00 00 00 00     - mov [eax+0C],00000000
-TokyoXanadu.exe+81D6E: F3 0F 11 50 10           - movss [eax+10],xmm2
-TokyoXanadu.exe+81D73: F3 0F 10 54 24 38        - movss xmm2,[esp+38]
-TokyoXanadu.exe+81D79: F3 0F 11 78 18           - movss [eax+18],xmm7
-TokyoXanadu.exe+81D7E: F3 0F 10 7C 24 40        - movss xmm7,[esp+40]
-TokyoXanadu.exe+81D84: F3 0F 11 68 14           - movss [eax+14],xmm5
-TokyoXanadu.exe+81D89: C7 40 1C 00 00 00 00     - mov [eax+1C],00000000
-TokyoXanadu.exe+81D90: F3 0F 11 78 20           - movss [eax+20],xmm7
-TokyoXanadu.exe+81D95: F3 0F 11 40 24           - movss [eax+24],xmm0
-}
-</AssemblerScript>
+      <GroupHeader>1</GroupHeader>
       <CheatEntries>
         <CheatEntry>
           <ID>2421</ID>
@@ -664,8 +598,161 @@ TokyoXanadu.exe+7D5CA: F3 0F 59 44 24 1C        - mulss xmm0,[esp+1C]
           </CheatEntries>
         </CheatEntry>
         <CheatEntry>
+          <ID>4012</ID>
+          <Description>"Set Custom Field of View (F4 Toggle)"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(fov_aob,TokyoXanadu.exe,F3 0F 11 81 44 05 00 00 5D C2 04) // should be unique
+alloc(newmem,$1000)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(fov_pointer)
+label(fov_step)
+label(fov_min)
+label(fov_max)
+label(return)
+
+registersymbol(fov_aob)
+registersymbol(fov_pointer)
+registersymbol(fov_min)
+registersymbol(fov_max)
+
+newmem:
+  mov [fov_pointer],ecx
+  movss [ecx+00000544],xmm0
+
+toggleon:
+  pushad
+  push 23 //VK_END
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz toggleoff
+  movss xmm0,[ecx+00000544]
+  addss xmm0,[fov_step]
+  minss xmm0,[fov_max]
+  movss [ecx+00000544],xmm0
+  jmp code
+
+toggleoff:
+  pushad
+  push 24 //VK_HOME
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz code
+  movss xmm0,[ecx+00000544]
+  subss xmm0,[fov_step]
+  maxss xmm0,[fov_min]
+  movss [ecx+00000544],xmm0
+
+code:
+  jmp return
+
+fov_pointer:
+  dd #0
+
+fov_step:
+  dd (float)0.03
+
+fov_min:
+  dd (float)0.15
+
+fov_max:
+  dd (float)1.5
+
+fov_aob:
+  jmp newmem
+  nop 3
+return:
+
+[DISABLE]
+
+fov_aob:
+  db F3 0F 11 81 44 05 00 00
+
+unregistersymbol(fov_aob)
+unregistersymbol(fov_pointer)
+unregistersymbol(fov_min)
+unregistersymbol(fov_max)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7F9B8
+
+TokyoXanadu.exe+7F9A9: CC                       - int 3
+TokyoXanadu.exe+7F9AA: CC                       - int 3
+TokyoXanadu.exe+7F9AB: CC                       - int 3
+TokyoXanadu.exe+7F9AC: CC                       - int 3
+TokyoXanadu.exe+7F9AD: CC                       - int 3
+TokyoXanadu.exe+7F9AE: CC                       - int 3
+TokyoXanadu.exe+7F9AF: CC                       - int 3
+TokyoXanadu.exe+7F9B0: 55                       - push ebp
+TokyoXanadu.exe+7F9B1: 8B EC                    - mov ebp,esp
+TokyoXanadu.exe+7F9B3: F3 0F 10 45 08           - movss xmm0,[ebp+08]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7F9B8: F3 0F 11 81 44 05 00 00  - movss [ecx+00000544],xmm0
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7F9C0: 5D                       - pop ebp
+TokyoXanadu.exe+7F9C1: C2 04 00                 - ret 0004
+TokyoXanadu.exe+7F9C4: CC                       - int 3
+TokyoXanadu.exe+7F9C5: CC                       - int 3
+TokyoXanadu.exe+7F9C6: CC                       - int 3
+TokyoXanadu.exe+7F9C7: CC                       - int 3
+TokyoXanadu.exe+7F9C8: CC                       - int 3
+TokyoXanadu.exe+7F9C9: CC                       - int 3
+TokyoXanadu.exe+7F9CA: CC                       - int 3
+TokyoXanadu.exe+7F9CB: CC                       - int 3
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>115</Key>
+              </Keys>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>4016</ID>
+              <Description>"Home Key to Zoom In, End Key to Zoom Out"</Description>
+              <GroupHeader>1</GroupHeader>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4013</ID>
+              <Description>"Current FOV"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>fov_pointer</Address>
+              <Offsets>
+                <Offset>544</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4014</ID>
+              <Description>"Minimum FOV"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>fov_min</Address>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4015</ID>
+              <Description>"Maximum FOV"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>fov_max</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
           <ID>2397</ID>
-          <Description>"Free Camera"</Description>
+          <Description>"Free Camera (Num 0 Toggle)"</Description>
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 globalalloc(speedModifier,8)
@@ -673,11 +760,33 @@ speedModifier:
 dd (float)3
 //code from here to '[DISABLE]' will be used to enable the cheat
 
+aobscanmodule(camerastatus_aob,TokyoXanadu.exe,F3 0F 11 40 08 F3 0F 10 44 24 2C) // should be unique
 aobscanmodule(detachcamera_aob,TokyoXanadu.exe,F3 0F 11 78 20 F3 0F 11 40 24) // should be unique
 aobscanmodule(detachcamerarotation_aob,TokyoXanadu.exe,F3 0F 11 87 20 05 00 00) // should be unique
+alloc(newmem,$100,camerastatus_aob)
 
+label(code)
+label(camerastatus)
+label(return)
+
+registersymbol(camerastatus_aob)
 registersymbol(detachcamera_aob)
 registersymbol(detachcamerarotation_aob)
+registersymbol(camerastatus)
+
+newmem:
+  mov [camerastatus],eax
+
+code:
+  movss [eax+08],xmm0
+  jmp return
+
+camerastatus:
+  dd #0
+
+camerastatus_aob:
+  jmp newmem
+return:
 
 detachcamera_aob:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
@@ -694,119 +803,131 @@ detachcamerarotation_aob-20B0:
 {$lua}
 
 function checkKeys()
+  if (getAddressSafe("[camerastatus]")) then
+    --Read and assign speed modifier value
+    local speed = readFloat("speedModifier")
 
-  --Read and assign speed modifier value
-  local speed = readFloat("speedModifier")
+    --Mouse Rotation in Radians
+    --Use math.rad() to convert from degrees if game values aren't in radians
+    local tilt = readFloat("[camerastatus]+384") -- Vertical (tilt)
+    local pan = readFloat("[camerastatus]+388") -- Horizontal (pan)
+    local roll = readFloat("[camerastatus]+38C") -- roll
 
-  --Mouse Rotation in Radians
-  --Use math.rad() to convert from degrees if game values aren't in radians
-  local tilt = readFloat("[camerastatus]+384") -- Vertical (tilt)
-  local pan = readFloat("[camerastatus]+388") -- Horizontal (pan)
-  local roll = readFloat("[camerastatus]+38C") -- roll
+    --Camera Coordinates
+    local camx = readFloat("[camerastatus]+20") -- Camera X
+    local camy = readFloat("[camerastatus]+28") -- Camera Y
+    local camz = readFloat("[camerastatus]+24") -- Camera Z
+    --Prevent endless error loop if camera status is not initiated
+    if (camx == nil and camy == nil and camz == nil) then
+      speed = 0
+      camx = 0
+      camy = 0
+      camz = 0
+      tilt = 0
+      pan = 0
+      roll = 0
+    else
 
-  --Camera Coordinates
-  local camx = readFloat("[camerastatus]+20") -- Camera X
-  local camy = readFloat("[camerastatus]+28") -- Camera Y
-  local camz = readFloat("[camerastatus]+24") -- Camera Z
+      --Sine and Cosine of Rotation Values
+      local siny = math.sin(pan) -- Sine of Horizontal (pan)
+      local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+      local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+      local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
 
-  --Sine and Cosine of Rotation Values
-  local siny = math.sin(pan) -- Sine of Horizontal (pan)
-  local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
-  local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
-  local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+      --Forward
+      if isKeyPressed(VK_NUMPAD8) then
+        writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Left
+      if isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Back
+      if isKeyPressed(VK_NUMPAD5) then
+        writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Right
+      if isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Forward/Right
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Forward/Left
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Back/Left
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Back/Right
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Up
+      if isKeyPressed(VK_SUBTRACT) then
+       writeFloat("[camerastatus]+24", camz + (speed * 0.02))
+      end
+      --Down
+      if isKeyPressed(VK_ADD) then
+       writeFloat("[camerastatus]+24", camz - (speed * 0.02))
+      end
+      --Pan right
+      if isKeyPressed(VK_RIGHT) then
+          writeFloat("[camerastatus]+388", pan - (speed * 0.01))
+      end
+      --Pan left
+      if isKeyPressed(VK_LEFT) then
+          writeFloat("[camerastatus]+388", pan + (speed * 0.01))
+      end
+      --Tilt up
+      if isKeyPressed(VK_UP) then
+          writeFloat("[camerastatus]+384", tilt - (speed * 0.01))
+      end
+      --Tilt down
+      if isKeyPressed(VK_DOWN) then
+          writeFloat("[camerastatus]+384", tilt + (speed * 0.01))
+      end
+      --Roll left
+      if isKeyPressed(VK_NUMPAD7) then
+          writeFloat("[camerastatus]+38C", roll - (speed * 0.01))
+      end
+      --Roll right
+      if isKeyPressed(VK_NUMPAD9) then
+          writeFloat("[camerastatus]+38C", roll + (speed * 0.01))
+      end
+      --Roll neutral
+      if isKeyPressed(VK_NUMPAD3) then
+          writeFloat("[camerastatus]+38C", 0)
+      end
+    end
 
-  --Forward
-  if isKeyPressed(VK_NUMPAD8) then
-    writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Left
-  if isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
-  end
-  --Back
-  if isKeyPressed(VK_NUMPAD5) then
-    writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Right
-  if isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
-  end
-  --Forward/Right
-  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Forward/Left
-  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Back/Left
-  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Back/Right
-  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Up
-  if isKeyPressed(VK_SUBTRACT) then
-   writeFloat("[camerastatus]+24", camz + (speed * 0.02))
-  end
-  --Down
-  if isKeyPressed(VK_ADD) then
-   writeFloat("[camerastatus]+24", camz - (speed * 0.02))
-  end
-  --Pan right
-  if isKeyPressed(VK_RIGHT) then
-      writeFloat("[camerastatus]+388", pan - (speed * 0.01))
-  end
-  --Pan left
-  if isKeyPressed(VK_LEFT) then
-      writeFloat("[camerastatus]+388", pan + (speed * 0.01))
-  end
-  --Tilt up
-  if isKeyPressed(VK_UP) then
-      writeFloat("[camerastatus]+384", tilt - (speed * 0.01))
-  end
-  --Tilt down
-  if isKeyPressed(VK_DOWN) then
-      writeFloat("[camerastatus]+384", tilt + (speed * 0.01))
-  end
-  --Roll left
-  if isKeyPressed(VK_NUMPAD7) then
-      writeFloat("[camerastatus]+38C", roll - (speed * 0.01))
-  end
-  --Roll right
-  if isKeyPressed(VK_NUMPAD9) then
-      writeFloat("[camerastatus]+38C", roll + (speed * 0.01))
-  end
-  --Roll neutral
-  if isKeyPressed(VK_NUMPAD3) then
-      writeFloat("[camerastatus]+38C", 0)
-  end
-
-  --Speed Modifiers
-  if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
-    writeFloat("speedModifier", 12)
-  elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
-    writeFloat("speedModifier", 6)
-  elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
-    writeFloat("speedModifier", .5)
-  else --If nothing is pressed, speed is normal
-    writeFloat("speedModifier", 3)
+    --Speed Modifiers
+    if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+      writeFloat("speedModifier", 12)
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+      writeFloat("speedModifier", 6)
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+      writeFloat("speedModifier", .5)
+    else --If nothing is pressed, speed is normal
+      writeFloat("speedModifier", 3)
+    end
   end
 end
 
@@ -823,7 +944,12 @@ timer_setEnabled(t, true)
 timer_setEnabled(t, false)
 
 {$asm}
+
 //code from here till the end of the code will be used to disable the cheat
+
+camerastatus_aob:
+  db F3 0F 11 40 08
+
 detachcamera_aob:
   db F3 0F 11 78 20 F3 0F 11 40 24 F3 0F 11 50 28
 
@@ -836,14 +962,28 @@ detachcamerarotation_aob+53:
 detachcamerarotation_aob-20B0:
   db 83 B8 68 48 03 00 00
 
+unregistersymbol(camerastatus_aob)
 unregistersymbol(detachcamera_aob)
 unregistersymbol(detachcamerarotation_aob)
+unregistersymbol(camerastatus)
+dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+81D90 - XYZ
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+81D90
 
+TokyoXanadu.exe+81D26: F3 0F 11 4C 24 14        - movss [esp+14],xmm1
+TokyoXanadu.exe+81D2C: F3 0F 10 74 24 10        - movss xmm6,[esp+10]
+TokyoXanadu.exe+81D32: EB 06                    - jmp TokyoXanadu.exe+81D3A
+TokyoXanadu.exe+81D34: F3 0F 10 44 24 0C        - movss xmm0,[esp+0C]
+TokyoXanadu.exe+81D3A: F3 0F 11 86 9C 01 00 00  - movss [esi+0000019C],xmm0
+TokyoXanadu.exe+81D42: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
+TokyoXanadu.exe+81D48: 8D 86 9C 01 00 00        - lea eax,[esi+0000019C]
+TokyoXanadu.exe+81D4E: 83 EC 10                 - sub esp,10
+TokyoXanadu.exe+81D51: F3 0F 11 40 04           - movss [eax+04],xmm0
 TokyoXanadu.exe+81D56: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
-camerastatus_aob: E9 9F E2 D7 03           - jmp 04200000
+// ---------- INJECTING HERE Camera Coordinates ----------
+TokyoXanadu.exe+81D5C: F3 0F 11 40 08           - movss [eax+08],xmm0
+// ---------- DONE INJECTING  ----------
 TokyoXanadu.exe+81D61: F3 0F 10 44 24 2C        - movss xmm0,[esp+2C]
 TokyoXanadu.exe+81D67: C7 40 0C 00 00 00 00     - mov [eax+0C],00000000
 TokyoXanadu.exe+81D6E: F3 0F 11 50 10           - movss [eax+10],xmm2
@@ -852,7 +992,7 @@ TokyoXanadu.exe+81D79: F3 0F 11 78 18           - movss [eax+18],xmm7
 TokyoXanadu.exe+81D7E: F3 0F 10 7C 24 40        - movss xmm7,[esp+40]
 TokyoXanadu.exe+81D84: F3 0F 11 68 14           - movss [eax+14],xmm5
 TokyoXanadu.exe+81D89: C7 40 1C 00 00 00 00     - mov [eax+1C],00000000
-// ---------- INJECTING HERE ----------
+// ---------- INJECTING HERE Camera XYZ Writes ----------
 TokyoXanadu.exe+81D90: F3 0F 11 78 20           - movss [eax+20],xmm7
 // ---------- DONE INJECTING  ----------
 TokyoXanadu.exe+81D95: F3 0F 11 40 24           - movss [eax+24],xmm0
@@ -1016,69 +1156,69 @@ TokyoXanadu.exe+7A614: F3 0F 58 D0              - addss xmm2,xmm0
 }
 </AssemblerScript>
             </CheatEntry>
-          </CheatEntries>
-        </CheatEntry>
-        <CheatEntry>
-          <ID>2393</ID>
-          <Description>"Camera Coordinates"</Description>
-          <Options moHideChildren="1"/>
-          <GroupHeader>1</GroupHeader>
-          <CheatEntries>
             <CheatEntry>
-              <ID>2387</ID>
-              <Description>"Camera X"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+20</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2388</ID>
-              <Description>"Camera Y"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+28</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2389</ID>
-              <Description>"Camera Z"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+24</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2390</ID>
-              <Description>"Camera Tilt"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+384</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2391</ID>
-              <Description>"Camera Pan"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+388</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2392</ID>
-              <Description>"Camera Roll"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+38C</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2423</ID>
-              <Description>"Zoom-1"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+3A4</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>2424</ID>
-              <Description>"Zoom-2"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+3A8</Address>
+              <ID>2393</ID>
+              <Description>"Camera Coordinates"</Description>
+              <Options moHideChildren="1"/>
+              <GroupHeader>1</GroupHeader>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>2387</ID>
+                  <Description>"Camera X"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+20</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2388</ID>
+                  <Description>"Camera Y"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+28</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2389</ID>
+                  <Description>"Camera Z"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+24</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2390</ID>
+                  <Description>"Camera Tilt"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+384</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2391</ID>
+                  <Description>"Camera Pan"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+388</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2392</ID>
+                  <Description>"Camera Roll"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+38C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2423</ID>
+                  <Description>"Zoom-1"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+3A4</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>2424</ID>
+                  <Description>"Zoom-2"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+3A8</Address>
+                </CheatEntry>
+              </CheatEntries>
             </CheatEntry>
           </CheatEntries>
         </CheatEntry>
