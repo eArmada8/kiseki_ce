@@ -3,70 +3,9 @@
   <CheatEntries>
     <CheatEntry>
       <ID>5</ID>
-      <Description>"Camera Status"</Description>
+      <Description>"Camera Options"</Description>
       <Options moHideChildren="1"/>
-      <VariableType>Auto Assembler Script</VariableType>
-      <AssemblerScript>[ENABLE]
-
-aobscanmodule(camerastatus_aob,ed8_3_PC.exe,F3 0F 10 48 08 F3 0F 11 45 EB) // should be unique
-alloc(newmem,$100,camerastatus_aob)
-alloc(camerastatus,8)
-
-label(code)
-label(return)
-
-registersymbol(camerastatus)
-
-newmem:
-  mov [camerastatus],rax
-
-code:
-  movss xmm1,[rax+08]
-  jmp return
-
-camerastatus_aob:
-  jmp newmem
-return:
-registersymbol(camerastatus_aob)
-
-[DISABLE]
-
-camerastatus_aob:
-  db F3 0F 10 48 08
-
-unregistersymbol(camerastatus_aob)
-unregistersymbol(camerastatus)
-dealloc(camerastatus)
-dealloc(newmem)
-
-{
-// ORIGINAL CODE - INJECTION POINT: ed8_3_PC.exe+525840
-
-ed8_3_PC.exe+52580F: 0F 84 8D 00 00 00  - je ed8_3_PC.exe+5258A2
-ed8_3_PC.exe+525815: F3 0F 10 40 1C     - movss xmm0,[rax+1C]
-ed8_3_PC.exe+52581A: 4C 8D 45 D7        - lea r8,[rbp-29]
-ed8_3_PC.exe+52581E: F3 0F 10 48 2C     - movss xmm1,[rax+2C]
-ed8_3_PC.exe+525823: F3 0F 10 50 0C     - movss xmm2,[rax+0C]
-ed8_3_PC.exe+525828: F3 0F 11 45 DB     - movss [rbp-25],xmm0
-ed8_3_PC.exe+52582D: F3 0F 10 40 04     - movss xmm0,[rax+04]
-ed8_3_PC.exe+525832: F3 0F 11 4D DF     - movss [rbp-21],xmm1
-ed8_3_PC.exe+525837: F3 0F 10 08        - movss xmm1,[rax]
-ed8_3_PC.exe+52583B: F3 0F 11 4D E7     - movss [rbp-19],xmm1
-// ---------- INJECTING HERE ----------
-ed8_3_PC.exe+525840: F3 0F 10 48 08     - movss xmm1,[rax+08]
-// ---------- DONE INJECTING  ----------
-ed8_3_PC.exe+525845: F3 0F 11 45 EB     - movss [rbp-15],xmm0
-ed8_3_PC.exe+52584A: F3 0F 10 40 10     - movss xmm0,[rax+10]
-ed8_3_PC.exe+52584F: F3 0F 11 4D EF     - movss [rbp-11],xmm1
-ed8_3_PC.exe+525854: F3 0F 10 48 14     - movss xmm1,[rax+14]
-ed8_3_PC.exe+525859: F3 0F 11 45 F7     - movss [rbp-09],xmm0
-ed8_3_PC.exe+52585E: F3 0F 10 40 18     - movss xmm0,[rax+18]
-ed8_3_PC.exe+525863: F3 0F 11 4D FB     - movss [rbp-05],xmm1
-ed8_3_PC.exe+525868: F3 0F 10 48 24     - movss xmm1,[rax+24]
-ed8_3_PC.exe+52586D: F3 0F 11 45 FF     - movss [rbp-01],xmm0
-ed8_3_PC.exe+525872: F3 0F 10 40 20     - movss xmm0,[rax+20]
-}
-</AssemblerScript>
+      <GroupHeader>1</GroupHeader>
       <CheatEntries>
         <CheatEntry>
           <ID>14</ID>
@@ -587,42 +526,61 @@ speedModifier:
 dd (float)3
 //code from here to '[DISABLE]' will be used to enable the cheat
 
+aobscanmodule(camerastatus_aob,ed8_3_PC.exe,F3 0F 10 48 08 F3 0F 11 45 EB) // should be unique
 aobscanmodule(detachcamera_aob,ed8_3_PC.exe,F3 44 0F 11 50 20) // should be unique
 aobscanmodule(detachcamerarotation_aob,ed8_3_PC.exe,F3 0F 11 87 9C 07 00 00 0F) // should be unique
 aobscanmodule(cameraverticalshake_aob,ed8_3_PC.exe,4C 8B BC 24 C8 01 00 00 84) // should be unique
-alloc(newmem,$100,cameraverticalshake_aob)
 aobscanmodule(camerahorizontalshake_aob,ed8_3_PC.exe,84 C0 B9 00 00 00 00 0F) // should be unique
-alloc(newmem,$100,camerahorizontalshake_aob)
+alloc(newmem,$1000,camerastatus_aob)
 
+label(code)
+label(cameraverticalshakecode)
+label(camerahorizontalshakecode)
+label(camerastatus)
 label(return)
 label(return2)
+label(return3)
 
+registersymbol(camerastatus_aob)
+registersymbol(camerastatus)
 registersymbol(detachcamera_aob)
 registersymbol(detachcamerarotation_aob)
 registersymbol(cameraverticalshake_aob)
 registersymbol(camerahorizontalshake_aob)
 
 newmem:
-  mov r15,[rsp+000001C8]
-  mov al,1
+
+code:
+  mov [camerastatus],rax
+  movss xmm1,[rax+08]
   jmp return
 
-//
-newmem2:
-  test al,al
-  mov ecx,00000000
+cameraverticalshakecode:
+  mov r15,[rsp+000001C8]
+  mov al,1
   jmp return2
 
-////
-cameraverticalshake_aob:
-  jmp newmem
-  nop 3
+camerahorizontalshakecode:
+  test al,al
+  mov ecx,00000000
+  jmp return3
+
+camerastatus:
+  dd #0
+
+camerastatus_aob:
+  jmp code
 return:
 
-camerahorizontalshake_aob:
-  jmp newmem2
-  nop 2
+cameraverticalshake_aob:
+  jmp cameraverticalshakecode
+  nop 3
 return2:
+
+camerahorizontalshake_aob:
+  jmp camerahorizontalshakecode
+  nop 2
+return3:
 
 detachcamera_aob:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
@@ -637,119 +595,131 @@ detachcamerarotation_aob-11F8:
 {$lua}
 
 function checkKeys()
+  if (getAddressSafe("[camerastatus]")) then
+    --Read and assign speed modifier value
+    local speed = readFloat("speedModifier")
 
-  --Read and assign speed modifier value
-  local speed = readFloat("speedModifier")
+    --Mouse Rotation in Radians
+    --Use math.rad() to convert from degrees if game values aren't in radians
+    local tilt = readFloat("[camerastatus]+550") -- Vertical (tilt)
+    local pan = readFloat("[camerastatus]+554") -- Horizontal (pan)
+    local roll = readFloat("[camerastatus]+558") -- roll
 
-  --Mouse Rotation in Radians
-  --Use math.rad() to convert from degrees if game values aren't in radians
-  local tilt = readFloat("[camerastatus]+550") -- Vertical (tilt)
-  local pan = readFloat("[camerastatus]+554") -- Horizontal (pan)
-  local roll = readFloat("[camerastatus]+558") -- roll
+    --Camera Coordinates
+    local camx = readFloat("[camerastatus]+20") -- Camera X
+    local camy = readFloat("[camerastatus]+28") -- Camera Y
+    local camz = readFloat("[camerastatus]+24") -- Camera Z
 
-  --Camera Coordinates
-  local camx = readFloat("[camerastatus]+20") -- Camera X
-  local camy = readFloat("[camerastatus]+28") -- Camera Y
-  local camz = readFloat("[camerastatus]+24") -- Camera Z
+    --Prevent endless error loop if camera status is not initiated
+    if (camx == nil and camy == nil and camz == nil) then
+      speed = 0
+      camx = 0
+      camy = 0
+      camz = 0
+      tilt = 0
+      pan = 0
+      roll = 0
+    else
+      --Sine and Cosine of Rotation Values
+      local siny = math.sin(pan) -- Sine of Horizontal (pan)
+      local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+      local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+      local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
 
-  --Sine and Cosine of Rotation Values
-  local siny = math.sin(pan) -- Sine of Horizontal (pan)
-  local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
-  local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
-  local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+      --Forward
+      if isKeyPressed(VK_NUMPAD8) then
+        writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Left
+      if isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Back
+      if isKeyPressed(VK_NUMPAD5) then
+        writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Right
+      if isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Forward/Right
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Forward/Left
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
+      end
+      --Back/Left
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Back/Right
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
+      end
+      --Up
+      if isKeyPressed(VK_SUBTRACT) then
+       writeFloat("[camerastatus]+24", camz + (speed * 0.02))
+      end
+      --Down
+      if isKeyPressed(VK_ADD) then
+       writeFloat("[camerastatus]+24", camz - (speed * 0.02))
+      end
+      --Pan right
+      if isKeyPressed(VK_RIGHT) then
+          writeFloat("[camerastatus]+554", pan - (speed * 0.01))
+      end
+      --Pan left
+      if isKeyPressed(VK_LEFT) then
+          writeFloat("[camerastatus]+554", pan + (speed * 0.01))
+      end
+      --Tilt up
+      if isKeyPressed(VK_UP) then
+          writeFloat("[camerastatus]+550", tilt - (speed * 0.01))
+      end
+      --Tilt down
+      if isKeyPressed(VK_DOWN) then
+          writeFloat("[camerastatus]+550", tilt + (speed * 0.01))
+      end
+      --Roll left
+      if isKeyPressed(VK_NUMPAD7) then
+          writeFloat("[camerastatus]+558", roll - (speed * 0.01))
+      end
+      --Roll right
+      if isKeyPressed(VK_NUMPAD9) then
+          writeFloat("[camerastatus]+558", roll + (speed * 0.01))
+      end
+      --Roll neutral
+      if isKeyPressed(VK_NUMPAD3) then
+          writeFloat("[camerastatus]+558", 0)
+      end
+    end
 
-  --Forward
-  if isKeyPressed(VK_NUMPAD8) then
-    writeFloat("[camerastatus]+20", camx - (siny * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (cosy * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Left
-  if isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
-  end
-  --Back
-  if isKeyPressed(VK_NUMPAD5) then
-    writeFloat("[camerastatus]+20", camx + (siny * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (cosy * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Right
-  if isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
-  end
-  --Forward/Right
-  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Forward/Left
-  if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz - (sinp * speed * 0.03))
-  end
-  --Back/Left
-  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Back/Right
-  if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
-    writeFloat("[camerastatus]+20", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+28", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
-    writeFloat("[camerastatus]+24", camz + (sinp * speed * 0.03))
-  end
-  --Up
-  if isKeyPressed(VK_SUBTRACT) then
-   writeFloat("[camerastatus]+24", camz + (speed * 0.02))
-  end
-  --Down
-  if isKeyPressed(VK_ADD) then
-   writeFloat("[camerastatus]+24", camz - (speed * 0.02))
-  end
-  --Pan right
-  if isKeyPressed(VK_RIGHT) then
-      writeFloat("[camerastatus]+554", pan - (speed * 0.01))
-  end
-  --Pan left
-  if isKeyPressed(VK_LEFT) then
-      writeFloat("[camerastatus]+554", pan + (speed * 0.01))
-  end
-  --Tilt up
-  if isKeyPressed(VK_UP) then
-      writeFloat("[camerastatus]+550", tilt - (speed * 0.01))
-  end
-  --Tilt down
-  if isKeyPressed(VK_DOWN) then
-      writeFloat("[camerastatus]+550", tilt + (speed * 0.01))
-  end
-  --Roll left
-  if isKeyPressed(VK_NUMPAD7) then
-      writeFloat("[camerastatus]+558", roll - (speed * 0.01))
-  end
-  --Roll right
-  if isKeyPressed(VK_NUMPAD9) then
-      writeFloat("[camerastatus]+558", roll + (speed * 0.01))
-  end
-  --Roll neutral
-  if isKeyPressed(VK_NUMPAD3) then
-      writeFloat("[camerastatus]+558", 0)
-  end
-
-  --Speed Modifiers
-  if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
-    writeFloat("speedModifier", 12)
-  elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
-    writeFloat("speedModifier", 6)
-  elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
-    writeFloat("speedModifier", .5)
-  else --If nothing is pressed, speed is normal
-    writeFloat("speedModifier", 3)
+    --Speed Modifiers
+    if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+      writeFloat("speedModifier", 12)
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+      writeFloat("speedModifier", 6)
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+      writeFloat("speedModifier", .5)
+    else --If nothing is pressed, speed is normal
+      writeFloat("speedModifier", 3)
+    end
   end
 end
 
@@ -767,6 +737,10 @@ timer_setEnabled(t, false)
 
 {$asm}
 //code from here till the end of the code will be used to disable the cheat
+
+camerastatus_aob:
+  db F3 0F 10 48 08
+
 detachcamera_aob:
   db F3 44 0F 11 50 20 F3 44 0F 11 58 24 F3 44 0F 11 60 28
 
@@ -782,6 +756,8 @@ cameraverticalshake_aob:
 camerahorizontalshake_aob:
   db 84 C0 B9 00 00 00 00
 
+unregistersymbol(camerastatus_aob)
+unregistersymbol(camerastatus)
 unregistersymbol(detachcamera_aob)
 unregistersymbol(detachcamerarotation_aob)
 unregistersymbol(cameraverticalshake_aob)
@@ -790,6 +766,32 @@ dealloc(newmem2)
 dealloc(newmem)
 
 {
+// ORIGINAL CODE - INJECTION POINT: ed8_3_PC.exe+525840 - CAMERA POINTER
+
+ed8_3_PC.exe+52580F: 0F 84 8D 00 00 00  - je ed8_3_PC.exe+5258A2
+ed8_3_PC.exe+525815: F3 0F 10 40 1C     - movss xmm0,[rax+1C]
+ed8_3_PC.exe+52581A: 4C 8D 45 D7        - lea r8,[rbp-29]
+ed8_3_PC.exe+52581E: F3 0F 10 48 2C     - movss xmm1,[rax+2C]
+ed8_3_PC.exe+525823: F3 0F 10 50 0C     - movss xmm2,[rax+0C]
+ed8_3_PC.exe+525828: F3 0F 11 45 DB     - movss [rbp-25],xmm0
+ed8_3_PC.exe+52582D: F3 0F 10 40 04     - movss xmm0,[rax+04]
+ed8_3_PC.exe+525832: F3 0F 11 4D DF     - movss [rbp-21],xmm1
+ed8_3_PC.exe+525837: F3 0F 10 08        - movss xmm1,[rax]
+ed8_3_PC.exe+52583B: F3 0F 11 4D E7     - movss [rbp-19],xmm1
+// ---------- INJECTING HERE ----------
+ed8_3_PC.exe+525840: F3 0F 10 48 08     - movss xmm1,[rax+08]
+// ---------- DONE INJECTING  ----------
+ed8_3_PC.exe+525845: F3 0F 11 45 EB     - movss [rbp-15],xmm0
+ed8_3_PC.exe+52584A: F3 0F 10 40 10     - movss xmm0,[rax+10]
+ed8_3_PC.exe+52584F: F3 0F 11 4D EF     - movss [rbp-11],xmm1
+ed8_3_PC.exe+525854: F3 0F 10 48 14     - movss xmm1,[rax+14]
+ed8_3_PC.exe+525859: F3 0F 11 45 F7     - movss [rbp-09],xmm0
+ed8_3_PC.exe+52585E: F3 0F 10 40 18     - movss xmm0,[rax+18]
+ed8_3_PC.exe+525863: F3 0F 11 4D FB     - movss [rbp-05],xmm1
+ed8_3_PC.exe+525868: F3 0F 10 48 24     - movss xmm1,[rax+24]
+ed8_3_PC.exe+52586D: F3 0F 11 45 FF     - movss [rbp-01],xmm0
+ed8_3_PC.exe+525872: F3 0F 10 40 20     - movss xmm0,[rax+20]
+
 // ORIGINAL CODE - INJECTION POINT: ed8_3_PC.exe+2187C8 - CAMERA X/Y/Z
 
 ed8_3_PC.exe+218790: F3 0F 10 05 04 6E 5D 00  - movss xmm0,[ed8_3_PC.exe+7EF59C]
@@ -1146,7 +1148,6 @@ ed8_3_PC.exe+133130: E8 9B 01 00 00              - call ed8_3_PC.exe+1332D0
 </AssemblerScript>
     </CheatEntry>
   </CheatEntries>
-  <UserdefinedSymbols/>
   <Comments>Based on the script by Cyber for Trails of Cold Steel IV
 </Comments>
 </CheatTable>
