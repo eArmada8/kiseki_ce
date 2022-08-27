@@ -536,7 +536,7 @@ code:
   jmp return
 
 DepthMultiplier:
-dd (float)1
+dd (float)1.5
 
 MinZ_aob:
   jmp newmem
@@ -590,7 +590,7 @@ TokyoXanadu.exe+7D5CA: F3 0F 59 44 24 1C        - mulss xmm0,[esp+1C]
               <CheatEntries>
                 <CheatEntry>
                   <ID>4011</ID>
-                  <Description>"1.0 = standard, 1.5 = more aggressive, 2.0 = below the floor"</Description>
+                  <Description>"1.0 = basic, 1.5 = default, 2.0 = below the floor"</Description>
                   <GroupHeader>1</GroupHeader>
                 </CheatEntry>
               </CheatEntries>
