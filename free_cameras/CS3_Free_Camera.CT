@@ -9,7 +9,7 @@
       <CheatEntries>
         <CheatEntry>
           <ID>14</ID>
-          <Description>"Force Pause Animation"</Description>
+          <Description>"Force Pause Animation (Enable first, F5 pause / F6 unpause)"</Description>
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
