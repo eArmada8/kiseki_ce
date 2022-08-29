@@ -791,14 +791,20 @@ return:
 detachcamera_aob:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
 
+detachcamerarotation_aob-20B0:
+  db 90 90 90 90 90 90 90
+
 detachcamerarotation_aob:
   db 90 90 90 90 90 90 90 90
 
 detachcamerarotation_aob+53:
   db 90 90 90 90 90 90
 
-detachcamerarotation_aob-20B0:
-  db 90 90 90 90 90 90 90
+//detachcamerarotation_aob+833:
+//  db 90 90 90 90 90 90 90 90 F3 0F 5C C5 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+//detachcamerarotation_aob+85A:
+//  db 90 90 90 90 90 90 90 90 9F 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
 
 {$lua}
 
@@ -953,14 +959,20 @@ camerastatus_aob:
 detachcamera_aob:
   db F3 0F 11 78 20 F3 0F 11 40 24 F3 0F 11 50 28
 
+detachcamerarotation_aob-20B0:
+  db 83 B8 68 48 03 00 00
+
 detachcamerarotation_aob:
   db F3 0F 11 87 20 05 00 00
 
 detachcamerarotation_aob+53:
   db D9 9F 24 05 00 00
 
-detachcamerarotation_aob-20B0:
-  db 83 B8 68 48 03 00 00
+//detachcamerarotation_aob+833:
+//  db F3 0F 11 87 10 05 00 00 F3 0F 5C C5 F3 0F 11 9F 14 05 00 00 F3 0F 11 A7 18 05 00 00
+
+//detachcamerarotation_aob+85A:
+//  db F3 0F 11 AF 00 05 00 00 9F F3 0F 11 8F 04 05 00 00 F3 0F 11 B7 08 05 00 00
 
 unregistersymbol(camerastatus_aob)
 unregistersymbol(detachcamera_aob)
@@ -1031,6 +1043,41 @@ TokyoXanadu.exe+7D15A: F2 0F 11 44 24 68           - movsd [esp+68],xmm0
 TokyoXanadu.exe+7D160: DD 44 24 68                 - fld qword ptr [esp+68]
 TokyoXanadu.exe+7D164: E8 49 F9 40 00              - call TokyoXanadu.exe+48CAB2
 TokyoXanadu.exe+7D169: D9 9C 24 C8 00 00 00        - fstp dword ptr [esp+000000C8]
+
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+7D966 - Mouse shake
+
+TokyoXanadu.exe+7D91E: F3 0F 10 4C 24 10        - movss xmm1,[esp+10]
+TokyoXanadu.exe+7D924: F3 0F 10 44 24 24        - movss xmm0,[esp+24]
+TokyoXanadu.exe+7D92A: F3 0F 10 5C 24 0C        - movss xmm3,[esp+0C]
+TokyoXanadu.exe+7D930: F3 0F 10 64 24 2C        - movss xmm4,[esp+2C]
+TokyoXanadu.exe+7D936: F3 0F 11 87 F4 00 00 00  - movss [edi+000000F4],xmm0
+TokyoXanadu.exe+7D93E: F3 0F 11 9F F8 00 00 00  - movss [edi+000000F8],xmm3
+TokyoXanadu.exe+7D946: F3 0F 11 A7 FC 00 00 00  - movss [edi+000000FC],xmm4
+TokyoXanadu.exe+7D94E: F3 0F 11 AF 04 01 00 00  - movss [edi+00000104],xmm5
+TokyoXanadu.exe+7D956: F3 0F 11 8F 08 01 00 00  - movss [edi+00000108],xmm1
+TokyoXanadu.exe+7D95E: F3 0F 11 B7 0C 01 00 00  - movss [edi+0000010C],xmm6
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7D966: F3 0F 11 87 10 05 00 00  - movss [edi+00000510],xmm0
+TokyoXanadu.exe+7D96E: F3 0F 5C C5              - subss xmm0,xmm5
+TokyoXanadu.exe+7D972: F3 0F 11 9F 14 05 00 00  - movss [edi+00000514],xmm3
+TokyoXanadu.exe+7D97A: F3 0F 11 A7 18 05 00 00  - movss [edi+00000518],xmm4
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7D982: F3 0F 5C D9              - subss xmm3,xmm1
+TokyoXanadu.exe+7D986: F3 0F 5C E6              - subss xmm4,xmm6
+TokyoXanadu.exe+7D98A: 0F 2E C2                 - ucomiss xmm0,xmm2
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+7D98D: F3 0F 11 AF 00 05 00 00  - movss [edi+00000500],xmm5
+TokyoXanadu.exe+7D995: 9F                       - lahf
+TokyoXanadu.exe+7D996: F3 0F 11 8F 04 05 00 00  - movss [edi+00000504],xmm1
+TokyoXanadu.exe+7D99E: F3 0F 11 B7 08 05 00 00  - movss [edi+00000508],xmm6
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+7D9A6: F3 0F 11 44 24 24        - movss [esp+24],xmm0
+TokyoXanadu.exe+7D9AC: F3 0F 11 5C 24 0C        - movss [esp+0C],xmm3
+TokyoXanadu.exe+7D9B2: F3 0F 11 64 24 2C        - movss [esp+2C],xmm4
+TokyoXanadu.exe+7D9B8: F6 C4 44                 - test ah,44
+TokyoXanadu.exe+7D9BB: 7A 12                    - jp TokyoXanadu.exe+7D9CF
+TokyoXanadu.exe+7D9BD: 0F 2E DA                 - ucomiss xmm3,xmm2
+TokyoXanadu.exe+7D9C0: 9F                       - lahf
 }
 </AssemblerScript>
           <Hotkeys>
