@@ -184,6 +184,175 @@ ed8_3_PC.exe+214066: F3 0F 5C BF 6C 01 00 00     - subss xmm7,[rdi+0000016C]
 </AssemblerScript>
         </CheatEntry>
         <CheatEntry>
+          <ID>28</ID>
+          <Description>"Set Custom FOV (F4 Toggle)"</Description>
+          <Options moHideChildren="1"/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(camerastatusinjection_aob,ed8_3_PC.exe,F3 0F 10 40 10 F3 0F 11 4D EF) // should be unique
+alloc(newmem,$1000,camerastatusinjection_aob)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(fov_pointer)
+label(fov_step)
+label(fov_min)
+label(fov_max)
+label(return)
+
+registersymbol(camerastatusinjection_aob)
+registersymbol(fov_pointer)
+registersymbol(fov_min)
+registersymbol(fov_max)
+
+newmem:
+  mov [fov_pointer],rax
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push rbp
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,23 //VK_END
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rbp
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  movss xmm0,[rax+000005D8]
+  addss xmm0,[fov_step]
+  minss xmm0,[fov_max]
+  movss [rax+000005D8],xmm0
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push rbp
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,24 //VK_HOME
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rbp
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  movss xmm0,[rax+000005D8]
+  subss xmm0,[fov_step]
+  maxss xmm0,[fov_min]
+  movss [rax+000005D8],xmm0
+
+code:
+  movss xmm0,[rax+10]
+  jmp return
+
+fov_pointer:
+  dq #0
+
+fov_step:
+  dd (float)0.0001
+
+fov_min:
+  dd (float)0.15
+
+fov_max:
+  dd (float)1.5
+
+camerastatusinjection_aob:
+  jmp newmem
+return:
+
+[DISABLE]
+
+camerastatusinjection_aob:
+  db F3 0F 10 40 10
+
+unregistersymbol(camerastatusinjection_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8_3_PC.exe+52584A
+
+ed8_3_PC.exe+52581A: 4C 8D 45 D7     - lea r8,[rbp-29]
+ed8_3_PC.exe+52581E: F3 0F 10 48 2C  - movss xmm1,[rax+2C]
+ed8_3_PC.exe+525823: F3 0F 10 50 0C  - movss xmm2,[rax+0C]
+ed8_3_PC.exe+525828: F3 0F 11 45 DB  - movss [rbp-25],xmm0
+ed8_3_PC.exe+52582D: F3 0F 10 40 04  - movss xmm0,[rax+04]
+ed8_3_PC.exe+525832: F3 0F 11 4D DF  - movss [rbp-21],xmm1
+ed8_3_PC.exe+525837: F3 0F 10 08     - movss xmm1,[rax]
+ed8_3_PC.exe+52583B: F3 0F 11 4D E7  - movss [rbp-19],xmm1
+ed8_3_PC.exe+525840: F3 0F 10 48 08  - movss xmm1,[rax+08]
+ed8_3_PC.exe+525845: F3 0F 11 45 EB  - movss [rbp-15],xmm0
+// ---------- INJECTING HERE ----------
+ed8_3_PC.exe+52584A: F3 0F 10 40 10  - movss xmm0,[rax+10]
+// ---------- DONE INJECTING  ----------
+ed8_3_PC.exe+52584F: F3 0F 11 4D EF  - movss [rbp-11],xmm1
+ed8_3_PC.exe+525854: F3 0F 10 48 14  - movss xmm1,[rax+14]
+ed8_3_PC.exe+525859: F3 0F 11 45 F7  - movss [rbp-09],xmm0
+ed8_3_PC.exe+52585E: F3 0F 10 40 18  - movss xmm0,[rax+18]
+ed8_3_PC.exe+525863: F3 0F 11 4D FB  - movss [rbp-05],xmm1
+ed8_3_PC.exe+525868: F3 0F 10 48 24  - movss xmm1,[rax+24]
+ed8_3_PC.exe+52586D: F3 0F 11 45 FF  - movss [rbp-01],xmm0
+ed8_3_PC.exe+525872: F3 0F 10 40 20  - movss xmm0,[rax+20]
+ed8_3_PC.exe+525877: F3 0F 11 45 07  - movss [rbp+07],xmm0
+ed8_3_PC.exe+52587C: F3 0F 10 40 28  - movss xmm0,[rax+28]
+}
+</AssemblerScript>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Toggle Activation</Action>
+              <Keys>
+                <Key>115</Key>
+              </Keys>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>29</ID>
+              <Description>"Current FOV"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>fov_pointer</Address>
+              <Offsets>
+                <Offset>5D8</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>30</ID>
+              <Description>"Maximum FOV"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>fov_max</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
           <ID>18</ID>
           <Description>"Hide Field HUD"</Description>
           <VariableType>Auto Assembler Script</VariableType>
@@ -1035,69 +1204,69 @@ ed8_3_PC.exe+217D37: F3 0F 11 44 24 20        - movss [rsp+20],xmm0
 }
 </AssemblerScript>
             </CheatEntry>
-          </CheatEntries>
-        </CheatEntry>
-        <CheatEntry>
-          <ID>6</ID>
-          <Description>"Camera Coordinates"</Description>
-          <Options moHideChildren="1"/>
-          <GroupHeader>1</GroupHeader>
-          <CheatEntries>
             <CheatEntry>
-              <ID>2</ID>
-              <Description>"X"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+20</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>4</ID>
-              <Description>"Y"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+28</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>3</ID>
-              <Description>"Z"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+24</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>9</ID>
-              <Description>"Tilt"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+550</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>7</ID>
-              <Description>"Pan"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+554</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>10</ID>
-              <Description>"Roll"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+558</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>12</ID>
-              <Description>"Zoom 1"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+5D4</Address>
-            </CheatEntry>
-            <CheatEntry>
-              <ID>17</ID>
-              <Description>"Zoom 2"</Description>
-              <ShowAsSigned>0</ShowAsSigned>
-              <VariableType>Float</VariableType>
-              <Address>[camerastatus]+5D8</Address>
+              <ID>6</ID>
+              <Description>"Camera Coordinates"</Description>
+              <Options moHideChildren="1"/>
+              <GroupHeader>1</GroupHeader>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>2</ID>
+                  <Description>"X"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+20</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4</ID>
+                  <Description>"Y"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+28</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>3</ID>
+                  <Description>"Z"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+24</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>9</ID>
+                  <Description>"Tilt"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+550</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>7</ID>
+                  <Description>"Pan"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+554</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>10</ID>
+                  <Description>"Roll"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+558</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>12</ID>
+                  <Description>"Zoom 1"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+5D4</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>17</ID>
+                  <Description>"Zoom 2"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>[camerastatus]+5D8</Address>
+                </CheatEntry>
+              </CheatEntries>
             </CheatEntry>
           </CheatEntries>
         </CheatEntry>
