@@ -293,6 +293,9 @@ camerastatusinjection_aob:
   db F3 0F 10 40 10
 
 unregistersymbol(camerastatusinjection_aob)
+unregistersymbol(fov_pointer)
+unregistersymbol(fov_min)
+unregistersymbol(fov_max)
 dealloc(newmem)
 
 {
@@ -333,6 +336,11 @@ ed8_3_PC.exe+52587C: F3 0F 10 40 28  - movss xmm0,[rax+28]
             </Hotkey>
           </Hotkeys>
           <CheatEntries>
+            <CheatEntry>
+              <ID>31</ID>
+              <Description>"Home Key to Zoom In, End Key to Zoom Out"</Description>
+              <GroupHeader>1</GroupHeader>
+            </CheatEntry>
             <CheatEntry>
               <ID>29</ID>
               <Description>"Current FOV"</Description>
@@ -688,6 +696,7 @@ ed8_3_PC.exe+1FCDAD: E8 4E 46 01 00           - call ed8_3_PC.exe+211400
         <CheatEntry>
           <ID>11</ID>
           <Description>"Free Camera"</Description>
+          <Options moHideChildren="1"/>
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 globalalloc(speedModifier,8)
@@ -1317,6 +1326,7 @@ ed8_3_PC.exe+133130: E8 9B 01 00 00              - call ed8_3_PC.exe+1332D0
 </AssemblerScript>
     </CheatEntry>
   </CheatEntries>
+  <UserdefinedSymbols/>
   <Comments>Based on the script by Cyber for Trails of Cold Steel IV
 </Comments>
 </CheatTable>
