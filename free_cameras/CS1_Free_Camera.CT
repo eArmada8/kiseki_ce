@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Free Camera"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+globalalloc(speedModifier,8)
+speedModifier:
+dd (float)3
+
+aobscanmodule(camerastatus_aob,ed8.exe,D9 9E B4 05 00 00 89 4D) // should be unique
+aobscanmodule(detachcameratarget_aob,ed8.exe,00 55 8B EC D9 45 08 D9 99 E0 00 00 00) // should be unique
+aobscanmodule(cameratiltlock_aob,ed8.exe,D8 55 E4 DF E0 F6 C4 05) // should be unique
+aobscanmodule(minzcorrection_aob,ed8.exe,7A 05 D9 5D 9C) // should be unique
+aobscanmodule(cameradistanceread_aob,ed8.exe,D9 1C 24 51 52 8B CE) // should be unique
+//aobscanmodule(detachcamerarotation_aob,ed8.exe,D9 9E D0 05 00 00 D9 45 84) // should be unique
+alloc(newmem,$1000, camerastatus_aob)
+
+label(camerastatuscode)
+label(uppertiltcode)
+label(lowertiltcode)
+label(cameradistancecode)
+label(camerastatus)
+label(tiltlimitupper)
+label(tiltlimitlower)
+label(cameradistance)
+label(camerastatusreturn)
+label(uppertiltreturn)
+label(lowertiltreturn)
+label(cameradistancereturn)
+
+registersymbol(camerastatus_aob)
+registersymbol(camerastatus)
+registersymbol(detachcameratarget_aob)
+registersymbol(cameratiltlock_aob)
+registersymbol(minzcorrection_aob)
+registersymbol(cameradistanceread_aob)
+//registersymbol(detachcamerarotation_aob)
+
+newmem:
+
+camerastatuscode:
+  mov [camerastatus], esi
+  fstp dword ptr [esi+000005B4]
+  jmp camerastatusreturn
+
+uppertiltcode:
+  fstp st(0)
+  fld dword ptr [tiltlimitupper]
+  fcom dword ptr [ebp-1C]
+  fnstsw ax
+  jmp uppertiltreturn
+
+lowertiltcode:
+  fstp st(0)
+  fld dword ptr [tiltlimitlower]
+  fcom dword ptr [ebp-1C]
+  fnstsw ax
+  jmp lowertiltreturn
+
+cameradistancecode:
+  fstp st(0)
+  fld dword ptr [cameradistance]
+  fstp dword ptr [esp]
+  push ecx
+  push edx
+  jmp cameradistancereturn
+
+camerastatus:
+  dq #0
+
+tiltlimitupper:
+  dd (float)1.55
+
+tiltlimitlower:
+  dd (float)-1.55
+
+cameradistance:
+  dd (float)0.01
+
+camerastatus_aob:
+  jmp camerastatuscode
+  nop
+camerastatusreturn:
+
+cameratiltlock_aob:
+  jmp uppertiltcode
+uppertiltreturn:
+
+cameratiltlock_aob+17:
+  jmp lowertiltcode
+lowertiltreturn:
+
+cameradistanceread_aob:
+  jmp cameradistancecode
+cameradistancereturn:
+
+detachcameratarget_aob+04:
+  db 90 90 90 90 90 90 D9 45 0C 90 90 90 90 90 90 D9 45 10 90 90 90 90 90 90 90 90 90
+
+minzcorrection_aob:
+  db 90 90 90 90 90 90 90
+
+//detachcamerarotation_aob-BCF:
+//  db 90 90
+
+//detachcamerarotation_aob:
+//  db DD D8 90 90 90 90
+
+//detachcamerarotation_aob+20:
+//  db DD D8 90 90 90 90
+
+{$lua}
+
+function checkKeys()
+  if (getAddressSafe("[camerastatus]")) then
+    --Read and assign speed modifier value
+    local speed = readFloat("speedModifier")
+
+    --Mouse Rotation in Radians
+    --Use math.rad() to convert from degrees if game values aren't in radians
+    local tilt = readFloat("[camerastatus]+5D0") -- Vertical (tilt)
+    local pan = readFloat("[camerastatus]+5D4") -- Horizontal (pan)
+    local roll = readFloat("[camerastatus]+5D8") -- roll
+
+    --Camera Coordinates
+    local camx = readFloat("[camerastatus]+E0") -- Camera X
+    local camy = readFloat("[camerastatus]+E8") -- Camera Y
+    local camz = readFloat("[camerastatus]+E4") -- Camera Z
+    --Prevent endless error loop if camera status is not initiated
+    if (camx == nil and camy == nil and camz == nil) then
+      speed = 0
+      camx = 0
+      camy = 0
+      camz = 0
+      tilt = 0
+      pan = 0
+      roll = 0
+    else
+
+      --Sine and Cosine of Rotation Values
+      local siny = math.sin(pan) -- Sine of Horizontal (pan)
+      local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+      local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+      local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+
+      --Forward
+      if isKeyPressed(VK_NUMPAD8) then
+        writeFloat("[camerastatus]+E0", camx - (siny * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy - (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz - (sinp * speed * 0.03))
+      end
+      --Left
+      if isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+E0", camx + (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy + (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Back
+      if isKeyPressed(VK_NUMPAD5) then
+        writeFloat("[camerastatus]+E0", camx + (siny * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy + (cosy * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz + (sinp * speed * 0.03))
+      end
+      --Right
+      if isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+E0", camx - (math.sin(pan - math.rad(90)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy - (math.cos(pan - math.rad(90)) * speed * 0.03))
+      end
+      --Forward/Right
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+E0", camx - (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy - (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz - (sinp * speed * 0.03))
+      end
+      --Forward/Left
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+E0", camx - (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy - (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz - (sinp * speed * 0.03))
+      end
+      --Back/Left
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+        writeFloat("[camerastatus]+E0", camx + (math.sin(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy + (math.cos(pan - math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz + (sinp * speed * 0.03))
+      end
+      --Back/Right
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+        writeFloat("[camerastatus]+E0", camx + (math.sin(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E8", camy + (math.cos(pan + math.rad(45)) * speed * 0.03))
+        writeFloat("[camerastatus]+E4", camz + (sinp * speed * 0.03))
+      end
+      --Up
+      if isKeyPressed(VK_SUBTRACT) then
+       writeFloat("[camerastatus]+E4", camz + (speed * 0.02))
+      end
+      --Down
+      if isKeyPressed(VK_ADD) then
+       writeFloat("[camerastatus]+E4", camz - (speed * 0.02))
+      end
+      --Pan right
+      if isKeyPressed(VK_RIGHT) then
+          writeFloat("[camerastatus]+5D4", pan - (speed * 0.01))
+      end
+      --Pan left
+      if isKeyPressed(VK_LEFT) then
+          writeFloat("[camerastatus]+5D4", pan + (speed * 0.01))
+      end
+      --Tilt up
+      if isKeyPressed(VK_UP) then
+          writeFloat("[camerastatus]+5D0", math.max(tilt - speed * 0.01, math.rad(-89.5)))
+      end
+      --Tilt down
+      if isKeyPressed(VK_DOWN) then
+          writeFloat("[camerastatus]+5D0", math.min(tilt + speed * 0.01, math.rad(89.5)))
+      end
+      --Roll left
+      if isKeyPressed(VK_NUMPAD7) then
+          writeFloat("[camerastatus]+5D8", roll - (speed * 0.01))
+      end
+      --Roll right
+      if isKeyPressed(VK_NUMPAD9) then
+          writeFloat("[camerastatus]+5D8", roll + (speed * 0.01))
+      end
+      --Roll neutral
+      if isKeyPressed(VK_NUMPAD3) then
+          writeFloat("[camerastatus]+5D8", 0)
+      end
+    end
+
+    --Speed Modifiers
+    if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+      writeFloat("speedModifier", 12)
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+      writeFloat("speedModifier", 6)
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+      writeFloat("speedModifier", .5)
+    else --If nothing is pressed, speed is normal
+      writeFloat("speedModifier", 3)
+    end
+  end
+end
+
+t=createTimer(nil)
+timer_setInterval(t, 10)
+timer_onTimer(t, checkKeys)
+timer_setEnabled(t, true)
+
+{$asm}
+
+[DISABLE]
+{$lua}
+
+timer_setEnabled(t, false)
+
+{$asm}
+
+camerastatus_aob:
+  db D9 9E B4 05 00 00
+
+cameratiltlock_aob:
+  db D8 55 E4 DF E0
+
+cameratiltlock_aob+17:
+  db D8 55 E4 DF E0
+
+cameradistanceread_aob:
+  db D9 1C 24 51 52
+
+detachcameratarget_aob+04:
+  db D9 45 08 D9 99 E0 00 00 00 D9 45 0C D9 99 E4 00 00 00 D9 45 10 D9 99 E8 00 00 00
+
+minzcorrection_aob:
+  db 7A 05 D9 5D 9C EB 02
+
+//detachcamerarotation_aob-BCF:
+//  db 74 72
+
+//detachcamerarotation_aob:
+//  db D9 9E D0 05 00 00
+
+//detachcamerarotation_aob+20:
+//  db D9 9E D4 05 00 00
+
+unregistersymbol(camerastatus_aob)
+unregistersymbol(camerastatus)
+unregistersymbol(detachcameratarget_aob)
+unregistersymbol(cameratiltlock_aob)
+unregistersymbol(minzcorrection_aob)
+unregistersymbol(cameradistanceread_aob)
+//unregistersymbol(detachcamerarotation_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+139B63 - Lock Camera Target XYZ
+
+ed8.exe+139B4C: 5D                 - pop ebp
+ed8.exe+139B4D: C2 04 00           - ret 0004
+ed8.exe+139B50: 55                 - push ebp
+ed8.exe+139B51: 8B EC              - mov ebp,esp
+ed8.exe+139B53: D9 45 08           - fld dword ptr [ebp+08]
+ed8.exe+139B56: D9 99 04 06 00 00  - fstp dword ptr [ecx+00000604]
+ed8.exe+139B5C: 5D                 - pop ebp
+ed8.exe+139B5D: C2 04 00           - ret 0004
+ed8.exe+139B60: 55                 - push ebp
+ed8.exe+139B61: 8B EC              - mov ebp,esp
+// ---------- INJECTING HERE ----------
+ed8.exe+139B63: D9 45 08           - fld dword ptr [ebp+08]
+// ---------- DONE INJECTING  ----------
+ed8.exe+139B66: D9 99 E0 00 00 00  - fstp dword ptr [ecx+000000E0]
+ed8.exe+139B6C: D9 45 0C           - fld dword ptr [ebp+0C]
+ed8.exe+139B6F: D9 99 E4 00 00 00  - fstp dword ptr [ecx+000000E4]
+ed8.exe+139B75: D9 45 10           - fld dword ptr [ebp+10]
+ed8.exe+139B78: D9 99 E8 00 00 00  - fstp dword ptr [ecx+000000E8]
+ed8.exe+139B7E: 5D                 - pop ebp
+ed8.exe+139B7F: C2 10 00           - ret 0010
+ed8.exe+139B82: CC                 - int 3
+ed8.exe+139B83: CC                 - int 3
+ed8.exe+139B84: CC                 - int 3
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13D35F - Camera autorotation
+
+ed8.exe+13D33F: 83 C4 08           - add esp,08
+ed8.exe+13D342: D9 5D 84           - fstp dword ptr [ebp-7C]
+ed8.exe+13D345: D9 40 04           - fld dword ptr [eax+04]
+ed8.exe+13D348: D9 5D 88           - fstp dword ptr [ebp-78]
+ed8.exe+13D34B: D9 40 08           - fld dword ptr [eax+08]
+ed8.exe+13D34E: D9 5D 8C           - fstp dword ptr [ebp-74]
+ed8.exe+13D351: D9 45 88           - fld dword ptr [ebp-78]
+ed8.exe+13D354: E8 41 06 42 00     - call ed8.exe+55D99A
+ed8.exe+13D359: D9 5D 0C           - fstp dword ptr [ebp+0C]
+ed8.exe+13D35C: D9 45 0C           - fld dword ptr [ebp+0C]
+// ---------- INJECTING HERE ----------
+ed8.exe+13D35F: D9 9E D0 05 00 00  - fstp dword ptr [esi+000005D0]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13D365: D9 45 84           - fld dword ptr [ebp-7C]
+ed8.exe+13D368: D9 45 8C           - fld dword ptr [ebp-74]
+ed8.exe+13D36B: E8 D2 03 42 00     - call ed8.exe+55D742
+ed8.exe+13D370: D9 5D 0C           - fstp dword ptr [ebp+0C]
+ed8.exe+13D373: D9 45 0C           - fld dword ptr [ebp+0C]
+ed8.exe+13D376: 51                 - push ecx
+ed8.exe+13D377: D9 1C 24           - fstp dword ptr [esp]
+ed8.exe+13D37A: E8 33 80 EC FF     - call ed8.exe+53B2
+ed8.exe+13D37F: D9 9E D4 05 00 00  - fstp dword ptr [esi+000005D4]
+ed8.exe+13D385: 8D 85 6C FF FF FF  - lea eax,[ebp-00000094]
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13C8DB - Field Tilt
+
+ed8.exe+13C8AE: 75 25                 - jne ed8.exe+13C8D5
+ed8.exe+13C8B0: E8 2C A2 EC FF        - call ed8.exe+6AE1
+ed8.exe+13C8B5: 80 B8 B1 5A 00 00 00  - cmp byte ptr [eax+00005AB1],00
+ed8.exe+13C8BC: 74 17                 - je ed8.exe+13C8D5
+ed8.exe+13C8BE: E8 1E A2 EC FF        - call ed8.exe+6AE1
+ed8.exe+13C8C3: 80 B8 C9 5A 00 00 00  - cmp byte ptr [eax+00005AC9],00
+ed8.exe+13C8CA: 75 09                 - jne ed8.exe+13C8D5
+ed8.exe+13C8CC: D9 86 44 06 00 00     - fld dword ptr [esi+00000644]
+ed8.exe+13C8D2: D9 5D E4              - fstp dword ptr [ebp-1C]
+ed8.exe+13C8D5: D9 05 F8 2B B4 00     - fld dword ptr [ed8.exe+742BF8]
+// ---------- INJECTING HERE ----------
+ed8.exe+13C8DB: D8 55 E4              - fcom dword ptr [ebp-1C]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C8DE: DF E0                 - fnstsw ax
+ed8.exe+13C8E0: F6 C4 05              - test ah,05
+ed8.exe+13C8E3: 7A 05                 - jp ed8.exe+13C8EA
+ed8.exe+13C8E5: D9 5D E4              - fstp dword ptr [ebp-1C]
+ed8.exe+13C8E8: EB 02                 - jmp ed8.exe+13C8EC
+ed8.exe+13C8EA: DD D8                 - fstp st(0)
+ed8.exe+13C8EC: D9 05 F4 2B B4 00     - fld dword ptr [ed8.exe+742BF4]
+// ---------- INJECTING HERE ----------
+ed8.exe+13C8F2: D8 55 E4              - fcom dword ptr [ebp-1C]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C8F5: DF E0                 - fnstsw ax
+ed8.exe+13C8F7: F6 C4 41              - test ah,41
+ed8.exe+13C8FA: 75 05                 - jne ed8.exe+13C901
+ed8.exe+13C8FC: D9 5D E4              - fstp dword ptr [ebp-1C]
+ed8.exe+13C8FF: EB 02                 - jmp ed8.exe+13C903
+ed8.exe+13C901: DD D8                 - fstp st(0)
+ed8.exe+13C903: D9 45 0C              - fld dword ptr [ebp+0C]
+ed8.exe+13C906: D9 EE                 - fldz
+ed8.exe+13C908: D9 C0                 - fld st(0)
+ed8.exe+13C90A: DD EA                 - fucomp st(2)
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13D74B - Min Z
+
+ed8.exe+13D72D: DD D8                 - fstp st(0)
+ed8.exe+13D72F: D9 45 AC              - fld dword ptr [ebp-54]
+ed8.exe+13D732: D8 65 0C              - fsub dword ptr [ebp+0C]
+ed8.exe+13D735: D9 45 9C              - fld dword ptr [ebp-64]
+ed8.exe+13D738: D8 E1                 - fsub st(0),st(1)
+ed8.exe+13D73A: D9 5D 0C              - fstp dword ptr [ebp+0C]
+ed8.exe+13D73D: D9 45 0C              - fld dword ptr [ebp+0C]
+ed8.exe+13D740: D8 1D A4 9A B3 00     - fcomp dword ptr [ed8.exe+739AA4]
+ed8.exe+13D746: DF E0                 - fnstsw ax
+ed8.exe+13D748: F6 C4 05              - test ah,05
+// ---------- INJECTING HERE ----------
+ed8.exe+13D74B: 7A 05                 - jp ed8.exe+13D752
+// ---------- DONE INJECTING  ----------
+ed8.exe+13D74D: D9 5D 9C              - fstp dword ptr [ebp-64]
+ed8.exe+13D750: EB 02                 - jmp ed8.exe+13D754
+ed8.exe+13D752: DD D8                 - fstp st(0)
+ed8.exe+13D754: 0F B7 86 CA 00 00 00  - movzx eax,word ptr [esi+000000CA]
+ed8.exe+13D75B: A8 30                 - test al,30
+ed8.exe+13D75D: 74 42                 - je ed8.exe+13D7A1
+ed8.exe+13D75F: D9 45 98              - fld dword ptr [ebp-68]
+ed8.exe+13D762: 25 DF FF 00 00        - and eax,0000FFDF
+ed8.exe+13D767: 66 89 86 CA 00 00 00  - mov [esi+000000CA],ax
+ed8.exe+13D76E: D9 9E 20 01 00 00     - fstp dword ptr [esi+00000120]
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13C1F5 - Camera Distance
+
+ed8.exe+13C1CC: D9 85 74 FF FF FF  - fld dword ptr [ebp-0000008C]
+ed8.exe+13C1D2: DE CA              - fmulp st(2),st(0)
+ed8.exe+13C1D4: DE C1              - faddp
+ed8.exe+13C1D6: DE C1              - faddp
+ed8.exe+13C1D8: D9 5D CC           - fstp dword ptr [ebp-34]
+ed8.exe+13C1DB: D9 86 D0 05 00 00  - fld dword ptr [esi+000005D0]
+ed8.exe+13C1E1: D9 5C 24 08        - fstp dword ptr [esp+08]
+ed8.exe+13C1E5: D9 86 D4 05 00 00  - fld dword ptr [esi+000005D4]
+ed8.exe+13C1EB: D9 5C 24 04        - fstp dword ptr [esp+04]
+ed8.exe+13C1EF: D9 86 74 06 00 00  - fld dword ptr [esi+00000674]
+// ---------- INJECTING HERE ----------
+ed8.exe+13C1F5: D9 1C 24           - fstp dword ptr [esp]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C1F8: 51                 - push ecx
+ed8.exe+13C1F9: 52                 - push edx
+ed8.exe+13C1FA: 8B CE              - mov ecx,esi
+ed8.exe+13C1FC: E8 18 67 EC FF     - call ed8.exe+2919
+ed8.exe+13C201: 84 DB              - test bl,bl
+ed8.exe+13C203: 74 1B              - je ed8.exe+13C220
+ed8.exe+13C205: D9 86 B0 05 00 00  - fld dword ptr [esi+000005B0]
+ed8.exe+13C20B: D9 5D 98           - fstp dword ptr [ebp-68]
+ed8.exe+13C20E: D9 86 B4 05 00 00  - fld dword ptr [esi+000005B4]
+ed8.exe+13C214: D9 5D 9C           - fstp dword ptr [ebp-64]
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>96</Key>
+          </Keys>
+          <ID>0</ID>
+          <ActivateSound>Activate</ActivateSound>
+          <DeactivateSound>Deactivate</DeactivateSound>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"Disable Field Tilt"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(tiltlimit_aob,ed8.exe,D9 05 F8 2B B4 00) // should be unique
+alloc(newmem,$1000)
+
+label(uppercode)
+label(lowercode)
+label(tiltlimitupper)
+label(tiltlimitlower)
+label(upperreturn)
+label(lowerreturn)
+
+registersymbol(tiltlimit_aob)
+
+newmem:
+
+uppercode:
+  //fld dword ptr [ed8.exe+742BF8]
+  fld dword ptr [tiltlimitupper]
+  jmp upperreturn
+
+lowercode:
+  //fld dword ptr [ed8.exe+742BF4]
+  fld dword ptr [tiltlimitlower]
+  jmp lowerreturn
+
+tiltlimitupper:
+  dd (float)1.55
+
+tiltlimitlower:
+  dd (float)-1.55
+
+tiltlimit_aob:
+  jmp uppercode
+  nop
+upperreturn:
+
+tiltlimit_aob+17:
+  jmp lowercode
+  nop
+lowerreturn:
+
+[DISABLE]
+
+tiltlimit_aob:
+  db D9 05 F8 2B B4 00
+
+tiltlimit_aob+17:
+  db D9 05 F4 2B B4 00
+
+unregistersymbol(tiltlimit_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13C8D5
+
+ed8.exe+13C8AC: 84 C0                 - test al,al
+ed8.exe+13C8AE: 75 25                 - jne ed8.exe+13C8D5
+ed8.exe+13C8B0: E8 2C A2 EC FF        - call ed8.exe+6AE1
+ed8.exe+13C8B5: 80 B8 B1 5A 00 00 00  - cmp byte ptr [eax+00005AB1],00
+ed8.exe+13C8BC: 74 17                 - je ed8.exe+13C8D5
+ed8.exe+13C8BE: E8 1E A2 EC FF        - call ed8.exe+6AE1
+ed8.exe+13C8C3: 80 B8 C9 5A 00 00 00  - cmp byte ptr [eax+00005AC9],00
+ed8.exe+13C8CA: 75 09                 - jne ed8.exe+13C8D5
+ed8.exe+13C8CC: D9 86 44 06 00 00     - fld dword ptr [esi+00000644]
+ed8.exe+13C8D2: D9 5D E4              - fstp dword ptr [ebp-1C]
+// ---------- INJECTING HERE ----------
+ed8.exe+13C8D5: D9 05 F8 2B B4 00     - fld dword ptr [ed8.exe+742BF8]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C8DB: D8 55 E4              - fcom dword ptr [ebp-1C]
+ed8.exe+13C8DE: DF E0                 - fnstsw ax
+ed8.exe+13C8E0: F6 C4 05              - test ah,05
+ed8.exe+13C8E3: 7A 05                 - jp ed8.exe+13C8EA
+ed8.exe+13C8E5: D9 5D E4              - fstp dword ptr [ebp-1C]
+ed8.exe+13C8E8: EB 02                 - jmp ed8.exe+13C8EC
+ed8.exe+13C8EA: DD D8                 - fstp st(0)
+// ---------- INJECTING HERE ----------
+ed8.exe+13C8EC: D9 05 F4 2B B4 00     - fld dword ptr [ed8.exe+742BF4]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C8F2: D8 55 E4              - fcom dword ptr [ebp-1C]
+ed8.exe+13C8F5: DF E0                 - fnstsw ax
+ed8.exe+13C8F7: F6 C4 41              - test ah,41
+ed8.exe+13C8FA: 75 05                 - jne ed8.exe+13C901
+ed8.exe+13C8FC: D9 5D E4              - fstp dword ptr [ebp-1C]
+ed8.exe+13C8FF: EB 02                    - jmp ed8.exe+13C903
+ed8.exe+13C901: DD D8                 - fstp st(0)
+ed8.exe+13C903: D9 45 0C              - fld dword ptr [ebp+0C]
+ed8.exe+13C906: D9 EE                 - fldz
+ed8.exe+13C908: D9 C0                 - fld st(0)
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"Lower Min Z"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(minZcompare_aob,ed8.exe,0C D8 1D A4 9A B3 00) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  fcomp dword ptr [ebp+0C]
+  jmp return
+
+minZcompare_aob+01:
+  jmp newmem
+  nop
+return:
+registersymbol(minZcompare_aob)
+
+[DISABLE]
+
+minZcompare_aob+01:
+  db D8 1D A4 9A B3 00
+
+unregistersymbol(minZcompare_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13D740
+
+ed8.exe+13D725: D9 5D 0C              - fstp dword ptr [ebp+0C]
+ed8.exe+13D728: 83 C4 0C              - add esp,0C
+ed8.exe+13D72B: EB 02                 - jmp ed8.exe+13D72F
+ed8.exe+13D72D: DD D8                 - fstp st(0)
+ed8.exe+13D72F: D9 45 AC              - fld dword ptr [ebp-54]
+ed8.exe+13D732: D8 65 0C              - fsub dword ptr [ebp+0C]
+ed8.exe+13D735: D9 45 9C              - fld dword ptr [ebp-64]
+ed8.exe+13D738: D8 E1                 - fsub st(0),st(1)
+ed8.exe+13D73A: D9 5D 0C              - fstp dword ptr [ebp+0C]
+ed8.exe+13D73D: D9 45 0C              - fld dword ptr [ebp+0C]
+// ---------- INJECTING HERE ----------
+ed8.exe+13D740: D8 1D A4 9A B3 00     - fcomp dword ptr [ed8.exe+739AA4]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13D746: DF E0                 - fnstsw ax
+ed8.exe+13D748: F6 C4 05              - test ah,05
+ed8.exe+13D74B: 7A 05                 - jp ed8.exe+13D752
+ed8.exe+13D74D: D9 5D 9C              - fstp dword ptr [ebp-64]
+ed8.exe+13D750: EB 02                 - jmp ed8.exe+13D754
+ed8.exe+13D752: DD D8                 - fstp st(0)
+ed8.exe+13D754: 0F B7 86 CA 00 00 00  - movzx eax,word ptr [esi+000000CA]
+ed8.exe+13D75B: A8 30                 - test al,30
+ed8.exe+13D75D: 74 42                 - je ed8.exe+13D7A1
+ed8.exe+13D75F: D9 45 98              - fld dword ptr [ebp-68]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"Custom Camera Distance"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(cameradistance_aob,ed8.exe,D9 86 74 06 00 00) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(customcameradistance)
+label(return)
+
+registersymbol(cameradistance_aob)
+registersymbol(customcameradistance)
+
+newmem:
+
+code:
+  //fld dword ptr [esi+00000674]
+  fld dword ptr [customcameradistance]
+  jmp return
+
+customcameradistance:
+  dd (float)5
+
+cameradistance_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+cameradistance_aob:
+  db D9 86 74 06 00 00
+
+unregistersymbol(customcameradistance)
+unregistersymbol(cameradistance_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13C1EF
+
+ed8.exe+13C1C9: D9 5D C8           - fstp dword ptr [ebp-38]
+ed8.exe+13C1CC: D9 85 74 FF FF FF  - fld dword ptr [ebp-0000008C]
+ed8.exe+13C1D2: DE CA              - fmulp st(2),st(0)
+ed8.exe+13C1D4: DE C1              - faddp 
+ed8.exe+13C1D6: DE C1              - faddp 
+ed8.exe+13C1D8: D9 5D CC           - fstp dword ptr [ebp-34]
+ed8.exe+13C1DB: D9 86 D0 05 00 00  - fld dword ptr [esi+000005D0]
+ed8.exe+13C1E1: D9 5C 24 08        - fstp dword ptr [esp+08]
+ed8.exe+13C1E5: D9 86 D4 05 00 00  - fld dword ptr [esi+000005D4]
+ed8.exe+13C1EB: D9 5C 24 04        - fstp dword ptr [esp+04]
+// ---------- INJECTING HERE ----------
+ed8.exe+13C1EF: D9 86 74 06 00 00  - fld dword ptr [esi+00000674]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C1F5: D9 1C 24           - fstp dword ptr [esp]
+ed8.exe+13C1F8: 51                 - push ecx
+ed8.exe+13C1F9: 52                 - push edx
+ed8.exe+13C1FA: 8B CE              - mov ecx,esi
+ed8.exe+13C1FC: E8 18 67 EC FF     - call ed8.exe+2919
+ed8.exe+13C201: 84 DB              - test bl,bl
+ed8.exe+13C203: 74 1B              - je ed8.exe+13C220
+ed8.exe+13C205: D9 86 B0 05 00 00  - fld dword ptr [esi+000005B0]
+ed8.exe+13C20B: D9 5D 98           - fstp dword ptr [ebp-68]
+ed8.exe+13C20E: D9 86 B4 05 00 00  - fld dword ptr [esi+000005B4]
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>40</ID>
+          <Description>"Custom Camera Distance Setting"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>customcameradistance</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>10</ID>
+      <Description>"Camera Coordinates"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(camerapointer_aob,ed8.exe,D9 9E B0 05 00 00 89 45) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(camerapointer)
+label(return)
+
+registersymbol(camerapointer_aob)
+registersymbol(camerapointer)
+
+newmem:
+  mov [camerapointer], esi
+
+code:
+  fstp dword ptr [esi+000005B0]
+  jmp return
+
+camerapointer:
+  dq #0
+
+camerapointer_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+camerapointer_aob:
+  db D9 9E B0 05 00 00
+
+unregistersymbol(camerapointer)
+unregistersymbol(camerapointer_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+229647
+
+ed8.exe+229628: 89 50 08           - mov [eax+08],edx
+ed8.exe+22962B: 89 48 0C           - mov [eax+0C],ecx
+ed8.exe+22962E: 8B CE              - mov ecx,esi
+ed8.exe+229630: E8 08 83 DD FF     - call ed8.exe+193D
+ed8.exe+229635: D9 45 8C           - fld dword ptr [ebp-74]
+ed8.exe+229638: 8B 55 8C           - mov edx,[ebp-74]
+ed8.exe+22963B: 8B 45 90           - mov eax,[ebp-70]
+ed8.exe+22963E: 8B 4D 94           - mov ecx,[ebp-6C]
+ed8.exe+229641: 89 55 DC           - mov [ebp-24],edx
+ed8.exe+229644: 8B 55 98           - mov edx,[ebp-68]
+// ---------- INJECTING HERE ----------
+ed8.exe+229647: D9 9E B0 05 00 00  - fstp dword ptr [esi+000005B0]
+// ---------- DONE INJECTING  ----------
+ed8.exe+22964D: 89 45 E0           - mov [ebp-20],eax
+ed8.exe+229650: D9 45 E0           - fld dword ptr [ebp-20]
+ed8.exe+229653: D9 9E B4 05 00 00  - fstp dword ptr [esi+000005B4]
+ed8.exe+229659: 89 4D E4           - mov [ebp-1C],ecx
+ed8.exe+22965C: D9 45 E4           - fld dword ptr [ebp-1C]
+ed8.exe+22965F: 8B CE              - mov ecx,esi
+ed8.exe+229661: D9 9E B8 05 00 00  - fstp dword ptr [esi+000005B8]
+ed8.exe+229667: 89 55 E8           - mov [ebp-18],edx
+ed8.exe+22966A: E8 99 43 DE FF     - call ed8.exe+DA08
+ed8.exe+22966F: D9 45 8C           - fld dword ptr [ebp-74]
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>101</ID>
+          <Description>"True Camera X"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>120</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>102</ID>
+          <Description>"True Camera Y"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>128</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>103</ID>
+          <Description>"True Camera Z"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>124</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>104</ID>
+          <Description>"Camera Target X"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>E0</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>105</ID>
+          <Description>"Camera Target Y"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>E8</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>106</ID>
+          <Description>"Camera Target Z"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>E4</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>107</ID>
+          <Description>"Camera Tilt"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>5D0</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>108</ID>
+          <Description>"Camera Pan"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>5D4</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>109</ID>
+          <Description>"Camera Roll"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>5D8</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>110</ID>
+          <Description>"Camera Distance"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>674</Offset>
+          </Offsets>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>20</ID>
+      <Description>"Dev Stuff"</Description>
+      <Options moHideChildren="1"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>21</ID>
+          <Description>"Lock Player Movement"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(moveplayer_aob,ed8.exe,D9 98 D0 00 00 00 89 55 D8) // should be unique
+registersymbol(moveplayer_aob)
+
+moveplayer_aob:
+  db DD D8 90 90 90 90 89 55 D8 D9 45 D8 DD D8 90 90 90 90 89 4D E0 D9 45 DC DD D8 90 90 90 90
+
+[DISABLE]
+
+moveplayer_aob:
+  db D9 98 D0 00 00 00 89 55 D8 D9 45 D8 D9 98 D4 00 00 00 89 4D E0 D9 45 DC D9 98 D8 00 00 00
+
+unregistersymbol(moveplayer_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+1B8EF7
+
+ed8.exe+1B8ED8: DD D8              - fstp st(0)
+ed8.exe+1B8EDA: DD D8              - fstp st(0)
+ed8.exe+1B8EDC: 8B 45 BC           - mov eax,[ebp-44]
+ed8.exe+1B8EDF: D9 45 B4           - fld dword ptr [ebp-4C]
+ed8.exe+1B8EE2: 8B 4D B4           - mov ecx,[ebp-4C]
+ed8.exe+1B8EE5: 8B 55 B8           - mov edx,[ebp-48]
+ed8.exe+1B8EE8: 89 45 DC           - mov [ebp-24],eax
+ed8.exe+1B8EEB: 8B 86 1C 0D 00 00  - mov eax,[esi+00000D1C]
+ed8.exe+1B8EF1: 89 4D D4           - mov [ebp-2C],ecx
+ed8.exe+1B8EF4: 8B 4D C0           - mov ecx,[ebp-40]
+// ---------- INJECTING HERE ----------
+ed8.exe+1B8EF7: D9 98 D0 00 00 00  - fstp dword ptr [eax+000000D0]
+// ---------- DONE INJECTING  ----------
+ed8.exe+1B8EFD: 89 55 D8           - mov [ebp-28],edx
+ed8.exe+1B8F00: D9 45 D8           - fld dword ptr [ebp-28]
+ed8.exe+1B8F03: D9 98 D4 00 00 00  - fstp dword ptr [eax+000000D4]
+ed8.exe+1B8F09: 89 4D E0           - mov [ebp-20],ecx
+ed8.exe+1B8F0C: D9 45 DC           - fld dword ptr [ebp-24]
+ed8.exe+1B8F0F: D9 98 D8 00 00 00  - fstp dword ptr [eax+000000D8]
+ed8.exe+1B8F15: D9 45 F4           - fld dword ptr [ebp-0C]
+ed8.exe+1B8F18: D9 5D F4           - fstp dword ptr [ebp-0C]
+ed8.exe+1B8F1B: 84 DB              - test bl,bl
+ed8.exe+1B8F1D: 0F 84 97 00 00 00  - je ed8.exe+1B8FBA
+}
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+</CheatTable>
