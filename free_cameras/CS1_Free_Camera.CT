@@ -2,6 +2,335 @@
 <CheatTable CheatEngineTableVersion="42">
   <CheatEntries>
     <CheatEntry>
+      <ID>2</ID>
+      <Description>"Force Pause Animation (Enable first, F5 pause / F6 unpause)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(gamepause_aob,ed8.exe,80 3D BE D7 C3 00 00 75) // should be unique
+alloc(newmem,$1000, gamepause_aob)
+registersymbol(gamepause_aob)
+registersymbol(freeze)
+
+label(toggleon)
+label(toggleoff)
+label(compcode)
+label(code)
+label(freeze)
+label(return)
+
+newmem:
+
+toggleon:
+  pushad
+  push 74 //VK_F5
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz toggleoff
+  mov [freeze],#1
+  jmp compcode
+
+toggleoff:
+  pushad
+  push 75 //VK_F6
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz compcode
+  mov [freeze],#0
+
+compcode:
+  cmp [freeze],#0
+  je code
+  //jmp ed8.exe+41E11
+  jmp ed8.exe+41DF5
+
+code:
+  cmp byte ptr [ed8.exe+83D7BE],00
+  jmp return
+
+freeze:
+  dd #0
+
+gamepause_aob:
+  jmp newmem
+  nop 2
+return:
+
+[DISABLE]
+
+gamepause_aob:
+  db 80 3D BE D7 C3 00 00
+
+unregistersymbol(gamepause_aob)
+unregistersymbol(freeze)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+41D56
+// Injection at +41D56 instead of +41D50 to maintain
+// compatibility with Sen Patcher
+
+ed8.exe+41D40: 55                    - push ebp
+ed8.exe+41D41: 8B EC                 - mov ebp,esp
+ed8.exe+41D43: 51                    - push ecx
+ed8.exe+41D44: 56                    - push esi
+ed8.exe+41D45: 8B F1                 - mov esi,ecx
+ed8.exe+41D47: 8B 06                 - mov eax,[esi]
+ed8.exe+41D49: 8B 50 54              - mov edx,[eax+54]
+ed8.exe+41D4C: FF D2                 - call edx
+ed8.exe+41D4E: 84 C0                 - test al,al
+ed8.exe+41D50: 0F 84 BB 00 00 00     - je ed8.exe+41E11
+// ---------- INJECTING HERE ----------
+ed8.exe+41D56: 80 3D BE D7 C3 00 00  - cmp byte ptr [ed8.exe+83D7BE],00
+// ---------- DONE INJECTING  ----------
+ed8.exe+41D5D: 75 19                 - jne ed8.exe+41D78
+ed8.exe+41D5F: 8B 8E 04 0D 00 00     - mov ecx,[esi+00000D04]
+ed8.exe+41D65: 8B 01                 - mov eax,[ecx]
+ed8.exe+41D67: 8B 90 B0 00 00 00     - mov edx,[eax+000000B0]
+ed8.exe+41D6D: 6A 00                 - push 00
+ed8.exe+41D6F: FF D2                 - call edx
+ed8.exe+41D71: C6 05 BE D7 C3 00 01  - mov byte ptr [ed8.exe+83D7BE],01
+ed8.exe+41D78: 80 BE 24 0D 00 00 00  - cmp byte ptr [esi+00000D24],00
+ed8.exe+41D7F: DD 46 20              - fld qword ptr [esi+20]
+ed8.exe+41D82: D9 5D FC              - fstp dword ptr [ebp-04]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>168</ID>
+      <Description>"Hide HUD (F7 Toggle)"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(hudelements_aob,ed8.exe,8B 86 B0 00 00 00 89 45) // should be unique
+aobscanmodule(minimapstatus_aob,ed8.exe,D9 86 CC 01 00 00 D9 EE) // should be unique
+alloc(newmem,$1000)
+
+label(hudcode)
+label(minimapcode)
+label(hudreturn)
+label(minimapreturn)
+
+registersymbol(hudelements_aob)
+registersymbol(minimapstatus_aob)
+
+newmem:
+
+hudcode:
+  xor eax,eax
+  jmp hudreturn
+
+minimapcode:
+  fldz
+  fst dword ptr [esi+000001CC]
+  jmp minimapreturn
+
+hudelements_aob:
+  jmp hudcode
+  nop
+hudreturn:
+
+minimapstatus_aob:
+  jmp minimapcode
+  nop
+minimapreturn:
+
+[DISABLE]
+
+hudelements_aob:
+  db 8B 86 B0 00 00 00
+
+minimapstatus_aob:
+  db D9 86 CC 01 00 00
+
+unregistersymbol(hudelements_aob)
+unregistersymbol(minimapstatus_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+2A045F - Draw HUD Elements
+
+ed8.exe+2A0438: 8B 8E A4 01 00 00  - mov ecx,[esi+000001A4]
+ed8.exe+2A043E: 8B 01              - mov eax,[ecx]
+ed8.exe+2A0440: 8B 50 34           - mov edx,[eax+34]
+ed8.exe+2A0443: 6A 01              - push 01
+ed8.exe+2A0445: FF D2              - call edx
+ed8.exe+2A0447: D9 5D FC           - fstp dword ptr [ebp-04]
+ed8.exe+2A044A: 8B 86 A4 00 00 00  - mov eax,[esi+000000A4]
+ed8.exe+2A0450: 8B 8E A8 00 00 00  - mov ecx,[esi+000000A8]
+ed8.exe+2A0456: 8B 96 AC 00 00 00  - mov edx,[esi+000000AC]
+ed8.exe+2A045C: 89 45 EC           - mov [ebp-14],eax
+// ---------- INJECTING HERE ----------
+ed8.exe+2A045F: 8B 86 B0 00 00 00  - mov eax,[esi+000000B0]
+// ---------- DONE INJECTING  ----------
+ed8.exe+2A0465: 89 45 F8           - mov [ebp-08],eax
+ed8.exe+2A0468: D9 45 F8           - fld dword ptr [ebp-08]
+ed8.exe+2A046B: D8 4D FC           - fmul dword ptr [ebp-04]
+ed8.exe+2A046E: 89 4D F0           - mov [ebp-10],ecx
+ed8.exe+2A0471: 89 55 F4           - mov [ebp-0C],edx
+ed8.exe+2A0474: 5E                 - pop esi
+ed8.exe+2A0475: D9 5D 08           - fstp dword ptr [ebp+08]
+ed8.exe+2A0478: D9 45 08           - fld dword ptr [ebp+08]
+ed8.exe+2A047B: 8B E5              - mov esp,ebp
+ed8.exe+2A047D: 5D                 - pop ebp
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+226B56 - Minimap
+
+ed8.exe+226B33: D9 1C 24              - fstp dword ptr [esp]
+ed8.exe+226B36: 50                    - push eax
+ed8.exe+226B37: 8D 8E 98 01 00 00     - lea ecx,[esi+00000198]
+ed8.exe+226B3D: E8 6E 76 DE FF        - call ed8.exe+E1B0
+ed8.exe+226B42: D9 45 08              - fld dword ptr [ebp+08]
+ed8.exe+226B45: 51                    - push ecx
+ed8.exe+226B46: 8D 8E C0 01 00 00     - lea ecx,[esi+000001C0]
+ed8.exe+226B4C: D9 1C 24              - fstp dword ptr [esp]
+ed8.exe+226B4F: E8 F6 3B DE FF        - call ed8.exe+A74A
+ed8.exe+226B54: DD D8                 - fstp st(0)
+// ---------- INJECTING HERE ----------
+ed8.exe+226B56: D9 86 CC 01 00 00     - fld dword ptr [esi+000001CC]
+// ---------- DONE INJECTING  ----------
+ed8.exe+226B5C: D9 EE                 - fldz
+ed8.exe+226B5E: DA E9                 - fucompp
+ed8.exe+226B60: DF E0                 - fnstsw ax
+ed8.exe+226B62: F6 C4 44              - test ah,44
+ed8.exe+226B65: 7A 09                 - jp ed8.exe+226B70
+ed8.exe+226B67: 33 C9                 - xor ecx,ecx
+ed8.exe+226B69: 66 89 8E FE 02 00 00  - mov [esi+000002FE],cx
+ed8.exe+226B70: 5E                    - pop esi
+ed8.exe+226B71: 8B E5                 - mov esp,ebp
+ed8.exe+226B73: 5D                    - pop ebp
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>118</Key>
+          </Keys>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>170</ID>
+          <Description>"After disabling Hide HUD, minimap will return after battle or cutscene"</Description>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>122</ID>
+      <Description>"Disable Dialogue"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(dialoguestatus_aob,ed8.exe,D9 46 2C D9 5D F4) // should be unique
+aobscanmodule(dialoguewrite_aob1,ed8.exe,D9 5E 2C D9 86 88 00 00 00 D9 86 84 00 00 00 DA E9 DF E0 F6 C4 44 7A 1A) // should be unique
+aobscanmodule(dialoguewrite_aob2,ed8.exe,D9 5E 2C D9 86 88 00 00 00 D9 86 84 00 00 00 DA E9 DF E0 F6 C4 44 7A 6C) // should be unique
+
+alloc(newmem,$1000)
+
+label(code)
+label(dialoguepointer)
+label(return)
+
+registersymbol(dialoguestatus_aob)
+registersymbol(dialoguepointer)
+registersymbol(dialoguewrite_aob1)
+registersymbol(dialoguewrite_aob2)
+
+newmem:
+  mov [dialoguepointer],esi
+  fldz
+  fstp dword ptr [esi+2C]
+code:
+  fld dword ptr [esi+2C]
+  fstp dword ptr [ebp-0C]
+  jmp return
+
+dialoguepointer:
+  dd #0
+
+dialoguestatus_aob:
+  jmp newmem
+  nop
+return:
+
+dialoguewrite_aob1:
+  db DD D8 90
+
+dialoguewrite_aob2:
+  db DD D8 90
+
+[DISABLE]
+
+{$lua}
+
+writeFloat("[dialoguepointer]+2C",1)
+
+{$asm}
+
+dialoguestatus_aob:
+  db D9 46 2C D9 5D F4
+
+dialoguewrite_aob1:
+  db D9 5E 2C
+
+dialoguewrite_aob2:
+  db D9 5E 2C
+
+unregistersymbol(dialoguestatus_aob)
+unregistersymbol(dialoguepointer)
+unregistersymbol(dialoguewrite_aob1)
+unregistersymbol(dialoguewrite_aob2)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+3050D4
+
+ed8.exe+3050B6: D9 5C 24 04        - fstp dword ptr [esp+04]
+ed8.exe+3050BA: D9 45 F8           - fld dword ptr [ebp-08]
+ed8.exe+3050BD: D9 1C 24           - fstp dword ptr [esp]
+ed8.exe+3050C0: E8 11 93 D0 FF     - call ed8.exe+E3D6
+ed8.exe+3050C5: 8B 8E 98 03 00 00  - mov ecx,[esi+00000398]
+ed8.exe+3050CB: 8B 01              - mov eax,[ecx]
+ed8.exe+3050CD: 8B 50 1C           - mov edx,[eax+1C]
+ed8.exe+3050D0: 57                 - push edi
+ed8.exe+3050D1: 53                 - push ebx
+ed8.exe+3050D2: FF D2              - call edx
+// ---------- INJECTING HERE ----------
+ed8.exe+3050D4: D9 46 2C           - fld dword ptr [esi+2C]
+// ---------- DONE INJECTING  ----------
+ed8.exe+3050D7: D9 5D F4           - fstp dword ptr [ebp-0C]
+ed8.exe+3050DA: 6A 00              - push 00
+ed8.exe+3050DC: D9 E8              - fld1 
+ed8.exe+3050DE: 83 EC 10           - sub esp,10
+ed8.exe+3050E1: D9 5C 24 0C        - fstp dword ptr [esp+0C]
+ed8.exe+3050E5: 8D 86 58 03 00 00  - lea eax,[esi+00000358]
+ed8.exe+3050EB: D9 05 C4 DE B3 00  - fld dword ptr [ed8.exe+73DEC4]
+ed8.exe+3050F1: D9 5C 24 08        - fstp dword ptr [esp+08]
+ed8.exe+3050F5: D9 45 F4           - fld dword ptr [ebp-0C]
+ed8.exe+3050F8: D9 5C 24 04        - fstp dword ptr [esp+04]
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>123</ID>
+          <Description>"Show Dialogue (0=no, 1=yes)"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>dialoguepointer</Address>
+          <Offsets>
+            <Offset>2C</Offset>
+          </Offsets>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
       <ID>1</ID>
       <Description>"Free Camera"</Description>
       <VariableType>Auto Assembler Script</VariableType>
@@ -15,6 +344,7 @@ aobscanmodule(detachcameratarget_aob,ed8.exe,00 55 8B EC D9 45 08 D9 99 E0 00 00
 aobscanmodule(cameratiltlock_aob,ed8.exe,D8 55 E4 DF E0 F6 C4 05) // should be unique
 aobscanmodule(minzcorrection_aob,ed8.exe,7A 05 D9 5D 9C) // should be unique
 aobscanmodule(cameradistanceread_aob,ed8.exe,D9 1C 24 51 52 8B CE) // should be unique
+aobscanmodule(ignorecutscenestatus_aob,ed8.exe,F6 86 CA 00 00 00 04 8B) // should be unique
 //aobscanmodule(detachcamerarotation_aob,ed8.exe,D9 9E D0 05 00 00 D9 45 84) // should be unique
 alloc(newmem,$1000, camerastatus_aob)
 
@@ -22,6 +352,7 @@ label(camerastatuscode)
 label(uppertiltcode)
 label(lowertiltcode)
 label(cameradistancecode)
+label(cutscenestatuscode)
 label(camerastatus)
 label(tiltlimitupper)
 label(tiltlimitlower)
@@ -30,6 +361,7 @@ label(camerastatusreturn)
 label(uppertiltreturn)
 label(lowertiltreturn)
 label(cameradistancereturn)
+label(cutscenestatusreturn)
 
 registersymbol(camerastatus_aob)
 registersymbol(camerastatus)
@@ -37,6 +369,7 @@ registersymbol(detachcameratarget_aob)
 registersymbol(cameratiltlock_aob)
 registersymbol(minzcorrection_aob)
 registersymbol(cameradistanceread_aob)
+registersymbol(ignorecutscenestatus_aob)
 //registersymbol(detachcamerarotation_aob)
 
 newmem:
@@ -68,6 +401,11 @@ cameradistancecode:
   push edx
   jmp cameradistancereturn
 
+cutscenestatuscode:
+  mov byte ptr [esi+000000CA],00
+  test byte ptr [esi+000000CA],04
+  jmp cutscenestatusreturn
+
 camerastatus:
   dq #0
 
@@ -96,6 +434,11 @@ lowertiltreturn:
 cameradistanceread_aob:
   jmp cameradistancecode
 cameradistancereturn:
+
+ignorecutscenestatus_aob:
+  jmp cutscenestatuscode
+  nop 2
+cutscenestatusreturn:
 
 detachcameratarget_aob+04:
   db 90 90 90 90 90 90 D9 45 0C 90 90 90 90 90 90 D9 45 10 90 90 90 90 90 90 90 90 90
@@ -269,6 +612,9 @@ cameratiltlock_aob+17:
 cameradistanceread_aob:
   db D9 1C 24 51 52
 
+ignorecutscenestatus_aob:
+  db F6 86 CA 00 00 00 04
+
 detachcameratarget_aob+04:
   db D9 45 08 D9 99 E0 00 00 00 D9 45 0C D9 99 E4 00 00 00 D9 45 10 D9 99 E8 00 00 00
 
@@ -290,6 +636,7 @@ unregistersymbol(detachcameratarget_aob)
 unregistersymbol(cameratiltlock_aob)
 unregistersymbol(minzcorrection_aob)
 unregistersymbol(cameradistanceread_aob)
+unregistersymbol(ignorecutscenestatus_aob)
 //unregistersymbol(detachcamerarotation_aob)
 dealloc(newmem)
 
@@ -433,6 +780,32 @@ ed8.exe+13C205: D9 86 B0 05 00 00  - fld dword ptr [esi+000005B0]
 ed8.exe+13C20B: D9 5D 98           - fstp dword ptr [ebp-68]
 ed8.exe+13C20E: D9 86 B4 05 00 00  - fld dword ptr [esi+000005B4]
 ed8.exe+13C214: D9 5D 9C           - fstp dword ptr [ebp-64]
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13C0D9 - Cutscene Status
+
+ed8.exe+13C0BA: 56                    - push esi
+ed8.exe+13C0BB: 57                    - push edi
+ed8.exe+13C0BC: 8B F1                 - mov esi,ecx
+ed8.exe+13C0BE: E8 1E AA EC FF        - call ed8.exe+6AE1
+ed8.exe+13C0C3: 0F B7 80 00 5A 00 00  - movzx eax,word ptr [eax+00005A00]
+ed8.exe+13C0CA: 50                    - push eax
+ed8.exe+13C0CB: E8 11 AA EC FF        - call ed8.exe+6AE1
+ed8.exe+13C0D0: 8B C8                 - mov ecx,eax
+ed8.exe+13C0D2: E8 B6 07 ED FF        - call ed8.exe+C88D
+ed8.exe+13C0D7: 32 DB                 - xor bl,bl
+// ---------- INJECTING HERE ----------
+ed8.exe+13C0D9: F6 86 CA 00 00 00 04  - test byte ptr [esi+000000CA],04
+// ---------- DONE INJECTING  ----------
+ed8.exe+13C0E0: 8B F8                 - mov edi,eax
+ed8.exe+13C0E2: 89 BD 48 FF FF FF     - mov [ebp-000000B8],edi
+ed8.exe+13C0E8: 88 5D C3              - mov [ebp-3D],bl
+ed8.exe+13C0EB: 74 05                 - je ed8.exe+13C0F2
+ed8.exe+13C0ED: B3 01                 - mov bl,01
+ed8.exe+13C0EF: 88 5D C3              - mov [ebp-3D],bl
+ed8.exe+13C0F2: D9 45 08              - fld dword ptr [ebp+08]
+ed8.exe+13C0F5: E8 0C 15 42 00        - call ed8.exe+55D606
+ed8.exe+13C0FA: D9 5D FC              - fstp dword ptr [ebp-04]
+ed8.exe+13C0FD: D9 45 FC              - fld dword ptr [ebp-04]
 }
 </AssemblerScript>
       <Hotkeys>
@@ -448,8 +821,8 @@ ed8.exe+13C214: D9 5D 9C           - fstp dword ptr [ebp-64]
       </Hotkeys>
     </CheatEntry>
     <CheatEntry>
-      <ID>2</ID>
-      <Description>"Disable Field Tilt"</Description>
+      <ID>3</ID>
+      <Description>"Disable Field Tilt Limits"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
@@ -544,8 +917,8 @@ ed8.exe+13C908: D9 C0                 - fld st(0)
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
-      <ID>3</ID>
-      <Description>"Lower Min Z"</Description>
+      <ID>4</ID>
+      <Description>"Lower Field Min Z"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
@@ -605,7 +978,7 @@ ed8.exe+13D75F: D9 45 98              - fld dword ptr [ebp-68]
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
-      <ID>4</ID>
+      <ID>5</ID>
       <Description>"Custom Camera Distance"</Description>
       <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
@@ -853,6 +1226,16 @@ ed8.exe+22966F: D9 45 8C           - fld dword ptr [ebp-74]
             <Offset>674</Offset>
           </Offsets>
         </CheatEntry>
+        <CheatEntry>
+          <ID>114</ID>
+          <Description>"Camera Mode"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>2 Bytes</VariableType>
+          <Address>camerapointer</Address>
+          <Offsets>
+            <Offset>CA</Offset>
+          </Offsets>
+        </CheatEntry>
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
@@ -909,7 +1292,150 @@ ed8.exe+1B8F1D: 0F 84 97 00 00 00  - je ed8.exe+1B8FBA
 }
 </AssemblerScript>
         </CheatEntry>
+        <CheatEntry>
+          <ID>111</ID>
+          <Description>"Freeze Animations (Useless)"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(freezeanimations_aob,ed8.exe,E8 DF 85 01 00) // should be unique
+registersymbol(freezeanimations_aob)
+
+freezeanimations_aob:
+  db 90 90 90 90 90
+
+[DISABLE]
+
+freezeanimations_aob:
+  db E8 DF 85 01 00
+
+unregistersymbol(freezeanimations_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+3112EC
+
+ed8.exe+3112D4: 56                 - push esi
+ed8.exe+3112D5: 8B F1              - mov esi,ecx
+ed8.exe+3112D7: 8B 46 04           - mov eax,[esi+04]
+ed8.exe+3112DA: D1 E8              - shr eax,1
+ed8.exe+3112DC: 57                 - push edi
+ed8.exe+3112DD: 39 46 14           - cmp [esi+14],eax
+ed8.exe+3112E0: 72 05              - jb ed8.exe+3112E7
+ed8.exe+3112E2: E8 59 FF FF FF     - call ed8.exe+311240
+ed8.exe+3112E7: 8B 5D 08           - mov ebx,[ebp+08]
+ed8.exe+3112EA: 8B CB              - mov ecx,ebx
+// ---------- INJECTING HERE ----------
+ed8.exe+3112EC: E8 DF 85 01 00     - call ed8.exe+3298D0
+// ---------- DONE INJECTING  ----------
+ed8.exe+3112F1: 33 FF              - xor edi,edi
+ed8.exe+3112F3: 3B C7              - cmp eax,edi
+ed8.exe+3112F5: 0F 84 94 00 00 00  - je ed8.exe+31138F
+ed8.exe+3112FB: EB 03              - jmp ed8.exe+311300
+ed8.exe+3112FD: 8D 49 00           - lea ecx,[ecx+00]
+ed8.exe+311300: 83 F8 0D           - cmp eax,0D
+ed8.exe+311303: 0F 85 A2 00 00 00  - jne ed8.exe+3113AB
+ed8.exe+311309: 39 7E 14           - cmp [esi+14],edi
+ed8.exe+31130C: 74 27              - je ed8.exe+311335
+ed8.exe+31130E: E8 7D 4C 11 00     - call ed8.exe+425F90
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>152</ID>
+          <Description>"Field HUD Status (Pointer)"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>"ed8.exe"+0087DAA0</Address>
+          <Offsets>
+            <Offset>B0</Offset>
+            <Offset>8</Offset>
+            <Offset>1C4</Offset>
+            <Offset>B34</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>129</ID>
+          <Description>"Minimap Status"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(minimapstatus_aob,ed8.exe,D9 86 CC 01 00 00 D9 EE) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(minimappointer)
+label(return)
+
+newmem:
+  mov [minimappointer],esi
+
+code:
+  fld dword ptr [esi+000001CC]
+  jmp return
+
+minimappointer:
+  dd #0
+
+minimapstatus_aob:
+  jmp newmem
+  nop
+return:
+registersymbol(minimapstatus_aob)
+registersymbol(minimappointer)
+
+[DISABLE]
+
+minimapstatus_aob:
+  db D9 86 CC 01 00 00
+
+unregistersymbol(minimapstatus_aob)
+unregistersymbol(minimappointer)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+226B56
+
+ed8.exe+226B33: D9 1C 24              - fstp dword ptr [esp]
+ed8.exe+226B36: 50                    - push eax
+ed8.exe+226B37: 8D 8E 98 01 00 00     - lea ecx,[esi+00000198]
+ed8.exe+226B3D: E8 6E 76 DE FF        - call ed8.exe+E1B0
+ed8.exe+226B42: D9 45 08              - fld dword ptr [ebp+08]
+ed8.exe+226B45: 51                    - push ecx
+ed8.exe+226B46: 8D 8E C0 01 00 00     - lea ecx,[esi+000001C0]
+ed8.exe+226B4C: D9 1C 24              - fstp dword ptr [esp]
+ed8.exe+226B4F: E8 F6 3B DE FF        - call ed8.exe+A74A
+ed8.exe+226B54: DD D8                 - fstp st(0)
+// ---------- INJECTING HERE ----------
+ed8.exe+226B56: D9 86 CC 01 00 00     - fld dword ptr [esi+000001CC]
+// ---------- DONE INJECTING  ----------
+ed8.exe+226B5C: D9 EE                 - fldz 
+ed8.exe+226B5E: DA E9                 - fucompp 
+ed8.exe+226B60: DF E0                 - fnstsw ax
+ed8.exe+226B62: F6 C4 44              - test ah,44
+ed8.exe+226B65: 7A 09                 - jp ed8.exe+226B70
+ed8.exe+226B67: 33 C9                 - xor ecx,ecx
+ed8.exe+226B69: 66 89 8E FE 02 00 00  - mov [esi+000002FE],cx
+ed8.exe+226B70: 5E                    - pop esi
+ed8.exe+226B71: 8B E5                 - mov esp,ebp
+ed8.exe+226B73: 5D                    - pop ebp
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>130</ID>
+              <Description>"Minimap Showing (0=no, 1=yes)"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>minimappointer</Address>
+              <Offsets>
+                <Offset>1CC</Offset>
+              </Offsets>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
       </CheatEntries>
     </CheatEntry>
   </CheatEntries>
+  <Comments>Camera Movement Algorithm courtesy Cyber's CS4 free camera script.
+</Comments>
 </CheatTable>
