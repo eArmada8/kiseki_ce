@@ -329,8 +329,16 @@ ed8_2_PC_US.exe+28D5CD: 53                       - push ebx
 globalalloc(speedModifier,8)
 speedModifier:
 dd (float)3
+globalalloc(useMouse,8)
+useMouse:
+dd (float)1 // 1 to use mouse, 0 to not use mouse
+globalalloc(mouseSensitivity,8)
+mouseSensitivity:
+dd (float)8
 
 aobscanmodule(cameracoordinates_aob,ed8_2_PC_US.exe,89 83 C0 00 00 00 C7) // should be unique
+aobscanmodule(mousecameracontrol_aob,ed8_2_PC_US.exe,8B 8E 74 03 00 00 E8 19) // should be unique
+aobscanmodule(mousecursorcontrol_aob,ed8_2_PC_US.exe,84 C0 74 3D FF 15 24 A6 8E 00) // should be unique
 aobscanmodule(detachcamera_aob1,ed8_2_PC_US.exe,C5 F3 0F 11 56 14) // should be unique
 //aobscanmodule(detachcamera_aob2,ed8_2_PC_US.exe,F3 0F 11 86 CC 05 00 00 F3 0F 5C) // should be unique
 define(detachcamera_aob2, detachcamera_aob1+2FDD)
@@ -349,10 +357,14 @@ assert(detachcameratarget_aob3, F3 0F 11 81 BC 05 00 00)
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 
-label(code)
-label(return)
+label(cameracoordinatescode)
+label(mousecameracontrolcode)
+label(cameracoordinatesreturn)
+label(mousecameracontrolreturn)
 
 registersymbol(cameracoordinates_aob)
+registersymbol(mousecameracontrol_aob)
+registersymbol(mousecursorcontrol_aob)
 registersymbol(detachcamera_aob1)
 registersymbol(detachcamera_aob2)
 registersymbol(detachcamera_aob3)
@@ -360,19 +372,32 @@ registersymbol(detachcamera_aob4)
 registersymbol(detachcameratarget_aob1)
 registersymbol(detachcameratarget_aob2)
 registersymbol(detachcameratarget_aob3)
+registersymbol(mousecameracontrol_aob)
 registersymbol(cameracoordinates)
 
 newmem:
 
-code:
+cameracoordinatescode:
   mov [ebx+000000C0],eax
   mov [cameracoordinates],edx
-  jmp return
+  jmp cameracoordinatesreturn
+
+mousecameracontrolcode:
+  mov ecx,[esi+00000374]
+  jmp ed8_2_PC_US.exe+154E7
 
 cameracoordinates_aob:
-  jmp newmem
+  jmp cameracoordinatescode
   nop
-return:
+cameracoordinatesreturn:
+
+mousecameracontrol_aob:
+  jmp mousecameracontrolcode
+  nop
+mousecameracontrolreturn:
+
+mousecursorcontrol_aob:
+  db A8 00
 
 detachcamera_aob1+01:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
@@ -402,6 +427,8 @@ function checkKeys()
   if (getAddressSafe("[cameracoordinates]")) then
     --Read and assign speed modifier value
     local speed = readFloat("speedModifier")
+    local use_mouse = readFloat("useMouse")
+    local mouse_speed = readFloat("mouseSensitivity")
 
     --Camera Coordinates
     local camx = readFloat("[cameracoordinates]+5CC") -- Camera X
@@ -425,6 +452,21 @@ function checkKeys()
       targety = 0
       targetz = 0
     else
+
+      local new_mouse_x,new_mouse_y = getMousePos()
+      local mouse_loaded = readInteger("cameracoordinates+28")
+
+      --Initialize mouse coordinates on first run (if using mouse)
+      if not (mouse_loaded == 1) and (use_mouse == 1) then
+        new_mouse_x = getScreenWidth() / 2
+        new_mouse_y = getScreenHeight() / 2
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+        writeInteger("cameracoordinates+28",1)
+      end
+
+      --Measure mouse movement from previous cycle
+      local mouse_move_x = new_mouse_x - getScreenWidth() / 2
+      local mouse_move_y = new_mouse_y - getScreenHeight() / 2
 
       --Use math.rad() to convert from degrees if game values aren't in radians
       local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
@@ -520,6 +562,19 @@ function checkKeys()
           writeFloat("[cameracoordinates]+5E4", 0)
       end
 
+      if (use_mouse == 1) then
+        --Tilt by mouse
+        if not(mouse_move_y == 0) then
+          tilt = math.min(math.max(tilt + mouse_move_y * mouse_speed * 0.0003, math.rad(-89.5)), math.rad(89.5))
+        end
+        --Tilt by mouse
+        if not(mouse_move_x == 0) then
+          pan = pan - mouse_move_x * mouse_speed * 0.0003
+        end
+
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+      end
+
       --Create a copy of the entire memory block before alterations.  I do not know if +5C8 or +5D8 are used, but this preserves them.
       copyMemory("[cameracoordinates]+5BC",32,"cameracoordinates+08")
 
@@ -545,6 +600,13 @@ function checkKeys()
     else --If nothing is pressed, speed is normal
       writeFloat("speedModifier", 3)
     end
+
+    --Mouse Support
+    if isKeyPressed(VK_PRIOR) then --If Page Up is pressed, enable mouse
+      writeFloat("useMouse", 1)
+    elseif isKeyPressed(VK_NEXT) then --If Page Down is pressed, disable mouse
+      writeFloat("useMouse", 0)
+    end
   end
 end
 
@@ -564,6 +626,9 @@ timer_setEnabled(t, false)
 
 cameracoordinates_aob:
   db 89 83 C0 00 00 00
+
+mousecursorcontrol_aob:
+  db 84 C0
 
 detachcamera_aob1+01:
   db F3 0F 11 56 14 F3 0F 11 4E 18 F3 0F 11 46 1C
@@ -586,8 +651,13 @@ detachcameratarget_aob2:
 detachcameratarget_aob3:
   db F3 0F 11 81 BC 05 00 00 F3 0F 10 45 0C F3 0F 11 81 C0 05 00 00 F3 0F 10 45 10 F3 0F 11 81 C4 05 00 00
 
+mousecameracontrol_aob:
+  db 8B 8E 74 03 00 00
+
 unregistersymbol(cameracoordinates_aob)
 unregistersymbol(cameracoordinates)
+unregistersymbol(mousecameracontrol_aob)
+unregistersymbol(mousecursorcontrol_aob)
 unregistersymbol(detachcamera_aob1)
 unregistersymbol(detachcamera_aob2)
 unregistersymbol(detachcamera_aob3)
@@ -805,6 +875,60 @@ ed8_2_PC_US.exe+DB19E: CC                       - int 3
 ed8_2_PC_US.exe+DB19F: CC                       - int 3
 ed8_2_PC_US.exe+DB1A0: 55                       - push ebp
 ed8_2_PC_US.exe+DB1A1: 8B EC                    - mov ebp,esp
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+154DC - Mouse Camera Control
+// AOB Scan is performed one instruction early to maintain Sen Patcher compatibility
+
+ed8_2_PC_US.exe+154B3: C7 86 50 0A 00 00 80 00 00 00  - mov [esi+00000A50],00000080
+ed8_2_PC_US.exe+154BD: C7 86 4C 0A 00 00 00 02 00 00  - mov [esi+00000A4C],00000200
+ed8_2_PC_US.exe+154C7: E8 B4 69 3E 00                 - call ed8_2_PC_US.exe+3FBE80
+ed8_2_PC_US.exe+154CC: 85 C0                          - test eax,eax
+ed8_2_PC_US.exe+154CE: 74 0C                          - je ed8_2_PC_US.exe+154DC
+ed8_2_PC_US.exe+154D0: B8 09 00 00 00                 - mov eax,00000009
+ed8_2_PC_US.exe+154D5: 5E                             - pop esi
+ed8_2_PC_US.exe+154D6: 8B E5                          - mov esp,ebp
+ed8_2_PC_US.exe+154D8: 5D                             - pop ebp
+ed8_2_PC_US.exe+154D9: C2 04 00                       - ret 0004
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+154DC: 8B 8E 74 03 00 00              - mov ecx,[esi+00000374]
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+154E2: E8 19 CB 3E 00                 - call ed8_2_PC_US.exe+402000
+ed8_2_PC_US.exe+154E7: 6A 00                          - push 00
+ed8_2_PC_US.exe+154E9: 6A 02                          - push 02
+ed8_2_PC_US.exe+154EB: E8 10 59 3E 00                 - call ed8_2_PC_US.exe+3FAE00
+ed8_2_PC_US.exe+154F0: 83 C4 08                       - add esp,08
+ed8_2_PC_US.exe+154F3: 39 86 08 0F 00 00              - cmp [esi+00000F08],eax
+ed8_2_PC_US.exe+154F9: 74 0B                          - je ed8_2_PC_US.exe+15506
+ed8_2_PC_US.exe+154FB: 89 86 08 0F 00 00              - mov [esi+00000F08],eax
+ed8_2_PC_US.exe+15501: E8 8A 23 00 00                 - call ed8_2_PC_US.exe+17890
+ed8_2_PC_US.exe+15506: 8B CE                          - mov ecx,esi
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+181ECC - Mouse Cursor Control
+// AOB Scan is performed one instruction early to maintain Sen Patcher compatibility
+
+ed8_2_PC_US.exe+181EAE: E8 9D 2F 19 00     - call ed8_2_PC_US.exe+314E50
+ed8_2_PC_US.exe+181EB3: 8B 07              - mov eax,[edi]
+ed8_2_PC_US.exe+181EB5: 8B CF              - mov ecx,edi
+ed8_2_PC_US.exe+181EB7: 8B 40 58           - mov eax,[eax+58]
+ed8_2_PC_US.exe+181EBA: FF D0              - call eax
+ed8_2_PC_US.exe+181EBC: 84 C0              - test al,al
+ed8_2_PC_US.exe+181EBE: 74 4D              - je ed8_2_PC_US.exe+181F0D
+ed8_2_PC_US.exe+181EC0: E8 5B E6 14 00     - call ed8_2_PC_US.exe+2D0520
+ed8_2_PC_US.exe+181EC5: 8B C8              - mov ecx,eax
+ed8_2_PC_US.exe+181EC7: E8 44 9B 15 00     - call ed8_2_PC_US.exe+2DBA10
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+181ECC: 84 C0              - test al,al
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+181ECE: 74 3D              - je ed8_2_PC_US.exe+181F0D
+ed8_2_PC_US.exe+181ED0: FF 15 24 A6 8E 00  - call dword ptr [ed8_2_PC_US.exe+4EA624]
+ed8_2_PC_US.exe+181ED6: 85 C0              - test eax,eax
+ed8_2_PC_US.exe+181ED8: 74 33              - je ed8_2_PC_US.exe+181F0D
+ed8_2_PC_US.exe+181EDA: 8D 4D EC           - lea ecx,[ebp-14]
+ed8_2_PC_US.exe+181EDD: 51                 - push ecx
+ed8_2_PC_US.exe+181EDE: 50                 - push eax
+ed8_2_PC_US.exe+181EDF: FF 15 68 A5 8E 00  - call dword ptr [ed8_2_PC_US.exe+4EA568]
+ed8_2_PC_US.exe+181EE5: 85 C0              - test eax,eax
+ed8_2_PC_US.exe+181EE7: 74 24              - je ed8_2_PC_US.exe+181F0D
 }
 </AssemblerScript>
       <Hotkeys>
