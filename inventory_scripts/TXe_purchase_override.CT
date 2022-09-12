@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>101</ID>
+      <Description>"Override Purchase"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(overrideitem_aob,TokyoXanadu.exe,56 8D BB 3C 89 59 00) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(itemid)
+label(return)
+
+registersymbol(overrideitem_aob)
+registersymbol(itemid)
+
+newmem:
+  mov esi,[itemid]
+code:
+  push esi
+  lea edi,[ebx+TokyoXanadu.exe+19893C]
+  jmp return
+
+itemid:
+  dq #0
+
+overrideitem_aob:
+  jmp newmem
+  nop 2
+return:
+
+[DISABLE]
+
+overrideitem_aob:
+  db 56 8D BB 3C 89 59 00
+
+unregistersymbol(overrideitem_aob)
+unregistersymbol(itemid)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: TokyoXanadu.exe+19149F
+
+TokyoXanadu.exe+191479: 66 3B D6                 - cmp dx,si
+TokyoXanadu.exe+19147C: 74 1B                    - je TokyoXanadu.exe+191499
+TokyoXanadu.exe+19147E: 40                       - inc eax
+TokyoXanadu.exe+19147F: 83 C1 02                 - add ecx,02
+TokyoXanadu.exe+191482: 3D 80 00 00 00           - cmp eax,00000080
+TokyoXanadu.exe+191487: 72 E7                    - jb TokyoXanadu.exe+191470
+TokyoXanadu.exe+191489: EB 0E                    - jmp TokyoXanadu.exe+191499
+TokyoXanadu.exe+19148B: 66 89 B4 43 6C 31 39 00  - mov [ebx+eax*2+0039316C],si
+TokyoXanadu.exe+191493: 8B 1D 88 C8 B4 00        - mov ebx,[TokyoXanadu.exe+74C888]
+TokyoXanadu.exe+191499: 8B 8B 54 16 39 00        - mov ecx,[ebx+00391654]
+// ---------- INJECTING HERE ----------
+TokyoXanadu.exe+19149F: 56                       - push esi
+// ---------- DONE INJECTING  ----------
+TokyoXanadu.exe+1914A0: 8D BB 3C 89 59 00        - lea edi,[ebx+TokyoXanadu.exe+19893C]
+TokyoXanadu.exe+1914A6: E8 25 91 F4 FF           - call TokyoXanadu.exe+DA5D0
+TokyoXanadu.exe+1914AB: 89 45 D8                 - mov [ebp-28],eax
+TokyoXanadu.exe+1914AE: 85 C0                    - test eax,eax
+TokyoXanadu.exe+1914B0: 0F 84 D4 01 00 00        - je TokyoXanadu.exe+19168A
+TokyoXanadu.exe+1914B6: 8B 17                    - mov edx,[edi]
+TokyoXanadu.exe+1914B8: 33 C0                    - xor eax,eax
+TokyoXanadu.exe+1914BA: 81 E2 FF FF FF 7F        - and edx,7FFFFFFF
+TokyoXanadu.exe+1914C0: 76 16                    - jna TokyoXanadu.exe+1914D8
+TokyoXanadu.exe+1914C2: 8B 5F 04                 - mov ebx,[edi+04]
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>102</ID>
+          <Description>"Item Override"</Description>
+          <DropDownList DescriptionOnly="1" DisplayValueAsItem="1">281:17 Recipe - Coffee
+331:17 Recipe - Coffee Jelly
+286:17 Recipe - Curry
+295:17 Recipe - Tart
+3420:Absolute Defense
+2133:Abyssal Stone
+3068:Acros Cookie
+3415:Adamantine I
+3416:Adamantine II
+3417:Adamantine III
+3426:Adamantine IV
+417:Aegis Armor
+517:Aegis Guards
+747:Alisa Badge
+750:Alisa Plush
+732:Alisa Strap
+3120:All Spice
+3209:Altair
+410:Amaterasu Armor
+315:Amber Barrette
+2118:Amber Oil
+3101:Ambrosia
+728:Animal Keychain
+2107:Animosity Wing
+702:Antibacterial Mask
+8:Antidote
+3061:Apricot Candy
+3453:Aqua Raid I
+3454:Aqua Raid II
+3455:Aqua Raid III
+3456:Aqua Shell I
+3457:Aqua Shell II
+3458:Aqua Shell III
+3461:Arc Bolt
+1700:Arc Legus
+1600:Arc Trinity
+3205:Arcadia
+753:Archery Talisman
+3603:Armageddon Crest
+406:Armor I
+407:Armor II
+408:Armor III
+524:Army Boots
+424:Army T-Shirt
+918:Asuka's Apron (Uniform)
+919:Asuka's Apron(Casualwear)
+914:Asuka's Casualwear
+120:Asuka's Message Card
+915:Asuka's Summerwear
+3150:Autumn Fest Cookie
+3146:Autumn Fest Fizz
+1171:Autumn Festival Set
+3309:Axe I
+3310:Axe II
+756:Azure Netsuke
+796:BIG Kobold Plush
+800:BIG Mishy Plush
+801:BIG Noi Plush
+797:BIG Penguin Plush
+798:BIG Pikkard Plush
+799:BIG Pom Plush
+3030:Bacon and Eggs
+3052:Barley Tea
+101:Barrier Device Talisman
+3328:Basara
+3019:Beefy Croquette
+323:Bejeweled Earphones
+511:Bellflower Shoes
+3201:Beowulf
+3427:Bimikakou
+1173:Biting Wolf Set
+1174:Biting Wolf Set M
+1175:Biting Wolf Set W
+3131:Bitter Coffee Jelly
+765:Blue Bookmark
+3105:Blue Mountain Beans
+415:Blue Workshirt
+3229:Bodhi's Orb
+3459:Bolt I
+3460:Bolt II
+805:Bracelet of Lighting
+3:Breath Potion I
+4:Breath Potion II
+5:Breath Potion III
+804:Brew Fest Coaster
+721:Bronze Charm
+3108:Bulb Onions
+160:Burning Grass
+528:Butterfly Heels
+3371:Byakko Fang
+292:Cafeteria - Chilled Noodles
+283:Cafeteria Recipe - Udon
+285:Café -N- Recipe - Milk
+3206:Calatrava
+1450:Calvary Mace
+164:Canned Fury
+169:Carving Kit
+318:Chain Wallet
+3510:Chaos Mirage
+2112:Chaos Soul Pelt
+775:Cheshire Kagemaru
+3062:Chili Dog 
+3022:Chilled Chinese Noodles
+3056:Chilled Soba
+3073:Chilled Soba w/ Tempura
+3057:Chilled Soba w/ Yam
+3604:Chizuru's Charm
+3144:Chocolate Bon Bon
+3113:Choice Pork
+3227:Chronos I
+3228:Chronos II
+3230:Chronos III
+324:Cigarette Case
+522:City Shoes
+717:Claw Amulet
+316:Cloud Disk
+3038:Cockney Hayashi Rice
+715:Colorful Beads
+760:Comet Talisman
+1166:Contact Lenses
+296:Cooking Quest - Mushroom Stew
+330:Cooking Quest - Paella
+284:Cooking Quest - Tofu Dengaku
+413:Cotton Blouse
+412:Cotton Shirt
+527:Cowboy Boots
+3063:Creamy Ice Cream
+2137:Creation Ore
+2116:Crimson Oil
+3106:Crisp Lettuce
+289:Croquette Recipe
+3107:Crunchy Carrots
+0:Cure Potion I
+1:Cure Potion II
+2:Cure Potion III
+3036:Curry Croquette
+730:Dark Gloves
+2120:Delusion Claw
+2115:Demon Bone
+2119:Dense Ore
+2123:Desecrated Claw
+3311:Double Axe
+317:Dragon Slayer ZERO
+510:Dragonflower Shoes
+3207:Durandal
+2142:Dusk Stone
+2117:Ebony Horn
+2125:Ebony Ore
+165:Eclipse Raw Materials
+2103:Ecstasy Fang
+1250:Ecthelion Hearts
+10:Elixir
+427:Emerald Jacket
+3212:Endymion
+2141:Eternity Bone
+2138:Eternity Oil
+719:Faerie Ring
+718:Fang Amulet
+708:Fashionable Choker
+420:Fashionable Shirt
+163:Fat Stack o' Cash
+2001:Fire Crystal
+3303:Fire Raid I
+3304:Fire Raid II
+3305:Fire Raid III
+2000:Fire Shard
+3306:Fire Shell I
+3307:Fire Shell II
+3308:Fire Shell III
+2002:Fire Stone
+3312:Fire Sword I
+3313:Fire Sword II
+3314:Fire Sword III
+741:Fire Talisman
+2124:Fish Scales
+778:Flatcat Kagemaru
+430:Flight Jacket
+755:Flight Talisman
+421:Flowery Tunic
+709:Fluffy Corsage
+3010:Fluffy Omelet
+3300:Force I
+3301:Force II
+3302:Force III
+3324:Force IV
+294:Forest Recipe - Crepe
+3422:Fortitude
+757:Fortitude Talisman
+3114:Free-Range Chicken
+3119:Fresh Eggs
+3118:Fresh Milk
+3115:Fresh Tofu
+3051:Fried Chicken Bento
+3372:Full Gallop
+2100:Furious Fang
+3370:Fuuto
+2130:Gale Stone
+3067:Galette Bretonnes
+314:Gardening Set
+3002:Gelatinous Goo
+3421:Genbu Shell
+168:Giant Pumpkin
+3048:Giga Fruit Parfait
+3147:Giganamin
+3148:Giganamin V
+3151:Giganamin W
+3014:Ginger Milkshake
+3214:Ginnungagap
+3208:Gjallarhorn
+3054:Glorious
+3055:Glorious EX
+3072:Glorious OMEGA
+723:Gold Bangle
+764:Gold Battle Top
+754:Gold Netsuke
+2143:Golden Element
+3116:Golden Flour
+2144:Golden Fragment
+311:Golden Morimaru
+975:Gorou's Battle Gear
+976:Gorou's Battle Gear (Helmet)
+974:Gorou's Casualwear
+126:Gorou's Message Card
+972:Gorou's Speedo
+970:Gorou's Teacher Wear
+151:Great Teacher Kinshachi
+506:Greaves I
+507:Greaves II
+508:Greaves III
+514:Green Sneakers
+3080:Green Tea
+2111:Grudge Claw
+3327:Gyakurin
+523:Gym Shoes
+194:HELM Poster
+3409:Hammer I
+3410:Hammer II
+3202:Hauteclaire
+3361:Hawk Wing
+3037:Heartfelt Pasta Sauce
+2110:Heartless Ore
+727:Hero Badge
+3320:Hinezumi
+3472:Holy Blessing
+1650:Holy Bokken
+766:Holy Cross
+3084:Homemade Apple Pie
+3083:Homemade Madeleine
+3145:Homemade Pumpkin Pie
+2136:Honesty Down
+3024:Honey Melon Crepe
+761:Horn Charm
+3066:Hot Coffee
+3142:Hot Soba w/ Duck
+903:Hot Spring Wear
+3322:Hyoubi
+429:Hype Parker
+155:I-Lightning
+161:Ice Crystal Flower
+3462:Ice Sword I
+3463:Ice Sword II
+3464:Ice Sword III
+742:Ice Talisman
+306:Idol-ized
+3521:Ikaruga
+3213:Illuminati
+300:Intermediate Karate
+3418:Iron Will
+3004:It's...Something?
+1172:Jack-O-Lantern
+319:Japanese Cutlery
+3012:Jiggly Anmitsu
+3373:Joy of Flight
+2101:JuJu Bone Shard
+2122:Judgement Wing
+3110:Juicy Melon
+3074:Jumbo Yakitori
+130:Jun's Message Card
+779:Kagemaru Army
+3428:Kagura
+167:Keepsake Photo
+3478:Kiraboshi
+752:Kitty Fie Plush
+790:Kobold Plush
+767:Kokonoe Charm
+313:Kokonoe Chime
+771:Kotatsu Kagemaru
+3419:Kotetsu
+904:Kou's Casualwear
+907:Kou's Goth Gear
+906:Kou's Relax Wear
+908:Kou's Rider Style
+905:Kou's Work Clothes
+437:Kuguraya Chestpiece
+537:Kuguraya Greaves
+3369:Kusanagi
+3477:Kuzunoha
+170:LED Lamp
+704:LED Mini-Light
+416:Lacey Camisole
+710:Lavender Potpourri
+516:Leather Kicks
+520:Leather Sandals
+515:Leather Shoes
+3069:Lemon Tea
+3053:Lemon Water
+1160:Lennon Spectacles 
+322:Let's Rockstar!
+3450:Life I
+3451:Life II
+3452:Life III
+3474:Life IV
+536:Light Sneakers
+3362:Lightning Sword I
+3363:Lightning Sword II
+3364:Lightning Sword III
+743:Lightning Talisman
+414:Linen Shirt
+3204:Lorelai
+180:Lotto - April 3rd Week
+181:Lotto - April 5th Week
+186:Lotto - July 2nd Week
+187:Lotto - July Special Draw
+184:Lotto - June 1st Week
+185:Lotto - June 4th Week
+182:Lotto - May 2nd Week
+183:Lotto - May 4th Week
+777:Love-Struck Kagemaru
+3517:Luminescence
+806:Lunar Helm
+3103:Lunar Mutton
+11:Lunar Soma
+312:Lustrous Treatment
+509:M-Lightning
+968:MN Fairy Tale
+310:MP3 Player
+3135:Machismo Rice
+729:Magic Deck
+198:Magical Alisa Figure
+272:Magical Girl Alisa
+156:Magical Vine
+3315:Mayhem I
+3316:Mayhem II
+3317:Mayhem III
+3326:Mayhem IV
+3100:Mead
+3013:Meaty Udon
+3109:Medicinal Ginger
+152:Megacorps Today
+195:Megastation 4
+3045:Mellow Tiramisu Tart
+158:Memento Strap
+1163:Meow Meow Set
+3211:Mercurius
+1169:Midnight Heaven
+150:Military Mania Quarterly
+712:Miniature Wrench
+3509:Mirage
+794:Mishy Plush
+2131:Misty Ice Stone
+954:Mitsuki's Casualwear
+124:Mitsuki's Message Card
+3032:Mizu Youkan
+288:Moe Cooking - Omelet Rice
+298:Moe Cooking - Parfait
+3018:Moe! Omelet Rice
+746:Mona Badge
+749:Mona Plush
+733:Mona Strap
+810:Moon Earring
+811:Moon Talisman
+3520:Moonlight
+3140:Mori's Carbonara -Akisai-
+736:Morimaru Plush
+192:Morimaru Plush
+737:Morimaru Plush+
+735:Morimaru Strap
+763:Morimaru Watch
+3079:Morimiya Bento
+701:Morimiya Crest Badge
+700:Morimiya Crest Pen
+3143:Morimiya Fall Bento
+3117:Morimiya Rice
+901:Morimiya Summer Uniform
+265:Morimiya Today - Extra Edition
+269:Morimiya Today - Fall Special Issue
+260:Morimiya Today - No. 1
+261:Morimiya Today - No. 2
+262:Morimiya Today - No. 3
+263:Morimiya Today - No. 4
+264:Morimiya Today - No. 5
+266:Morimiya Today - No. 6
+267:Morimiya Today - No. 7
+268:Morimiya Today - Special Issue
+900:Morimiya Uniform
+307:Mountains of Japan
+199:Mumbawamba
+3469:Murasame
+3027:Mushroom Hotpot
+3017:Mushroom Pasta
+3021:Mushroom Sandwich
+100:Music Media
+1400:Mystic Node
+706:Mythology Locket
+297:N Recipe - Sangria
+290:N Recipe - Spanish Rice
+512:Navy Sneakers
+252:NiAR Color - Green
+251:NiAR Color - Red
+725:Nightvision Goggles
+2127:Nocturne Ore
+795:Noi Plush
+193:Old Telescope
+916:Omega Drive
+917:Omega Drive (Summerwear)
+3518:Onimaru
+705:Opera Glasses
+3065:Orange Juice
+436:Orange Shirt
+3318:Ouka
+423:PE Clothes
+707:Passion Belt
+3028:Passion Parfait
+791:Penguin Plush
+159:Picture of Rem
+792:Pikkard Plush
+530:Pilot Boots
+3076:Pizza Sandwich
+401:Plate I
+402:Plate II
+403:Plate III
+404:Plate IV
+724:Platinum Ring
+3210:Pleiades
+3511:Poison Sword I
+3512:Poison Sword II
+3513:Poison Sword III
+740:Poison Talisman
+3043:Polar Bear Special
+196:Pom &amp; Mona Cushion
+793:Pom Plush
+166:Pool Key
+3029:Pork Cutlet Bowl
+3423:Position of Strength
+3059:Potato Croquette
+190:Potted Cactus
+3112:Prime Beef
+434:Protoype Armor
+534:Protoype Guards
+776:Pudgy Kagemaru
+301:Purrfectly Catty
+321:R-Type Music Box
+2129:Radiant Steel Stone 
+2135:Rage Wing
+2132:Raging Fire Stone
+1200:Raging Gear
+3378:Raiden
+807:Rainbow Crown
+3060:Rainbow Gum
+3525:Rakuyou
+3064:Raspberry Crepe
+748:Rean Badge
+751:Rean Plush
+734:Rean Strap
+513:Red Sneakers
+3200:Regios
+2102:Remorse Wing
+162:Resonance Charm
+6:Resurrection I
+7:Resurrection II
+3031:Rich Café Frappe
+1162:Ride-Along Mona
+964:Rion's Casualwear
+1164:Rion's Disguise
+966:Rion's Hospital Gown
+125:Rion's Message Card
+967:Rion's Other Casualwear
+965:Rion's Stage Outfit
+273:Road to SPiKA
+2108:Roaring Horn
+3011:Roasted Coffee
+3025:Royal Coffee Tart
+3081:Royal Milk Tea
+984:Ryouta's Casualwear
+129:Ryouta's Message Card
+985:Ryouta's Work Clothes
+3465:Ryuujin I
+3466:Ryuujin II
+3467:Ryuujin III
+3476:Ryuujin IV
+3323:Ryuuki
+3600:S Pom's Food
+784:SD Alisa School Uniform
+789:SD Alisa Ultimate
+788:SD Crow
+781:SD Demon Prince Rean
+786:SD Gaius and Jusis
+785:SD Laura and Emma
+783:SD Machias and Elliot
+780:SD Magical Alisa and Mona
+787:SD Millium and Fie
+782:SD Miss Sara and Sharon
+191:SPiKA Poster
+3082:Sadistic Soda
+428:Sapphire Dress
+2105:Sapphire Oil
+768:Sash of Dawn
+758:Scarlet Netsuke
+902:School Swimsuit
+3130:Seafood Paella
+282:Secret Recipe - Anmitsu
+299:Secret Recipe - Cutlet Bowl
+293:Secret Recipe - Shaved Ice
+3471:Seiryu Scale
+1550:Seraphim Layer
+2013:Shadow Crystal
+2139:Shadow Dragon Horn
+3503:Shadow Raid I
+3504:Shadow Raid II
+3505:Shadow Raid III
+2012:Shadow Shard
+3506:Shadow Shell I
+3507:Shadow Shell II
+3508:Shadow Shell III
+2014:Shadow Stone
+3514:Shadow Sword I
+3515:Shadow Sword II
+3516:Shadow Sword III
+745:Shadow Talisman
+2114:Shattering Horn
+3023:Shaved Ice w/ Azuki
+3400:Shield I
+3401:Shield II
+3402:Shield III
+3424:Shield IV
+501:Shin Guards I
+502:Shin Guards II
+503:Shin Guards III
+504:Shin Guards IV
+3526:Shinshin
+3111:Shiny Azuki
+944:Shio's Casualwear
+123:Shio's Message Card
+946:Shio's Rider Style
+945:Shio's Work Clothes
+127:Shiori's Message Card
+431:Shiranui's Clothing
+3319:Shishiou
+3075:Shocking Ramune
+726:Sigma Sight
+802:Silver Bracelet
+722:Silver Earrings
+738:Silver Fox Amulet
+739:Silver Fox Purse
+713:Silver Spoon
+3047:Simmered Beef Hotpot
+3039:Simple Croquette
+3015:Simple Tofu Dengaku
+3411:Sledgehammer
+3149:Smooth Cappuccino
+774:Snow-White Kagemaru
+2106:Soft Amber Pelt
+3102:Solar Eggs
+9:Solar Soma
+924:Sora's Casualwear
+926:Sora's Jersey
+925:Sora's Karate Gi
+121:Sora's Message Card
+2113:Soul Dawn Claw
+3473:Soul of Archery
+3020:Spanish Rice
+3136:Special Cameral Pudding
+3026:Special Sangria
+3077:Spicy Green Curry
+3035:Spicy Tofu Pasta
+2010:Spirit Crystal
+2009:Spirit Shard
+2011:Spirit Stone
+762:Spiritual Beast Charm
+325:Sports Band
+422:Sports Jersey
+1161:Square Frames
+3058:Stamina Bowl
+808:Star Earring
+12:Star Soma
+809:Star Talisman
+3104:Star Truffle
+773:Stealthy Snacking Kagemaru
+2007:Steel Crystal
+3403:Steel Raid I
+3404:Steel Raid II
+3405:Steel Raid III
+2006:Steel Shard
+3406:Steel Shell I
+3407:Steel Shell II
+3408:Steel Shell III
+2008:Steel Stone
+3412:Steel Sword I
+3413:Steel Sword II
+3414:Steel Sword III
+744:Steel Talisman
+2126:Steely Horn
+303:Stephen J and I
+2128:Storm Wing
+2104:Stygian Ore
+3377:Suiran
+3468:Suiun
+3085:Sumo Stew
+812:Sun Earring
+813:Sun Talisman
+770:Sunbathing Kagemaru
+711:Sunflower Bouquet
+3046:Super Sports Drink
+3321:Suzaku Claw
+3071:Sweet Bean Cider
+772:Sweet Dreams Kagemaru
+287:Sylvan Café - Pasta
+531:Tabi of a Hundred Nights
+154:Takashi's Shoes
+3078:Tangerine Juice
+3042:Tasty Dandan Noodles
+305:Teas of the World
+3016:Tender Pork Curry
+149:Test Items for use inside Camp
+1196:Test:Akabuchi Glasses (Sample)
+1199:Test:Like a Demon Set
+3041:Thick-Cut Steak Sandwich
+320:Thick-Rimmed Glasses
+3470:Thread of Life
+3365:Thunder I
+3366:Thunder II
+3367:Thunder III
+3376:Thunder IV
+720:Titanium Watch
+271:Tokyo Demonic Parade
+291:Tokyo Sandwich Recipes
+304:Tokyo Soba Paradise
+302:Tokyo Walking Guide
+3040:Tomato Curry
+3000:Too Damn Hard!
+3001:Too Damn Sour!
+3003:Too Damn Spicy!
+128:Towa's Message Card
+529:Trekking Boots
+153:Trumpet
+411:Tsukiyomi Armor
+2016:Twilight Crystal
+2015:Twilight Shard
+2017:Twilight Stone
+2140:Tyranny Fang
+2109:Tyranny Wing
+197:Uber Bedding
+3033:Udon Hotpot
+244:V-Navi - Akira
+240:V-Navi - Haruna
+241:V-Navi - Reika
+247:V-Navi - Rem
+242:V-Navi - Rion
+245:V-Navi - Shiori
+246:V-Navi - Towa
+243:V-Navi - Wakaba
+1350:Valiant Arm
+803:Valiant Gear Keychain
+426:Valkyrie Costume
+3203:Vanguard
+3602:Variable Shoes
+3601:Variable Wear
+3044:Veggie Crepe
+3141:Veggie Noodles
+3350:Veil I
+3351:Veil II
+3352:Veil III
+3374:Veil IV
+3049:Victorious Victuals
+759:Vine Charm
+2134:Viridian Oil
+157:Voluptuous Sketch
+1500:Vorpal Weapon
+3500:Wand I
+3501:Wand II
+3502:Wand III
+3522:Wand IV
+3034:Warm Ginger Tea
+2121:Warrior God Ore
+432:White Cloak
+433:White Cloak II
+435:White Cloak III
+532:White Greaves
+533:White Greaves II
+535:White Greaves III
+3121:White Mushroom
+996:White Shroud w/ Hood
+995:White Shroud w/o Hood
+731:White Tights
+714:White Wristband
+2004:Wind Crystal
+3353:Wind Raid I
+3354:Wind Raid II
+3355:Wind Raid III
+2003:Wind Shard
+3356:Wind Shell I
+3357:Wind Shell II
+3358:Wind Shell III
+2005:Wind Stone
+3368:Windstorm
+716:Wing Amulet
+3359:Wing I
+3360:Wing II
+425:Wizard Costume
+1170:World's End
+703:Xiphone Cleaner
+270:Xiphone for Dummies
+3050:Yakisoba Bread
+3519:Yatagarasu
+521:Yellow Pumps
+934:Yuuki's Casualwear
+935:Yuuki's Hooded Uniform
+122:Yuuki's Message Card
+1168:Yuuki, Headphoned-ish
+1167:Yuuki, Sans Headphones
+3070:Yuzu Miso Dengaku
+</DropDownList>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>4 Bytes</VariableType>
+          <Address>itemid</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+</CheatTable>
