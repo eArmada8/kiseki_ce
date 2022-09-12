@@ -347,6 +347,21 @@ aobscanmodule(detachcamera_aob3,ed8_2_PC_US.exe,F3 0F 11 87 CC 05 00 00 F3 0F 10
 //aobscanmodule(detachcamera_aob4,ed8_2_PC_US.exe,F3 0F 11 87 CC 05 00 00 F3 0F 10 84) // should be unique
 define(detachcamera_aob4, detachcamera_aob3+A0B)
 assert(detachcamera_aob4, F3 0F 11 87 CC 05 00 00 F3 0F 10 84)
+//aobscanmodule(detachcamera_aob5,ed8_2_PC_US.exe,F3 0F 11 9E CC 05 00 00) // should be unique
+define(detachcamera_aob5, detachcamera_aob1-48B)
+assert(detachcamera_aob5, F3 0F 11 9E CC 05 00 00)
+//aobscanmodule(detachcamera_aob6,ed8_2_PC_US.exe,7A 27 F3 0F 10 45 08 F3 0F 11 86 CC) // should be unique
+define(detachcamera_aob6, detachcamera_aob1+44EB)
+assert(detachcamera_aob6, 7A 27 F3 0F 10 45 08 F3 0F 11 86 CC)
+//aobscanmodule(detachcamera_aob7,ed8_2_PC_US.exe,F3 0F 11 96 CC 05 00 00) // should be unique
+define(detachcamera_aob7, detachcamera_aob1+487D)
+assert(detachcamera_aob7, F3 0F 11 96 CC 05 00 00)
+//aobscanmodule(detachcamera_aob8,ed8_2_PC_US.exe,F3 0F 11 BE CC 05 00 00) // should be unique
+define(detachcamera_aob8, detachcamera_aob1+40DB)
+assert(detachcamera_aob8, F3 0F 11 BE CC 05 00 00)
+//aobscanmodule(detachcamera_aob9,ed8_2_PC_US.exe,F3 0F 11 86 CC 05 00 00 F3 0F 10 44) // should be unique
+define(detachcamera_aob9, detachcamera_aob1-FD60)
+assert(detachcamera_aob9, F3 0F 11 86 CC 05 00 00 F3 0F 10 44)
 aobscanmodule(detachcameratarget_aob1,ed8_2_PC_US.exe,F3 0F 11 B6 BC 05 00 00) // should be unique
 //aobscanmodule(detachcameratarget_aob2,ed8_2_PC_US.exe,74 1E F3 0F 10 45 0C) // should be unique
 define(detachcameratarget_aob2, detachcameratarget_aob1-3302)
@@ -354,6 +369,9 @@ assert(detachcameratarget_aob2, 74 1E F3 0F 10 45 0C)
 //aobscanmodule(detachcameratarget_aob3,ed8_2_PC_US.exe,F3 0F 11 81 BC 05 00 00) // should be unique
 define(detachcameratarget_aob3, detachcameratarget_aob1+1D9E)
 assert(detachcameratarget_aob3, F3 0F 11 81 BC 05 00 00)
+//aobscanmodule(detachcameratarget_aob4,ed8_2_PC_US.exe,10 F3 0F 11 96 BC 05 00 00) // should be unique
+define(detachcameratarget_aob4, detachcameratarget_aob1+130D)
+assert(detachcameratarget_aob4, 10 F3 0F 11 96 BC 05 00 00)
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 
@@ -369,9 +387,15 @@ registersymbol(detachcamera_aob1)
 registersymbol(detachcamera_aob2)
 registersymbol(detachcamera_aob3)
 registersymbol(detachcamera_aob4)
+registersymbol(detachcamera_aob5)
+registersymbol(detachcamera_aob6)
+registersymbol(detachcamera_aob7)
+registersymbol(detachcamera_aob8)
+registersymbol(detachcamera_aob9)
 registersymbol(detachcameratarget_aob1)
 registersymbol(detachcameratarget_aob2)
 registersymbol(detachcameratarget_aob3)
+registersymbol(detachcameratarget_aob4)
 registersymbol(mousecameracontrol_aob)
 registersymbol(cameracoordinates)
 
@@ -411,6 +435,21 @@ detachcamera_aob3:
 detachcamera_aob4:
   db 90 90 90 90 90 90 90 90 F3 0F 10 84 24 AC 00 00 00 90 90 90 90 90 90 90 90 F3 0F 10 84 24 B0 00 00 00 51 90 90 90 90 90 90 90 90
 
+detachcamera_aob5:
+  db 90 90 90 90 90 90 90 90 F3 0F 58 C7 90 90 90 90 90 90 90 90 F3 0F 58 44 24 28 90 90 90 90 90 90 90 90
+
+detachcamera_aob6:
+  db EB 27
+
+detachcamera_aob7:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+detachcamera_aob8:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 F3 0F 58 F5 F3 0F 58 C6 90 90 90 90 90 90 90 90
+
+detachcamera_aob9:
+  db 90 90 90 90 90 90 90 90 F3 0F 10 44 24 10 90 90 90 90 90 90 90 90 F3 0F 10 44 24 14 90 90 90 90 90 90 90 90
+
 detachcameratarget_aob1:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
 
@@ -419,6 +458,9 @@ detachcameratarget_aob2:
 
 detachcameratarget_aob3:
   db 90 90 90 90 90 90 90 90 F3 0F 10 45 0C 90 90 90 90 90 90 90 90 F3 0F 10 45 10 90 90 90 90 90 90 90 90
+
+detachcameratarget_aob4+01:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
 
 {$lua}
 
@@ -642,6 +684,21 @@ detachcamera_aob3:
 detachcamera_aob4:
   db F3 0F 11 87 CC 05 00 00 F3 0F 10 84 24 AC 00 00 00 F3 0F 11 87 D0 05 00 00 F3 0F 10 84 24 B0 00 00 00 51 F3 0F 11 87 D4 05 00 00
 
+detachcamera_aob5:
+  db F3 0F 11 9E CC 05 00 00 F3 0F 58 C7 F3 0F 11 AE D0 05 00 00 F3 0F 58 44 24 28 F3 0F 11 86 D4 05 00 00
+
+detachcamera_aob6:
+  db 7A 27
+
+detachcamera_aob7:
+  db F3 0F 11 96 CC 05 00 00 F3 0F 11 8E D0 05 00 00 F3 0F 11 86 D4 05 00 00
+
+detachcamera_aob8:
+  db F3 0F 11 BE CC 05 00 00 F3 0F 11 96 D0 05 00 00 F3 0F 58 F5 F3 0F 58 C6 F3 0F 11 86 D4 05 00 00
+
+detachcamera_aob9:
+  db F3 0F 11 86 CC 05 00 00 F3 0F 10 44 24 10 F3 0F 11 86 D0 05 00 00 F3 0F 10 44 24 14 F3 0F 11 86 D4 05 00 00
+
 detachcameratarget_aob1:
   db F3 0F 11 B6 BC 05 00 00 F3 0F 11 A6 C0 05 00 00 F3 0F 11 AE C4 05 00 00
 
@@ -650,6 +707,9 @@ detachcameratarget_aob2:
 
 detachcameratarget_aob3:
   db F3 0F 11 81 BC 05 00 00 F3 0F 10 45 0C F3 0F 11 81 C0 05 00 00 F3 0F 10 45 10 F3 0F 11 81 C4 05 00 00
+
+detachcameratarget_aob4+01:
+  db F3 0F 11 96 BC 05 00 00 F3 0F 11 8E C0 05 00 00 F3 0F 11 86 C4 05 00 00
 
 mousecameracontrol_aob:
   db 8B 8E 74 03 00 00
@@ -662,9 +722,15 @@ unregistersymbol(detachcamera_aob1)
 unregistersymbol(detachcamera_aob2)
 unregistersymbol(detachcamera_aob3)
 unregistersymbol(detachcamera_aob4)
+unregistersymbol(detachcamera_aob5)
+unregistersymbol(detachcamera_aob6)
+unregistersymbol(detachcamera_aob7)
+unregistersymbol(detachcamera_aob8)
+unregistersymbol(detachcamera_aob9)
 unregistersymbol(detachcameratarget_aob1)
 unregistersymbol(detachcameratarget_aob2)
 unregistersymbol(detachcameratarget_aob3)
+unregistersymbol(detachcameratarget_aob4)
 dealloc(cameracoordinates)
 dealloc(newmem)
 
@@ -799,6 +865,136 @@ ed8_2_PC_US.exe+1C0198: F3 0F 11 04 24              - movss [esp],xmm0
 ed8_2_PC_US.exe+1C019D: E8 3E AF F1 FF              - call ed8_2_PC_US.exe+DB0E0
 ed8_2_PC_US.exe+1C01A2: 8D 47 04                    - lea eax,[edi+04]
 
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+D5F41 - Camera XYZ 5 (Cutscenes)
+
+ed8_2_PC_US.exe+D5F13: F3 0F 59 C4              - mulss xmm0,xmm4
+ed8_2_PC_US.exe+D5F17: F3 0F 59 D1              - mulss xmm2,xmm1
+ed8_2_PC_US.exe+D5F1B: F3 0F 58 E8              - addss xmm5,xmm0
+ed8_2_PC_US.exe+D5F1F: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
+ed8_2_PC_US.exe+D5F25: F3 0F 59 C1              - mulss xmm0,xmm1
+ed8_2_PC_US.exe+D5F29: F3 0F 10 4C 24 20        - movss xmm1,[esp+20]
+ed8_2_PC_US.exe+D5F2F: F3 0F 58 D9              - addss xmm3,xmm1
+ed8_2_PC_US.exe+D5F33: F3 0F 58 C2              - addss xmm0,xmm2
+ed8_2_PC_US.exe+D5F37: F3 0F 10 54 24 24        - movss xmm2,[esp+24]
+ed8_2_PC_US.exe+D5F3D: F3 0F 58 EA              - addss xmm5,xmm2
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+D5F41: F3 0F 11 9E CC 05 00 00  - movss [esi+000005CC],xmm3
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+D5F49: F3 0F 58 C7              - addss xmm0,xmm7
+ed8_2_PC_US.exe+D5F4D: F3 0F 11 AE D0 05 00 00  - movss [esi+000005D0],xmm5
+ed8_2_PC_US.exe+D5F55: F3 0F 58 44 24 28        - addss xmm0,[esp+28]
+ed8_2_PC_US.exe+D5F5B: F3 0F 11 86 D4 05 00 00  - movss [esi+000005D4],xmm0
+ed8_2_PC_US.exe+D5F63: F3 0F 10 86 CC 05 00 00  - movss xmm0,[esi+000005CC]
+ed8_2_PC_US.exe+D5F6B: F3 0F 10 9E D0 05 00 00  - movss xmm3,[esi+000005D0]
+ed8_2_PC_US.exe+D5F73: F3 0F 5C C1              - subss xmm0,xmm1
+ed8_2_PC_US.exe+D5F77: F3 0F 5C DA              - subss xmm3,xmm2
+ed8_2_PC_US.exe+D5F7B: F3 0F 10 96 D4 05 00 00  - movss xmm2,[esi+000005D4]
+ed8_2_PC_US.exe+D5F83: F3 0F 5C 54 24 28        - subss xmm2,[esp+28]
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+DA8B7 - Camera XYZ 6 (Battles)
+
+ed8_2_PC_US.exe+DA88D: 89 86 B0 02 00 00        - mov [esi+000002B0],eax
+ed8_2_PC_US.exe+DA893: 8D 45 08                 - lea eax,[ebp+08]
+ed8_2_PC_US.exe+DA896: F3 0F 11 04 24           - movss [esp],xmm0
+ed8_2_PC_US.exe+DA89B: 50                       - push eax
+ed8_2_PC_US.exe+DA89C: 8D 8E 84 02 00 00        - lea ecx,[esi+00000284]
+ed8_2_PC_US.exe+DA8A2: E8 C9 7B FD FF           - call ed8_2_PC_US.exe+B2470
+ed8_2_PC_US.exe+DA8A7: F3 0F 10 45 18           - movss xmm0,[ebp+18]
+ed8_2_PC_US.exe+DA8AC: 0F 2E 05 54 BE 8E 00     - ucomiss xmm0,[ed8_2_PC_US.exe+4EBE54]
+ed8_2_PC_US.exe+DA8B3: 9F                       - lahf
+ed8_2_PC_US.exe+DA8B4: F6 C4 44                 - test ah,44
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+DA8B7: 7A 27                    - jp ed8_2_PC_US.exe+DA8E0
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+DA8B9: F3 0F 10 45 08           - movss xmm0,[ebp+08]
+ed8_2_PC_US.exe+DA8BE: F3 0F 11 86 CC 05 00 00  - movss [esi+000005CC],xmm0
+ed8_2_PC_US.exe+DA8C6: F3 0F 10 45 0C           - movss xmm0,[ebp+0C]
+ed8_2_PC_US.exe+DA8CB: F3 0F 11 86 D0 05 00 00  - movss [esi+000005D0],xmm0
+ed8_2_PC_US.exe+DA8D3: F3 0F 10 45 10           - movss xmm0,[ebp+10]
+ed8_2_PC_US.exe+DA8D8: F3 0F 11 86 D4 05 00 00  - movss [esi+000005D4],xmm0
+ed8_2_PC_US.exe+DA8E0: 5E                       - pop esi
+ed8_2_PC_US.exe+DA8E1: 5D                       - pop ebp
+ed8_2_PC_US.exe+DA8E2: C2 18 00                 - ret 0018
+ed8_2_PC_US.exe+DA8E5: CC                       - int 3
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+DAC49 - Camera XYZ 7 (Battles)
+
+ed8_2_PC_US.exe+DAC19: F3 0F 59 E0              - mulss xmm4,xmm0
+ed8_2_PC_US.exe+DAC1D: F3 0F 59 E8              - mulss xmm5,xmm0
+ed8_2_PC_US.exe+DAC21: F3 0F 10 86 C4 05 00 00  - movss xmm0,[esi+000005C4]
+ed8_2_PC_US.exe+DAC29: F3 0F 58 FA              - addss xmm7,xmm2
+ed8_2_PC_US.exe+DAC2D: F3 0F 10 96 BC 05 00 00  - movss xmm2,[esi+000005BC]
+ed8_2_PC_US.exe+DAC35: F3 0F 58 DC              - addss xmm3,xmm4
+ed8_2_PC_US.exe+DAC39: F3 0F 58 F5              - addss xmm6,xmm5
+ed8_2_PC_US.exe+DAC3D: F3 0F 58 D7              - addss xmm2,xmm7
+ed8_2_PC_US.exe+DAC41: F3 0F 58 CB              - addss xmm1,xmm3
+ed8_2_PC_US.exe+DAC45: F3 0F 58 C6              - addss xmm0,xmm6
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+DAC49: F3 0F 11 96 CC 05 00 00  - movss [esi+000005CC],xmm2
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+DAC51: F3 0F 11 8E D0 05 00 00  - movss [esi+000005D0],xmm1
+ed8_2_PC_US.exe+DAC59: F3 0F 11 86 D4 05 00 00  - movss [esi+000005D4],xmm0
+ed8_2_PC_US.exe+DAC61: 5E                       - pop esi
+ed8_2_PC_US.exe+DAC62: 8B E5                    - mov esp,ebp
+ed8_2_PC_US.exe+DAC64: 5D                       - pop ebp
+ed8_2_PC_US.exe+DAC65: C2 20 00                 - ret 0020
+ed8_2_PC_US.exe+DAC68: CC                       - int 3
+ed8_2_PC_US.exe+DAC69: CC                       - int 3
+ed8_2_PC_US.exe+DAC6A: CC                       - int 3
+ed8_2_PC_US.exe+DAC6B: CC                       - int 3
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+DA4A7 - Camera XYZ 8 (Battles)
+
+ed8_2_PC_US.exe+DA471: F3 0F 58 D0              - addss xmm2,xmm0
+ed8_2_PC_US.exe+DA475: F3 0F 58 D4              - addss xmm2,xmm4
+ed8_2_PC_US.exe+DA479: F3 0F 10 86 C4 05 00 00  - movss xmm0,[esi+000005C4]
+ed8_2_PC_US.exe+DA481: F3 0F 58 BE BC 05 00 00  - addss xmm7,[esi+000005BC]
+ed8_2_PC_US.exe+DA489: F3 0F 58 96 C0 05 00 00  - addss xmm2,[esi+000005C0]
+ed8_2_PC_US.exe+DA491: F3 0F 59 F5              - mulss xmm6,xmm5
+ed8_2_PC_US.exe+DA495: F3 0F 59 CD              - mulss xmm1,xmm5
+ed8_2_PC_US.exe+DA499: F3 0F 10 6C 24 1C        - movss xmm5,[esp+1C]
+ed8_2_PC_US.exe+DA49F: F3 0F 59 EB              - mulss xmm5,xmm3
+ed8_2_PC_US.exe+DA4A3: F3 0F 58 F1              - addss xmm6,xmm1
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+DA4A7: F3 0F 11 BE CC 05 00 00  - movss [esi+000005CC],xmm7
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+DA4AF: F3 0F 11 96 D0 05 00 00  - movss [esi+000005D0],xmm2
+ed8_2_PC_US.exe+DA4B7: F3 0F 58 F5              - addss xmm6,xmm5
+ed8_2_PC_US.exe+DA4BB: F3 0F 58 C6              - addss xmm0,xmm6
+ed8_2_PC_US.exe+DA4BF: F3 0F 11 86 D4 05 00 00  - movss [esi+000005D4],xmm0
+ed8_2_PC_US.exe+DA4C7: 5E                       - pop esi
+ed8_2_PC_US.exe+DA4C8: 8B E5                    - mov esp,ebp
+ed8_2_PC_US.exe+DA4CA: 5D                       - pop ebp
+ed8_2_PC_US.exe+DA4CB: C2 0C 00                 - ret 000C
+ed8_2_PC_US.exe+DA4CE: CC                       - int 3
+ed8_2_PC_US.exe+DA4CF: CC                       - int 3
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+C666C - Camera XYZ 9 (Battles)
+
+ed8_2_PC_US.exe+C6645: F3 0F 59 C9              - mulss xmm1,xmm1
+ed8_2_PC_US.exe+C6649: F3 0F 58 D1              - addss xmm2,xmm1
+ed8_2_PC_US.exe+C664D: 0F 5A C2                 - cvtps2pd xmm0,xmm2
+ed8_2_PC_US.exe+C6650: E8 53 FB 34 00           - call ed8_2_PC_US.exe+4161A8
+ed8_2_PC_US.exe+C6655: F2 0F 5A C0              - cvtsd2ss xmm0,xmm0
+ed8_2_PC_US.exe+C6659: 51                       - push ecx
+ed8_2_PC_US.exe+C665A: 8B CE                    - mov ecx,esi
+ed8_2_PC_US.exe+C665C: F3 0F 11 04 24           - movss [esp],xmm0
+ed8_2_PC_US.exe+C6661: E8 3A 4A 01 00           - call ed8_2_PC_US.exe+DB0A0
+ed8_2_PC_US.exe+C6666: F3 0F 10 44 24 0C        - movss xmm0,[esp+0C]
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+C666C: F3 0F 11 86 CC 05 00 00  - movss [esi+000005CC],xmm0
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+C6674: F3 0F 10 44 24 10        - movss xmm0,[esp+10]
+ed8_2_PC_US.exe+C667A: F3 0F 11 86 D0 05 00 00  - movss [esi+000005D0],xmm0
+ed8_2_PC_US.exe+C6682: F3 0F 10 44 24 14        - movss xmm0,[esp+14]
+ed8_2_PC_US.exe+C6688: F3 0F 11 86 D4 05 00 00  - movss [esi+000005D4],xmm0
+ed8_2_PC_US.exe+C6690: F3 0F 10 44 24 38        - movss xmm0,[esp+38]
+ed8_2_PC_US.exe+C6696: F3 0F 11 86 1C 01 00 00  - movss [esi+0000011C],xmm0
+ed8_2_PC_US.exe+C669E: F3 0F 10 44 24 3C        - movss xmm0,[esp+3C]
+ed8_2_PC_US.exe+C66A4: F3 0F 11 86 20 01 00 00  - movss [esi+00000120],xmm0
+ed8_2_PC_US.exe+C66AC: F3 0F 10 44 24 40        - movss xmm0,[esp+40]
+ed8_2_PC_US.exe+C66B2: F3 0F 11 86 24 01 00 00  - movss [esi+00000124],xmm0
+
 // ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+D93DA - Camera Target XYZ 1
 
 ed8_2_PC_US.exe+D93A1: F3 0F 11 AE 04 01 00 00  - movss [esi+00000104],xmm5
@@ -875,6 +1071,32 @@ ed8_2_PC_US.exe+DB19E: CC                       - int 3
 ed8_2_PC_US.exe+DB19F: CC                       - int 3
 ed8_2_PC_US.exe+DB1A0: 55                       - push ebp
 ed8_2_PC_US.exe+DB1A1: 8B EC                    - mov ebp,esp
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+DA6E8 - Camera Target XYZ 4 (Battles)
+
+ed8_2_PC_US.exe+DA6BC: 8D 8E C4 02 00 00        - lea ecx,[esi+000002C4]
+ed8_2_PC_US.exe+DA6C2: E8 A9 7D FD FF           - call ed8_2_PC_US.exe+B2470
+ed8_2_PC_US.exe+DA6C7: F3 0F 10 45 18           - movss xmm0,[ebp+18]
+ed8_2_PC_US.exe+DA6CC: 0F 2E 05 54 BE 8E 00     - ucomiss xmm0,[ed8_2_PC_US.exe+4EBE54]
+ed8_2_PC_US.exe+DA6D3: 9F                       - lahf
+ed8_2_PC_US.exe+DA6D4: F6 C4 44                 - test ah,44
+ed8_2_PC_US.exe+DA6D7: 7A 3F                    - jp ed8_2_PC_US.exe+DA718
+ed8_2_PC_US.exe+DA6D9: F3 0F 10 55 08           - movss xmm2,[ebp+08]
+ed8_2_PC_US.exe+DA6DE: F3 0F 10 4D 0C           - movss xmm1,[ebp+0C]
+ed8_2_PC_US.exe+DA6E3: F3 0F 10 45 10           - movss xmm0,[ebp+10]
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+DA6E8: F3 0F 11 96 BC 05 00 00  - movss [esi+000005BC],xmm2
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+DA6F0: F3 0F 11 8E C0 05 00 00  - movss [esi+000005C0],xmm1
+ed8_2_PC_US.exe+DA6F8: F3 0F 11 86 C4 05 00 00  - movss [esi+000005C4],xmm0
+ed8_2_PC_US.exe+DA700: F3 0F 11 96 DC 00 00 00  - movss [esi+000000DC],xmm2
+ed8_2_PC_US.exe+DA708: F3 0F 11 8E E0 00 00 00  - movss [esi+000000E0],xmm1
+ed8_2_PC_US.exe+DA710: F3 0F 11 86 E4 00 00 00  - movss [esi+000000E4],xmm0
+ed8_2_PC_US.exe+DA718: 5E                       - pop esi
+ed8_2_PC_US.exe+DA719: 5D                       - pop ebp
+ed8_2_PC_US.exe+DA71A: C2 18 00                 - ret 0018
+ed8_2_PC_US.exe+DA71D: CC                       - int 3
+ed8_2_PC_US.exe+DA71E: CC                       - int 3
 
 // ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+154DC - Mouse Camera Control
 // AOB Scan is performed one instruction early to maintain Sen Patcher compatibility
