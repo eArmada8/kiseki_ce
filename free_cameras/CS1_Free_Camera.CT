@@ -101,18 +101,15 @@ ed8.exe+41D82: D9 5D FC              - fstp dword ptr [ebp-04]
     <CheatEntry>
       <ID>2</ID>
       <Description>"Hide HUD (F7 Toggle)"</Description>
-      <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(hudelements_aob,ed8.exe,8B 86 B0 00 00 00 89 45) // should be unique
-aobscanmodule(minimapstatus_aob,ed8.exe,D9 86 CC 01 00 00 D9 EE) // should be unique
+aobscanmodule(minimapstatus_aob,ed8.exe,0F 85 F6 04 00 00) // should be unique
 alloc(newmem,$1000)
 
 label(hudcode)
-label(minimapcode)
 label(hudreturn)
-label(minimapreturn)
 
 registersymbol(hudelements_aob)
 registersymbol(minimapstatus_aob)
@@ -123,20 +120,13 @@ hudcode:
   xor eax,eax
   jmp hudreturn
 
-minimapcode:
-  fldz
-  fst dword ptr [esi+000001CC]
-  jmp minimapreturn
-
 hudelements_aob:
   jmp hudcode
   nop
 hudreturn:
 
 minimapstatus_aob:
-  jmp minimapcode
-  nop
-minimapreturn:
+  db E9 F7 04 00 00 90
 
 [DISABLE]
 
@@ -144,7 +134,7 @@ hudelements_aob:
   db 8B 86 B0 00 00 00
 
 minimapstatus_aob:
-  db D9 86 CC 01 00 00
+  db 0F 85 F6 04 00 00
 
 unregistersymbol(hudelements_aob)
 unregistersymbol(minimapstatus_aob)
@@ -177,31 +167,31 @@ ed8.exe+2A0478: D9 45 08           - fld dword ptr [ebp+08]
 ed8.exe+2A047B: 8B E5              - mov esp,ebp
 ed8.exe+2A047D: 5D                 - pop ebp
 
-// ORIGINAL CODE - INJECTION POINT: ed8.exe+226B56 - Minimap
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+2285B1 - Show Minimap
 
-ed8.exe+226B33: D9 1C 24              - fstp dword ptr [esp]
-ed8.exe+226B36: 50                    - push eax
-ed8.exe+226B37: 8D 8E 98 01 00 00     - lea ecx,[esi+00000198]
-ed8.exe+226B3D: E8 6E 76 DE FF        - call ed8.exe+E1B0
-ed8.exe+226B42: D9 45 08              - fld dword ptr [ebp+08]
-ed8.exe+226B45: 51                    - push ecx
-ed8.exe+226B46: 8D 8E C0 01 00 00     - lea ecx,[esi+000001C0]
-ed8.exe+226B4C: D9 1C 24              - fstp dword ptr [esp]
-ed8.exe+226B4F: E8 F6 3B DE FF        - call ed8.exe+A74A
-ed8.exe+226B54: DD D8                 - fstp st(0)
+ed8.exe+22858E: CC                       - int 3
+ed8.exe+22858F: CC                       - int 3
+ed8.exe+228590: 55                       - push ebp
+ed8.exe+228591: 8B EC                    - mov ebp,esp
+ed8.exe+228593: 81 EC 84 01 00 00        - sub esp,00000184
+ed8.exe+228599: 56                       - push esi
+ed8.exe+22859A: 8B F1                    - mov esi,ecx
+ed8.exe+22859C: 83 BE 00 03 00 00 01     - cmp dword ptr [esi+00000300],01
+ed8.exe+2285A3: 0F 85 04 05 00 00        - jne ed8.exe+228AAD
+ed8.exe+2285A9: 66 83 BE FE 02 00 00 02  - cmp word ptr [esi+000002FE],02
 // ---------- INJECTING HERE ----------
-ed8.exe+226B56: D9 86 CC 01 00 00     - fld dword ptr [esi+000001CC]
+ed8.exe+2285B1: 0F 85 F6 04 00 00        - jne ed8.exe+228AAD
 // ---------- DONE INJECTING  ----------
-ed8.exe+226B5C: D9 EE                 - fldz
-ed8.exe+226B5E: DA E9                 - fucompp
-ed8.exe+226B60: DF E0                 - fnstsw ax
-ed8.exe+226B62: F6 C4 44              - test ah,44
-ed8.exe+226B65: 7A 09                 - jp ed8.exe+226B70
-ed8.exe+226B67: 33 C9                 - xor ecx,ecx
-ed8.exe+226B69: 66 89 8E FE 02 00 00  - mov [esi+000002FE],cx
-ed8.exe+226B70: 5E                    - pop esi
-ed8.exe+226B71: 8B E5                 - mov esp,ebp
-ed8.exe+226B73: 5D                    - pop ebp
+ed8.exe+2285B7: A1 98 C5 C7 00           - mov eax,[ed8.exe+87C598]
+ed8.exe+2285BC: 8B 88 90 17 00 00        - mov ecx,[eax+00001790]
+ed8.exe+2285C2: 85 C9                    - test ecx,ecx
+ed8.exe+2285C4: 0F 84 E3 04 00 00        - je ed8.exe+228AAD
+ed8.exe+2285CA: 57                       - push edi
+ed8.exe+2285CB: 8B B8 D4 1A 00 00        - mov edi,[eax+00001AD4]
+ed8.exe+2285D1: 85 FF                    - test edi,edi
+ed8.exe+2285D3: 75 06                    - jne ed8.exe+2285DB
+ed8.exe+2285D5: 8B B8 B0 1A 00 00        - mov edi,[eax+00001AB0]
+ed8.exe+2285DB: 80 79 04 00              - cmp byte ptr [ecx+04],00
 }
 </AssemblerScript>
       <Hotkeys>
@@ -213,13 +203,6 @@ ed8.exe+226B73: 5D                    - pop ebp
           <ID>0</ID>
         </Hotkey>
       </Hotkeys>
-      <CheatEntries>
-        <CheatEntry>
-          <ID>20</ID>
-          <Description>"After disabling Hide HUD, minimap will return after battle or cutscene"</Description>
-          <GroupHeader>1</GroupHeader>
-        </CheatEntry>
-      </CheatEntries>
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
@@ -1096,15 +1079,10 @@ ed8.exe+13AED2: 5D                 - pop ebp
       <Hotkeys>
         <Hotkey>
           <Action>Toggle Activation</Action>
-          <Keys/>
-          <ID>0</ID>
-        </Hotkey>
-        <Hotkey>
-          <Action>Toggle Activation</Action>
           <Keys>
             <Key>96</Key>
           </Keys>
-          <ID>1</ID>
+          <ID>0</ID>
           <ActivateSound>Activate</ActivateSound>
           <DeactivateSound>Deactivate</DeactivateSound>
         </Hotkey>
@@ -1209,41 +1187,49 @@ ed8.exe+13C908: D9 C0                 - fld st(0)
     <CheatEntry>
       <ID>6</ID>
       <Description>"Lower Field Min Z"</Description>
+      <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(minZcompare_aob,ed8.exe,0C D8 1D A4 9A B3 00) // should be unique
+aobscanmodule(MinZ_aob,ed8.exe,7A 05 D9 5D 9C) // should be unique
 alloc(newmem,$1000)
 
 label(code)
+label(DepthMultiplier)
 label(return)
+
+registersymbol(DepthMultiplier)
+registersymbol(MinZ_aob)
 
 newmem:
 
 code:
-  fcomp dword ptr [ebp+0C]
-  jmp return
+  jp ed8.exe+13D752
+  fld dword ptr [ebp+0C]
+  fld dword ptr [DepthMultiplier]
+  fmulp
+  faddp
+  fstp dword ptr [ebp-64]
+  jmp ed8.exe+13D754
 
-minZcompare_aob+01:
+DepthMultiplier:
+dd (float)1.5
+
+MinZ_aob:
   jmp newmem
-  nop
 return:
-registersymbol(minZcompare_aob)
 
 [DISABLE]
 
-minZcompare_aob+01:
-  db D8 1D A4 9A B3 00
+MinZ_aob:
+  db 7A 05 D9 5D 9C
 
-unregistersymbol(minZcompare_aob)
+unregistersymbol(MinZ_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed8.exe+13D740
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13D74B
 
-ed8.exe+13D725: D9 5D 0C              - fstp dword ptr [ebp+0C]
-ed8.exe+13D728: 83 C4 0C              - add esp,0C
-ed8.exe+13D72B: EB 02                 - jmp ed8.exe+13D72F
 ed8.exe+13D72D: DD D8                 - fstp st(0)
 ed8.exe+13D72F: D9 45 AC              - fld dword ptr [ebp-54]
 ed8.exe+13D732: D8 65 0C              - fsub dword ptr [ebp+0C]
@@ -1251,12 +1237,12 @@ ed8.exe+13D735: D9 45 9C              - fld dword ptr [ebp-64]
 ed8.exe+13D738: D8 E1                 - fsub st(0),st(1)
 ed8.exe+13D73A: D9 5D 0C              - fstp dword ptr [ebp+0C]
 ed8.exe+13D73D: D9 45 0C              - fld dword ptr [ebp+0C]
-// ---------- INJECTING HERE ----------
 ed8.exe+13D740: D8 1D A4 9A B3 00     - fcomp dword ptr [ed8.exe+739AA4]
-// ---------- DONE INJECTING  ----------
 ed8.exe+13D746: DF E0                 - fnstsw ax
 ed8.exe+13D748: F6 C4 05              - test ah,05
+// ---------- INJECTING HERE ----------
 ed8.exe+13D74B: 7A 05                 - jp ed8.exe+13D752
+// ---------- DONE INJECTING  ----------
 ed8.exe+13D74D: D9 5D 9C              - fstp dword ptr [ebp-64]
 ed8.exe+13D750: EB 02                 - jmp ed8.exe+13D754
 ed8.exe+13D752: DD D8                 - fstp st(0)
@@ -1264,8 +1250,27 @@ ed8.exe+13D754: 0F B7 86 CA 00 00 00  - movzx eax,word ptr [esi+000000CA]
 ed8.exe+13D75B: A8 30                 - test al,30
 ed8.exe+13D75D: 74 42                 - je ed8.exe+13D7A1
 ed8.exe+13D75F: D9 45 98              - fld dword ptr [ebp-68]
+ed8.exe+13D762: 25 DF FF 00 00        - and eax,0000FFDF
+ed8.exe+13D767: 66 89 86 CA 00 00 00  - mov [esi+000000CA],ax
+ed8.exe+13D76E: D9 9E 20 01 00 00     - fstp dword ptr [esi+00000120]
 }
 </AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>60</ID>
+          <Description>"Depth Multiplier"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>DepthMultiplier</Address>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>61</ID>
+              <Description>"1.0 = basic, 1.5 = default, 2.0 = below the floor"</Description>
+              <GroupHeader>1</GroupHeader>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
     </CheatEntry>
     <CheatEntry>
       <ID>7</ID>
@@ -2195,7 +2200,6 @@ ed8.exe+13C0FD: D9 45 FC              - fld dword ptr [ebp-04]
       </CheatEntries>
     </CheatEntry>
   </CheatEntries>
-  <UserdefinedSymbols/>
   <Comments>Camera Movement Algorithm adapted from Cyber's CS4 free camera script.
 </Comments>
 </CheatTable>
