@@ -43,8 +43,9 @@ toggleoff:
 compcode:
   cmp [freeze],#0
   je code
-  //jmp ed8.exe+41E11
-  jmp ed8.exe+41DF5
+  //jmp ed8.exe+41E11 // Full Pause including sound and frozen camera
+  //jmp ed8.exe+41DF5 // Full Pause excluding sound, including frozen camera
+  jmp ed8.exe+41DDE // Full Puase excluding sound and frozen camera
 
 code:
   cmp byte ptr [ed8.exe+83D7BE],00
@@ -360,6 +361,9 @@ aobscanmodule(detachcameratarget_aob2,ed8.exe,E9 6E 81 13 00) // should be uniqu
 //aobscanmodule(detachcameratarget_aob3,ed8.exe,D9 96 A0 05 00 00 D9 45 0C) // should be unique
 define(detachcameratarget_aob3,detachcameratarget_aob1-2B87)
 assert(detachcameratarget_aob3,D9 96 A0 05 00 00 D9 45 0C)
+//aobscanmodule(detachcameratarget_aob4,ed8.exe,D9 9E A0 05 00 00 89) // should be unique
+define(detachcameratarget_aob4,detachcameratarget_aob3+E0F)
+assert(detachcameratarget_aob4,D9 9E A0 05 00 00 89)
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 
@@ -383,6 +387,7 @@ registersymbol(detachcamera_aob8)
 registersymbol(detachcameratarget_aob1)
 registersymbol(detachcameratarget_aob2)
 registersymbol(detachcameratarget_aob3)
+registersymbol(detachcameratarget_aob4)
 
 newmem:
 
@@ -443,6 +448,9 @@ detachcameratarget_aob2:
 
 detachcameratarget_aob3:
   db 90 90 90 90 90 90 D9 45 0C 90 90 90 90 90 90 D9 45 10 90 90 90 90 90 90
+
+detachcameratarget_aob4:
+  db 90 90 90 90 90 90 89 4D E8 D9 45 E8 90 90 90 90 90 90 89 55 EC D9 45 EC 89 45 F0 90 90 90 90 90 90
 
 {$lua}
 
@@ -689,6 +697,9 @@ detachcameratarget_aob2:
 
 detachcameratarget_aob3:
   db D9 96 A0 05 00 00 D9 45 0C D9 96 A4 05 00 00 D9 45 10 D9 96 A8 05 00 00
+
+detachcameratarget_aob4:
+  db D9 9E A0 05 00 00 89 4D E8 D9 45 E8 D9 9E A4 05 00 00 89 55 EC D9 45 EC 89 45 F0 D9 9E A8 05 00 00
 
 unregistersymbol(cameracoordinates_aob)
 unregistersymbol(cameracoordinates)
@@ -1074,6 +1085,32 @@ ed8.exe+13AEC5: D9 9E E0 00 00 00  - fstp dword ptr [esi+000000E0]
 ed8.exe+13AECB: D9 9E E4 00 00 00  - fstp dword ptr [esi+000000E4]
 ed8.exe+13AED1: 5E                 - pop esi
 ed8.exe+13AED2: 5D                 - pop ebp
+
+// ORIGINAL CODE - INJECTION POINT: ed8.exe+13BCB4 - Camera Target XYZ 4 (Cutscenes)
+
+ed8.exe+13BC8A: 8D 55 D4           - lea edx,[ebp-2C]
+ed8.exe+13BC8D: D9 1C 24           - fstp dword ptr [esp]
+ed8.exe+13BC90: 52                 - push edx
+ed8.exe+13BC91: E8 5C BB EC FF     - call ed8.exe+77F2
+ed8.exe+13BC96: 8B 86 FC 02 00 00  - mov eax,[esi+000002FC]
+ed8.exe+13BC9C: 8B 8E 00 03 00 00  - mov ecx,[esi+00000300]
+ed8.exe+13BCA2: 8B 96 04 03 00 00  - mov edx,[esi+00000304]
+ed8.exe+13BCA8: 89 45 E4           - mov [ebp-1C],eax
+ed8.exe+13BCAB: D9 45 E4           - fld dword ptr [ebp-1C]
+ed8.exe+13BCAE: 8B 86 08 03 00 00  - mov eax,[esi+00000308]
+// ---------- INJECTING HERE ----------
+ed8.exe+13BCB4: D9 9E A0 05 00 00  - fstp dword ptr [esi+000005A0]
+// ---------- DONE INJECTING  ----------
+ed8.exe+13BCBA: 89 4D E8           - mov [ebp-18],ecx
+ed8.exe+13BCBD: D9 45 E8           - fld dword ptr [ebp-18]
+ed8.exe+13BCC0: D9 9E A4 05 00 00  - fstp dword ptr [esi+000005A4]
+ed8.exe+13BCC6: 89 55 EC           - mov [ebp-14],edx
+ed8.exe+13BCC9: D9 45 EC           - fld dword ptr [ebp-14]
+ed8.exe+13BCCC: 89 45 F0           - mov [ebp-10],eax
+ed8.exe+13BCCF: D9 9E A8 05 00 00  - fstp dword ptr [esi+000005A8]
+ed8.exe+13BCD5: D9 86 50 03 00 00  - fld dword ptr [esi+00000350]
+ed8.exe+13BCDB: 8D 8E 18 03 00 00  - lea ecx,[esi+00000318]
+ed8.exe+13BCE1: D9 41 34           - fld dword ptr [ecx+34]
 }
 </AssemblerScript>
       <Hotkeys>
@@ -1282,22 +1319,111 @@ ed8.exe+13D76E: D9 9E 20 01 00 00     - fstp dword ptr [esi+00000120]
 aobscanmodule(cameradistance_aob,ed8.exe,D9 86 74 06 00 00) // should be unique
 alloc(newmem,$1000)
 
+label(zoomin)
+label(zoomout)
 label(code)
+label(cameradistancepointer)
 label(customcameradistance)
+label(dist_step)
+label(dist_min)
+label(dist_max)
 label(return)
 
 registersymbol(cameradistance_aob)
+registersymbol(cameradistancepointer)
+registersymbol(customcameradistance)
+registersymbol(dist_step)
+registersymbol(dist_min)
+registersymbol(dist_max)
 registersymbol(customcameradistance)
 
 newmem:
+  mov [cameradistancepointer],esi
+
+zoomin:
+  pushad
+  push 24 //VK_HOME
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz zoomout
+  push eax
+  fld dword ptr [esi+00000674]
+  fld dword ptr [dist_step]
+  fsubp
+  fld dword ptr [dist_min]
+  fcom
+  fnstsw ax
+  sahf
+  ja @f
+  fstp st(0)
+  fst dword ptr [customcameradistance]
+  fstp dword ptr [esi+00000674]
+  pop eax
+  jmp code
+@@:
+  fst dword ptr [customcameradistance]
+  fstp dword ptr [esi+00000674]
+  fstp st(0)
+  pop eax
+  jmp code
+
+zoomout:
+  pushad
+  push 23 //VK_END
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz code
+  push eax
+  fld dword ptr [esi+00000674]
+  fld dword ptr [dist_step]
+  faddp
+  fld dword ptr [dist_max]
+  fcom
+  fnstsw ax
+  sahf
+  jb @f
+  fstp st(0)
+  fst dword ptr [customcameradistance]
+  fstp dword ptr [esi+00000674]
+  pop eax
+  jmp code
+@@:
+  fst dword ptr [customcameradistance]
+  fstp dword ptr [esi+00000674]
+  fstp st(0)
+  pop eax
+  jmp code
 
 code:
-  //fld dword ptr [esi+00000674]
+  push eax
   fld dword ptr [customcameradistance]
+  fldz
+  fcomp
+  fnstsw ax
+  sahf
+  jne @f
+  fstp st(0)
+  fld dword ptr [esi+00000674]
+@@:
+  pop eax
   jmp return
 
+cameradistancepointer:
+  dq #0
+
 customcameradistance:
-  dd (float)5
+  dd (float)0
+
+dist_step:
+  dd (float)0.3
+
+dist_min:
+  dd (float)0.1
+
+dist_max:
+  dd (float)15
 
 cameradistance_aob:
   jmp newmem
@@ -1344,10 +1470,32 @@ ed8.exe+13C20E: D9 86 B4 05 00 00  - fld dword ptr [esi+000005B4]
       <CheatEntries>
         <CheatEntry>
           <ID>70</ID>
-          <Description>"Custom Camera Distance Setting"</Description>
+          <Description>"Home Key to Zoom In, End Key to Zoom Out"</Description>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>71</ID>
+          <Description>"Current Camera Distance (read-only)"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>cameradistancepointer</Address>
+          <Offsets>
+            <Offset>674</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>72</ID>
+          <Description>"Custom Camera Distance"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
           <Address>customcameradistance</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>73</ID>
+          <Description>"Maximum Camera Distance"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>dist_max</Address>
         </CheatEntry>
       </CheatEntries>
     </CheatEntry>
