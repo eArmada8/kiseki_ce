@@ -716,6 +716,7 @@ unregistersymbol(detachcamera_aob8)
 unregistersymbol(detachcameratarget_aob1)
 unregistersymbol(detachcameratarget_aob2)
 unregistersymbol(detachcameratarget_aob3)
+unregistersymbol(detachcameratarget_aob4)
 dealloc(newmem)
 dealloc(cameracoordinates)
 
