@@ -43,7 +43,8 @@ toggleoff:
 compcode:
   cmp [freeze],#0
   je code
-  jmp ed8_2_PC_US.exe+1370D
+  //jmp ed8_2_PC_US.exe+1370D //Locks camera
+  jmp ed8_2_PC_US.exe+136F7 //No camera lock
 
 code:
   movsd xmm0,[esi+28]
@@ -102,16 +103,14 @@ ed8_2_PC_US.exe+13693: 0F 98 C0              - sets al
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(hudelements_aob,ed8_2_PC_US.exe,F3 0F 7E 86 AC 00 00 00 66) // should be unique
-aobscanmodule(minimapstatus_aob,ed8_2_PC_US.exe,F3 0F 10 86 CC 01 00 00 0F) // should be unique
+aobscanmodule(minimap_aob,ed8_2_PC_US.exe,0F 85 78 04 00 00) // should be unique
 alloc(newmem,$1000)
 
 label(hudcode)
-label(minimapcode)
 label(hudreturn)
-label(minimapreturn)
 
 registersymbol(hudelements_aob)
-registersymbol(minimapstatus_aob)
+registersymbol(minimap_aob)
 
 newmem:
 
@@ -119,31 +118,24 @@ hudcode:
   pxor xmm0,xmm0
   jmp hudreturn
 
-minimapcode:
-  pxor xmm0,xmm0
-  movss [esi+000001CC],xmm0
-  jmp minimapreturn
-
 hudelements_aob:
   jmp hudcode
   nop 3
 hudreturn:
 
-minimapstatus_aob:
-  jmp minimapcode
-  nop 3
-minimapreturn:
+minimap_aob:
+  db E9 79 04 00 00 90
 
 [DISABLE]
 
 hudelements_aob:
   db F3 0F 7E 86 AC 00 00 00
 
-minimapstatus_aob:
-  db F3 0F 10 86 CC 01 00 00
+minimap_aob:
+  db 0F 85 78 04 00 00
 
 unregistersymbol(hudelements_aob)
-unregistersymbol(minimapstatus_aob)
+unregistersymbol(minimap_aob)
 dealloc(newmem)
 
 {
@@ -173,31 +165,31 @@ ed8_2_PC_US.exe+252CC9: 5D                       - pop ebp
 ed8_2_PC_US.exe+252CCA: C2 04 00                 - ret 0004
 ed8_2_PC_US.exe+252CCD: CC                       - int 3 
 
-// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+1C2F4A
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+1C01E1
 
-ed8_2_PC_US.exe+1C2F21: F3 0F 11 04 24           - movss [esp],xmm0
-ed8_2_PC_US.exe+1C2F26: 50                       - push eax
-ed8_2_PC_US.exe+1C2F27: 8D 8E 98 01 00 00        - lea ecx,[esi+00000198]
-ed8_2_PC_US.exe+1C2F2D: E8 3E FB EE FF           - call ed8_2_PC_US.exe+B2A70
-ed8_2_PC_US.exe+1C2F32: F3 0F 10 45 08           - movss xmm0,[ebp+08]
-ed8_2_PC_US.exe+1C2F37: 51                       - push ecx
-ed8_2_PC_US.exe+1C2F38: 8D 8E C0 01 00 00        - lea ecx,[esi+000001C0]
-ed8_2_PC_US.exe+1C2F3E: F3 0F 11 04 24           - movss [esp],xmm0
-ed8_2_PC_US.exe+1C2F43: E8 88 98 ED FF           - call ed8_2_PC_US.exe+9C7D0
-ed8_2_PC_US.exe+1C2F48: DD D8                    - fstp st(0)
+ed8_2_PC_US.exe+1C01BE: CC                       - int 3
+ed8_2_PC_US.exe+1C01BF: CC                       - int 3
+ed8_2_PC_US.exe+1C01C0: 55                       - push ebp
+ed8_2_PC_US.exe+1C01C1: 8B EC                    - mov ebp,esp
+ed8_2_PC_US.exe+1C01C3: 81 EC 84 01 00 00        - sub esp,00000184
+ed8_2_PC_US.exe+1C01C9: 56                       - push esi
+ed8_2_PC_US.exe+1C01CA: 8B F1                    - mov esi,ecx
+ed8_2_PC_US.exe+1C01CC: 83 BE D0 02 00 00 01     - cmp dword ptr [esi+000002D0],01
+ed8_2_PC_US.exe+1C01D3: 0F 85 86 04 00 00        - jne ed8_2_PC_US.exe+1C065F
+ed8_2_PC_US.exe+1C01D9: 66 83 BE CE 02 00 00 02  - cmp word ptr [esi+000002CE],02
 // ---------- INJECTING HERE ----------
-ed8_2_PC_US.exe+1C2F4A: F3 0F 10 86 CC 01 00 00  - movss xmm0,[esi+000001CC]
+ed8_2_PC_US.exe+1C01E1: 0F 85 78 04 00 00        - jne ed8_2_PC_US.exe+1C065F
 // ---------- DONE INJECTING  ----------
-ed8_2_PC_US.exe+1C2F52: 0F 2E 05 54 BE 8E 00     - ucomiss xmm0,[ed8_2_PC_US.exe+4EBE54]
-ed8_2_PC_US.exe+1C2F59: 9F                       - lahf
-ed8_2_PC_US.exe+1C2F5A: F6 C4 44                 - test ah,44
-ed8_2_PC_US.exe+1C2F5D: 7A 09                    - jp ed8_2_PC_US.exe+1C2F68
-ed8_2_PC_US.exe+1C2F5F: 33 C0                    - xor eax,eax
-ed8_2_PC_US.exe+1C2F61: 66 89 86 CE 02 00 00     - mov [esi+000002CE],ax
-ed8_2_PC_US.exe+1C2F68: 5E                       - pop esi
-ed8_2_PC_US.exe+1C2F69: 8B E5                    - mov esp,ebp
-ed8_2_PC_US.exe+1C2F6B: 5D                       - pop ebp
-ed8_2_PC_US.exe+1C2F6C: C2 04 00                 - ret 0004
+ed8_2_PC_US.exe+1C01E7: A1 54 D4 A7 00           - mov eax,[ed8_2_PC_US.exe+67D454]
+ed8_2_PC_US.exe+1C01EC: 8B 88 1C 1E 00 00        - mov ecx,[eax+00001E1C]
+ed8_2_PC_US.exe+1C01F2: 85 C9                    - test ecx,ecx
+ed8_2_PC_US.exe+1C01F4: 0F 84 65 04 00 00        - je ed8_2_PC_US.exe+1C065F
+ed8_2_PC_US.exe+1C01FA: 57                       - push edi
+ed8_2_PC_US.exe+1C01FB: 8B B8 70 22 00 00        - mov edi,[eax+00002270]
+ed8_2_PC_US.exe+1C0201: 85 FF                    - test edi,edi
+ed8_2_PC_US.exe+1C0203: 75 06                    - jne ed8_2_PC_US.exe+1C020B
+ed8_2_PC_US.exe+1C0205: 8B B8 4C 22 00 00        - mov edi,[eax+0000224C]
+ed8_2_PC_US.exe+1C020B: 80 79 04 00              - cmp byte ptr [ecx+04],00
 }
 </AssemblerScript>
       <Hotkeys>
@@ -372,6 +364,9 @@ assert(detachcameratarget_aob3, F3 0F 11 81 BC 05 00 00)
 //aobscanmodule(detachcameratarget_aob4,ed8_2_PC_US.exe,10 F3 0F 11 96 BC 05 00 00) // should be unique
 define(detachcameratarget_aob4, detachcameratarget_aob1+130D)
 assert(detachcameratarget_aob4, 10 F3 0F 11 96 BC 05 00 00)
+//aobscanmodule(detachcameratarget_aob5,ed8_2_PC_US.exe,F3 0F 11 86 BC 05 00 00) // should be unique
+define(detachcameratarget_aob5, detachcameratarget_aob1+2111)
+assert(detachcameratarget_aob5, F3 0F 11 86 BC 05 00 00)
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 
@@ -396,6 +391,7 @@ registersymbol(detachcameratarget_aob1)
 registersymbol(detachcameratarget_aob2)
 registersymbol(detachcameratarget_aob3)
 registersymbol(detachcameratarget_aob4)
+registersymbol(detachcameratarget_aob5)
 registersymbol(mousecameracontrol_aob)
 registersymbol(cameracoordinates)
 
@@ -461,6 +457,9 @@ detachcameratarget_aob3:
 
 detachcameratarget_aob4+01:
   db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+detachcameratarget_aob5:
+  db 90 90 90 90 90 90 90 90 F3 0F 10 45 DC 90 90 90 90 90 90 90 90 F3 0F 10 45 E0 90 90 90 90 90 90 90 90
 
 {$lua}
 
@@ -711,6 +710,9 @@ detachcameratarget_aob3:
 detachcameratarget_aob4+01:
   db F3 0F 11 96 BC 05 00 00 F3 0F 11 8E C0 05 00 00 F3 0F 11 86 C4 05 00 00
 
+detachcameratarget_aob5:
+  db F3 0F 11 86 BC 05 00 00 F3 0F 10 45 DC F3 0F 11 86 C0 05 00 00 F3 0F 10 45 E0 F3 0F 11 86 C4 05 00 00
+
 mousecameracontrol_aob:
   db 8B 8E 74 03 00 00
 
@@ -731,6 +733,7 @@ unregistersymbol(detachcameratarget_aob1)
 unregistersymbol(detachcameratarget_aob2)
 unregistersymbol(detachcameratarget_aob3)
 unregistersymbol(detachcameratarget_aob4)
+unregistersymbol(detachcameratarget_aob5)
 dealloc(cameracoordinates)
 dealloc(newmem)
 
@@ -1098,6 +1101,32 @@ ed8_2_PC_US.exe+DA71A: C2 18 00                 - ret 0018
 ed8_2_PC_US.exe+DA71D: CC                       - int 3
 ed8_2_PC_US.exe+DA71E: CC                       - int 3
 
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+DB4EB - Camera Target XYZ 5 (Battles)
+
+ed8_2_PC_US.exe+DB4BD: 51                       - push ecx
+ed8_2_PC_US.exe+DB4BE: 8D 45 D8                 - lea eax,[ebp-28]
+ed8_2_PC_US.exe+DB4C1: F3 0F 11 04 24           - movss [esp],xmm0
+ed8_2_PC_US.exe+DB4C6: 50                       - push eax
+ed8_2_PC_US.exe+DB4C7: E8 14 77 FD FF           - call ed8_2_PC_US.exe+B2BE0
+ed8_2_PC_US.exe+DB4CC: F3 0F 7E 86 E8 02 00 00  - movq xmm0,[esi+000002E8]
+ed8_2_PC_US.exe+DB4D4: 66 0F D6 45 D8           - movq [ebp-28],xmm0
+ed8_2_PC_US.exe+DB4D9: F3 0F 7E 86 F0 02 00 00  - movq xmm0,[esi+000002F0]
+ed8_2_PC_US.exe+DB4E1: 66 0F D6 45 E0           - movq [ebp-20],xmm0
+ed8_2_PC_US.exe+DB4E6: F3 0F 10 45 D8           - movss xmm0,[ebp-28]
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+DB4EB: F3 0F 11 86 BC 05 00 00  - movss [esi+000005BC],xmm0
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+DB4F3: F3 0F 10 45 DC           - movss xmm0,[ebp-24]
+ed8_2_PC_US.exe+DB4F8: F3 0F 11 86 C0 05 00 00  - movss [esi+000005C0],xmm0
+ed8_2_PC_US.exe+DB500: F3 0F 10 45 E0           - movss xmm0,[ebp-20]
+ed8_2_PC_US.exe+DB505: F3 0F 11 86 C4 05 00 00  - movss [esi+000005C4],xmm0
+ed8_2_PC_US.exe+DB50D: F3 0F 10 86 3C 03 00 00  - movss xmm0,[esi+0000033C]
+ed8_2_PC_US.exe+DB515: 0F 2E 86 38 03 00 00     - ucomiss xmm0,[esi+00000338]
+ed8_2_PC_US.exe+DB51C: 8D 8E 04 03 00 00        - lea ecx,[esi+00000304]
+ed8_2_PC_US.exe+DB522: 9F                       - lahf
+ed8_2_PC_US.exe+DB523: F6 C4 44                 - test ah,44
+ed8_2_PC_US.exe+DB526: 7B 55                    - jnp ed8_2_PC_US.exe+DB57D
+
 // ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+154DC - Mouse Camera Control
 // AOB Scan is performed one instruction early to maintain Sen Patcher compatibility
 
@@ -1332,42 +1361,132 @@ ed8_2_PC_US.exe+D9111: F3 0F 10 64 24 44        - movss xmm4,[esp+44]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(cameradistance_aob,ed8_2_PC_US.exe,F3 0F 10 9E 4C 06 00 00) // should be unique
+aobscanmodule(cameradistance_aob,ed8_2_PC_US.exe,F3 0F 11 44 24 4C 0F 57 05) // should be unique
 alloc(newmem,$1000)
 
+label(zoomin)
+label(zoomout)
 label(code)
+label(cameradistancepointer)
 label(customcameradistance)
+label(dist_step)
+label(dist_min)
+label(dist_max)
 label(return)
 
 registersymbol(cameradistance_aob)
+registersymbol(cameradistancepointer)
+registersymbol(customcameradistance)
+registersymbol(dist_step)
+registersymbol(dist_min)
+registersymbol(dist_max)
 registersymbol(customcameradistance)
 
 newmem:
+  movss [esp+4C],xmm0
+  mov [cameradistancepointer],esi
+
+zoomin:
+  pushad
+  push 24 //VK_HOME
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz zoomout
+  movss xmm0,[esi+0000064C]
+  subss xmm0,[dist_step]
+  maxss xmm0,[dist_min]
+  movss [customcameradistance],xmm0
+  movss [esi+0000064C],xmm0
+  jmp code
+
+zoomout:
+  pushad
+  push 23 //VK_END
+  call GetAsyncKeyState
+  test ax,8001
+  popad
+  jz code
+  movss xmm0,[esi+0000064C]
+  addss xmm0,[dist_step]
+  minss xmm0,[dist_max]
+  movss [customcameradistance],xmm0
+  movss [esi+0000064C],xmm0
+  jmp code
 
 code:
-  //movss xmm3,[esi+0000064C]
-  movss xmm3,[customcameradistance]
+  cmp [customcameradistance],(float)0
+  je @f
+  movss xmm0,[customcameradistance]
+  movss [esi+0000064C],xmm0
+@@:
+  movss xmm0,[esp+4C]
   jmp return
 
+cameradistancepointer:
+  dq #0
+
 customcameradistance:
-  dd (float)5
+  dd (float)0
+
+dist_step:
+  dd (float)0.3
+
+dist_min:
+  dd (float)0.1
+
+dist_max:
+  dd (float)15
 
 cameradistance_aob:
   jmp newmem
-  nop 3
+  nop
 return:
 
 [DISABLE]
 
 cameradistance_aob:
-  db F3 0F 10 9E 4C 06 00 00
+  db F3 0F 11 44 24 4C
 
 unregistersymbol(cameradistance_aob)
+unregistersymbol(cameradistancepointer)
+unregistersymbol(customcameradistance)
+unregistersymbol(dist_step)
+unregistersymbol(dist_min)
+unregistersymbol(dist_max)
 unregistersymbol(customcameradistance)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+D6DBA
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+D6C4A
+// Injection point was chosen here due to irrelevance of xmm registers here
+// (Safe jumping point) - See below for the actual memory address we want to alter
+
+ed8_2_PC_US.exe+D6BF5: 66 0F D6 84 24 84 00 00 00  - movq [esp+00000084],xmm0
+ed8_2_PC_US.exe+D6BFE: F3 0F 7E 86 DC 00 00 00     - movq xmm0,[esi+000000DC]
+ed8_2_PC_US.exe+D6C06: 66 0F D6 84 24 C4 00 00 00  - movq [esp+000000C4],xmm0
+ed8_2_PC_US.exe+D6C0F: F3 0F 7E 86 E4 00 00 00     - movq xmm0,[esi+000000E4]
+ed8_2_PC_US.exe+D6C17: 66 0F D6 84 24 CC 00 00 00  - movq [esp+000000CC],xmm0
+ed8_2_PC_US.exe+D6C20: F3 0F 7E 86 BC 05 00 00     - movq xmm0,[esi+000005BC]
+ed8_2_PC_US.exe+D6C28: 66 0F D6 84 24 F4 00 00 00  - movq [esp+000000F4],xmm0
+ed8_2_PC_US.exe+D6C31: F3 0F 7E 86 C4 05 00 00     - movq xmm0,[esi+000005C4]
+ed8_2_PC_US.exe+D6C39: 66 0F D6 84 24 FC 00 00 00  - movq [esp+000000FC],xmm0
+ed8_2_PC_US.exe+D6C42: F3 0F 10 86 DC 05 00 00     - movss xmm0,[esi+000005DC]
+// ---------- INJECTING HERE ----------
+ed8_2_PC_US.exe+D6C4A: F3 0F 11 44 24 4C           - movss [esp+4C],xmm0
+// ---------- DONE INJECTING  ----------
+ed8_2_PC_US.exe+D6C50: 0F 57 05 70 BE 8E 00        - xorps xmm0,[ed8_2_PC_US.exe+4EBE70]
+ed8_2_PC_US.exe+D6C57: F3 0F 11 44 24 08           - movss [esp+08],xmm0
+ed8_2_PC_US.exe+D6C5D: F3 0F 5A C0                 - cvtss2sd xmm0,xmm0
+ed8_2_PC_US.exe+D6C61: E8 3C F5 33 00              - call ed8_2_PC_US.exe+4161A2
+ed8_2_PC_US.exe+D6C66: F2 0F 5A C0                 - cvtsd2ss xmm0,xmm0
+ed8_2_PC_US.exe+D6C6A: F3 0F 11 44 24 30           - movss [esp+30],xmm0
+ed8_2_PC_US.exe+D6C70: F3 0F 10 44 24 08           - movss xmm0,[esp+08]
+ed8_2_PC_US.exe+D6C76: 0F 5A C0                    - cvtps2pd xmm0,xmm0
+ed8_2_PC_US.exe+D6C79: E8 1E F5 33 00              - call ed8_2_PC_US.exe+41619C
+ed8_2_PC_US.exe+D6C7E: F2 0F 5A C0                 - cvtsd2ss xmm0,xmm0
+
+// ORIGINAL CODE - INJECTION POINT: ed8_2_PC_US.exe+D6DBA - Camera Distance location
 
 ed8_2_PC_US.exe+D6D83: F3 0F 59 A4 24 8C 00 00 00  - mulss xmm4,[esp+0000008C]
 ed8_2_PC_US.exe+D6D8C: F3 0F 59 E8                 - mulss xmm5,xmm0
@@ -1396,11 +1515,33 @@ ed8_2_PC_US.exe+D6DE5: F3 0F 59 C7                 - mulss xmm0,xmm7
 </AssemblerScript>
       <CheatEntries>
         <CheatEntry>
+          <ID>70</ID>
+          <Description>"Home Key to Zoom In, End Key to Zoom Out"</Description>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
           <ID>71</ID>
-          <Description>"Custom Camera Distance Setting"</Description>
+          <Description>"Current Camera Distance (read-only)"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>cameradistancepointer</Address>
+          <Offsets>
+            <Offset>64C</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>72</ID>
+          <Description>"Custom Camera Distance"</Description>
           <ShowAsSigned>0</ShowAsSigned>
           <VariableType>Float</VariableType>
           <Address>customcameradistance</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>73</ID>
+          <Description>"Maximum Camera Distance"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>Float</VariableType>
+          <Address>dist_max</Address>
         </CheatEntry>
       </CheatEntries>
     </CheatEntry>
