@@ -911,16 +911,17 @@ code1:
   call qword ptr [rax+18]
   lea rdi,[rdi+08]
   jmp return1
+
 code2:
   cmp [freeze],#0
   jne @f
-  call ed9.exe+1E64C0
+  call ed9.exe+1E64E0
 @@:
   jmp return2
 code3:
   cmp [freeze],#0
   jne @f
-  call ed9.exe+39ABD0
+  call ed9.exe+39B650
 @@:
   jmp return3
 code4:
@@ -938,7 +939,7 @@ code5:
   jmp return5
 @@:
   popf
-  jne ed9.exe+10D4D8
+  jne ed9.exe+10D548
   jmp return5
 
 freeze:
@@ -984,7 +985,7 @@ freezeaction_aob+29:
   db E8 C9 C5 17 00
 
 freezeaction_aob+9E:
-  db E8 64 0C 33 00
+  db E8 E4 16 33 00
 
 cutscenefreeze_aob:
   db 48 8B 01 FF 50 20
