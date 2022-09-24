@@ -1176,7 +1176,7 @@ ed9.exe+2B0E79: 48 8D 15 D0 97 43 00     - lea rdx,[ed9.exe+6EA650]
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>ed9.exe+7A4D18</Address>
+      <Address>ed9.exe+7A5D18</Address>
       <Offsets>
         <Offset>001901A8</Offset>
       </Offsets>
