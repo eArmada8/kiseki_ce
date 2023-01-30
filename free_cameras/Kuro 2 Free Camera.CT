@@ -873,9 +873,11 @@ ed9.exe+2059D5: 48 8D 44 24 38                 - lea rax,[rsp+38]
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(freezeaction_aob,ed9.exe,FF 50 18 48 8D 5B 08 48 83 EE) // should be unique
+aobscanmodule(freezeaction_aob2,ed9.exe,E8 63 B4 50 00) // should be unique
 aobscanmodule(cutscenefreeze_aob,ed9.exe,48 8B 01 FF 50 20 48 8D) // should be unique
 alloc(newmem,$1000,freezeaction_aob)
 registersymbol(freezeaction_aob)
+registersymbol(freezeaction_aob2)
 registersymbol(cutscenefreeze_aob)
 registersymbol(freeze)
 
@@ -884,14 +886,14 @@ label(toggleoff)
 label(code)
 label(code1)
 label(code2)
-//label(code3)
+label(code3)
 label(code4)
 label(code5)
 label(freeze)
 label(return)
 label(return1)
 label(return2)
-//label(return3)
+label(return3)
 label(return4)
 label(return5)
 
@@ -899,22 +901,38 @@ newmem:
 
 toggleon:
   push rax
+  push rbx
   push rcx
   push rdx
+  push rsi
+  push rdi
+  push rbp
   push r8
   push r9
   push r10
   push r11
+  push r12
+  push r13
+  push r14
+  push r15
   sub rsp,28
   mov rcx,74 //VK_F5
   call GetAsyncKeyState
   add rsp,28
+  pop r15
+  pop r14
+  pop r13
+  pop r12
   pop r11
   pop r10
   pop r9
   pop r8
+  pop rbp
+  pop rdi
+  pop rsi
   pop rdx
   pop rcx
+  pop rbx
   test ax,8001
   pop rax
   jz toggleoff
@@ -923,29 +941,45 @@ toggleon:
 
 toggleoff:
   push rax
+  push rbx
   push rcx
   push rdx
+  push rsi
+  push rdi
+  push rbp
   push r8
   push r9
   push r10
   push r11
+  push r12
+  push r13
+  push r14
+  push r15
   sub rsp,28
   mov rcx,75 //VK_F6
   call GetAsyncKeyState
   add rsp,28
+  pop r15
+  pop r14
+  pop r13
+  pop r12
   pop r11
   pop r10
   pop r9
   pop r8
+  pop rbp
+  pop rdi
+  pop rsi
   pop rdx
   pop rcx
+  pop rbx
   test ax,8001
   pop rax
   jz code
   mov [freeze],#0
 
 code:
-  mulss xmm1,[rdi+00000390]
+  cmp [rdi+000003C4],r12l
   jmp return
 
 code1:
@@ -966,12 +1000,12 @@ code2:
   call ed9.exe+27B480
 @@:
   jmp return2
-//code3:
-//  cmp [freeze],#0
-//  jne @f
-//  __________________
-//@@:
-//  jmp return3
+code3:
+  cmp [freeze],#0
+  jne @f
+  call ed9.exe+5733E0
+@@:
+  jmp return3
 code4:
   cmp [freeze],#0
   jne @f
@@ -993,9 +1027,9 @@ code5:
 freeze:
   dd #0
 
-freezeaction_aob-34:
+freezeaction_aob-26:
   jmp newmem
-  nop 3
+  nop 2
 return:
 
 freezeaction_aob:
@@ -1007,24 +1041,24 @@ freezeaction_aob+19:
   jmp code2
 return2:
 
-//freezeaction_aob+______:
-//  jmp code3
-//return3:
+freezeaction_aob2:
+  jmp code3
+return3:
 
 cutscenefreeze_aob:
   jmp code4
   nop
 return4:
 
-cutscenefreeze_aob+78:
+cutscenefreeze_aob+D6:
   jmp code5
   nop
 return5:
 
 [DISABLE]
 
-freezeaction_aob-34:
-  db F3 0F 59 8F 90 03 00 00
+freezeaction_aob-26:
+  db 44 38 A7 C4 03 00 00
 
 freezeaction_aob:
   db FF 50 18 48 8D 5B 08
@@ -1032,8 +1066,8 @@ freezeaction_aob:
 freezeaction_aob+19:
   db E8 99 36 21 00
 
-//freezeaction_aob+______:
-//  db __________________
+freezeaction_aob2:
+  db E8 63 B4 50 00
 
 cutscenefreeze_aob:
   db 48 8B 01 FF 50 20
@@ -1047,11 +1081,8 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+67D95 - Safe injection point to check keypresses
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+67DC9 - Freeze action
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67DA3 - Safe injection point to check keypresses
 
-ed9.exe+67D6D: 74 0F                    - je ed9.exe+67D7E
-ed9.exe+67D6F: 90                       - nop 
 ed9.exe+67D70: F3 0F 59 78 08           - mulss xmm7,[rax+08]
 ed9.exe+67D75: 48 83 C0 18              - add rax,18
 ed9.exe+67D79: 49 3B C5                 - cmp rax,r13
@@ -1060,9 +1091,24 @@ ed9.exe+67D7E: F3 0F 11 7C 24 40        - movss [rsp+40],xmm7
 ed9.exe+67D84: 0F 28 C1                 - movaps xmm0,xmm1
 ed9.exe+67D87: F3 0F 59 87 78 03 00 00  - mulss xmm0,[rdi+00000378]
 ed9.exe+67D8F: F3 0F 11 44 24 44        - movss [rsp+44],xmm0
-// ---------- INJECTING HERE ----------
 ed9.exe+67D95: F3 0F 59 8F 90 03 00 00  - mulss xmm1,[rdi+00000390]
+ed9.exe+67D9D: F3 0F 11 4C 24 48        - movss [rsp+48],xmm1
+// ---------- INJECTING HERE ----------
+ed9.exe+67DA3: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
 // ---------- DONE INJECTING  ----------
+ed9.exe+67DAA: 75 2A                    - jne ed9.exe+67DD6
+ed9.exe+67DAC: 48 8B 1D 25 1B 96 00     - mov rbx,[ed9.exe+9C98D8]
+ed9.exe+67DB3: 48 81 C3 98 16 01 00     - add rbx,00011698
+ed9.exe+67DBA: BE 0A 00 00 00           - mov esi,0000000A
+ed9.exe+67DBF: 90                       - nop 
+ed9.exe+67DC0: 48 8B 0B                 - mov rcx,[rbx]
+ed9.exe+67DC3: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+67DC6: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+67DC9: FF 50 18                 - call qword ptr [rax+18]
+ed9.exe+67DCC: 48 8D 5B 08              - lea rbx,[rbx+08]
+
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67DC9 - Freeze action
+
 ed9.exe+67D9D: F3 0F 11 4C 24 48        - movss [rsp+48],xmm1
 ed9.exe+67DA3: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
 ed9.exe+67DAA: 75 2A                    - jne ed9.exe+67DD6
@@ -1088,6 +1134,32 @@ ed9.exe+67DE7: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
 ed9.exe+67DEE: 75 4D                    - jne ed9.exe+67E3D
 ed9.exe+67DF0: 48 8B 05 81 1A 96 00     - mov rax,[ed9.exe+9C9878]
 ed9.exe+67DF7: 44 39 A0 44 1B 00 00     - cmp [rax+00001B44],r12d
+
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67F78 - Freeze action 2
+
+ed9.exe+67F5B: 84 C0                 - test al,al
+ed9.exe+67F5D: 74 1E                 - je ed9.exe+67F7D
+ed9.exe+67F5F: FF C5                 - inc ebp
+ed9.exe+67F61: 41 3B EC              - cmp ebp,r12d
+ed9.exe+67F64: 72 EA                 - jb ed9.exe+67F50
+ed9.exe+67F66: 44 8B 76 20           - mov r14d,[rsi+20]
+ed9.exe+67F6A: 41 83 E6 FE           - and r14d,-02
+ed9.exe+67F6E: 44 89 76 20           - mov [rsi+20],r14d
+ed9.exe+67F72: 0F 28 CE              - movaps xmm1,xmm6
+ed9.exe+67F75: 48 8B CE              - mov rcx,rsi
+// ---------- INJECTING HERE ----------
+ed9.exe+67F78: E8 63 B4 50 00        - call ed9.exe+5733E0
+// ---------- DONE INJECTING  ----------
+ed9.exe+67F7D: 48 8B 5B 08           - mov rbx,[rbx+08]
+ed9.exe+67F81: 4C 3B FB              - cmp r15,rbx
+ed9.exe+67F84: 41 BC 00 00 00 00     - mov r12d,00000000
+ed9.exe+67F8A: 0F 85 60 FF FF FF     - jne ed9.exe+67EF0
+ed9.exe+67F90: 4C 8B 7C 24 28        - mov r15,[rsp+28]
+ed9.exe+67F95: 48 8B CF              - mov rcx,rdi
+ed9.exe+67F98: E8 63 E6 79 00        - call ed9.exe+806600
+ed9.exe+67F9D: 0F 28 CE              - movaps xmm1,xmm6
+ed9.exe+67FA0: 48 8B 0D 39 19 96 00  - mov rcx,[ed9.exe+9C98E0]
+ed9.exe+67FA7: E8 E4 91 43 00        - call ed9.exe+4A1190
 
 // ORIGINAL CODE - INJECTION POINT: ed9.exe+13F813 - Prevent cutscene from taking camera control
 
@@ -1245,6 +1317,6 @@ ed9.exe+50C878: 4D 8B C6                 - mov r8,r14
       </Hotkeys>
     </CheatEntry>
   </CheatEntries>
-  <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.  Credit also goes to DhaosCollider for AOB for FOV, to lock player movement, and for the fantastic idea of using the latter to allow WASD control.  My eternal gratitude to both!
+  <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.  Credit also goes to DhaosCollider for AOB for FOV, to lock player movement, and for the fantastic idea of using the latter to allow WASD control (in Kuro 1).  My eternal gratitude to both!
 </Comments>
 </CheatTable>
