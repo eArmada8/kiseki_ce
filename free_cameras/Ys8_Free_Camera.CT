@@ -20,6 +20,7 @@ dd (float)8
 aobscanmodule(cameracoordinates_aob,ys8.exe,4C 8D BB C8 0A 00 00) // should be unique
 aobscanmodule(detachcamera_xyz_aob,ys8.exe,41 0F 11 07 80 B8 CA A9 19 00 00) // should be unique
 aobscanmodule(detach_camera_target_xyz_aob,ys8.exe,0F 11 83 E8 0A 00 00) // should be unique
+aobscanmodule(dialoguelock_aob,ys8.exe,75 10 45 8B C7) // should be unique
 alloc(newmem,$1000,cameracoordinates_aob)
 
 label(cameracoordinatescode)
@@ -30,6 +31,7 @@ registersymbol(cameracoordinates_aob)
 registersymbol(cameracoordinates)
 registersymbol(detachcamera_xyz_aob)
 registersymbol(detach_camera_target_xyz_aob)
+registersymbol(dialoguelock_aob)
 
 newmem:
 
@@ -52,6 +54,8 @@ detachcamera_xyz_aob:
 detach_camera_target_xyz_aob:
   db 90 90 90 90 90 90 90
 
+dialoguelock_aob:
+  db 90 90
 
 {$lua}
 
@@ -253,10 +257,14 @@ detachcamera_xyz_aob:
 detach_camera_target_xyz_aob:
   db 0F 11 83 E8 0A 00 00
 
+dialoguelock_aob:
+  db 75 10
+
 unregistersymbol(cameracoordinates_aob)
 unregistersymbol(cameracoordinates)
 unregistersymbol(detachcamera_xyz_aob)
 unregistersymbol(detach_camera_target_xyz_aob)
+unregistersymbol(dialoguelock_aob)
 dealloc(newmem)
 
 {
@@ -337,6 +345,32 @@ ys8.exe+200C3E: 48 8D 54 24 70        - lea rdx,[rsp+70]
 ys8.exe+200C43: 49 8B CE              - mov rcx,r14
 ys8.exe+200C46: E8 25 9E 1F 00        - call ys8.exe+3FAA70
 ys8.exe+200C4B: 0F 10 00              - movups xmm0,[rax]
+
+// ORIGINAL CODE - INJECTION POINT: ys8.exe+1F97CF - Camera lock during cutscenes and dialogue
+
+ys8.exe+1F979D: E8 CE 39 00 00                 - call ys8.exe+1FD170
+ys8.exe+1F97A2: 45 33 C0                       - xor r8d,r8d
+ys8.exe+1F97A5: 33 D2                          - xor edx,edx
+ys8.exe+1F97A7: 48 8B CF                       - mov rcx,rdi
+ys8.exe+1F97AA: E8 71 F6 00 00                 - call ys8.exe+208E20
+ys8.exe+1F97AF: E9 D9 18 00 00                 - jmp ys8.exe+1FB08D
+ys8.exe+1F97B4: 48 8B 05 15 12 4D 00           - mov rax,[ys8.exe+6CA9D0]
+ys8.exe+1F97BB: 48 8B 88 78 21 17 00           - mov rcx,[rax+00172178]
+ys8.exe+1F97C2: F7 81 B0 BB 2E 00 04 00 40 00  - test [rcx+002EBBB0],00400004
+ys8.exe+1F97CC: 48 8B CF                       - mov rcx,rdi
+// ---------- INJECTING HERE ----------
+ys8.exe+1F97CF: 75 10                          - jne ys8.exe+1F97E1
+// ---------- DONE INJECTING  ----------
+ys8.exe+1F97D1: 45 8B C7                       - mov r8d,r15d
+ys8.exe+1F97D4: 41 8B D4                       - mov edx,r12d
+ys8.exe+1F97D7: E8 D4 6D 00 00                 - call ys8.exe+2005B0
+ys8.exe+1F97DC: E9 AC 18 00 00                 - jmp ys8.exe+1FB08D
+ys8.exe+1F97E1: 4C 89 AC 24 F8 01 00 00        - mov [rsp+000001F8],r13
+ys8.exe+1F97E9: 33 C0                          - xor eax,eax
+ys8.exe+1F97EB: 4C 89 B4 24 B0 01 00 00        - mov [rsp+000001B0],r14
+ys8.exe+1F97F3: 44 0F 29 94 24 60 01 00 00     - movaps [rsp+00000160],xmm10
+ys8.exe+1F97FC: 44 0F 29 9C 24 50 01 00 00     - movaps [rsp+00000150],xmm11
+ys8.exe+1F9805: 44 0F 29 A4 24 40 01 00 00     - movaps [rsp+00000140],xmm12
 }
 </AssemblerScript>
       <Hotkeys>
@@ -487,15 +521,21 @@ ys8.exe+29DAB4: E8 57 D6 F6 FF                 - call ys8.exe+20B110
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(freezeframe_aob,ys8.exe,83 BF 6C 57 18 00 00 0F 85 EF) // should be unique
+aobscanmodule(cameragamelock_aob,ys8.exe,0F 85 30 38 00 00) // should be unique
+aobscanmodule(skipupdategame_aob,ys8.exe,49 8B 8E F8 1B 25 00 EB) // should be unique
 alloc(newmem,$1000,freezeframe_aob)
 registersymbol(freezeframe_aob)
+registersymbol(cameragamelock_aob)
+registersymbol(skipupdategame_aob)
 registersymbol(freezeframe_pointer)
 
 label(toggleon)
 label(toggleoff)
 label(code)
+label(updategamecode)
 label(freezeframe_pointer)
 label(return)
+label(updategamereturn)
 
 newmem:
   push rax
@@ -524,6 +564,7 @@ toggleon:
   test ax,8001
   pop rax
   jz toggleoff
+  mov [freeze],#1
   mov [rdi+0018576C],01
   jmp code
 
@@ -548,11 +589,28 @@ toggleoff:
   test ax,8001
   pop rax
   jz code
+  mov [freeze],#0
   mov [rdi+0018576C],00
 
 code:
   cmp dword ptr [rdi+0018576C],00
   jmp return
+
+updategamecode:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  jmp ys8.exe+28CED3
+  mov rcx,[r14+00251BF8]
+  jmp updategamereturn
+@@:
+  popf
+  mov rcx,[r14+00251BF8]
+  jmp updategamereturn
+
+freeze:
+  dq #0
 
 freezeframe_pointer:
   dq #0
@@ -562,18 +620,33 @@ freezeframe_aob:
   nop 2
 return:
 
+cameragamelock_aob:
+  db 90 90 90 90 90 90
+
+skipupdategame_aob:
+  jmp updategamecode
+  nop 2
+updategamereturn:
 
 [DISABLE]
 
 freezeframe_aob:
   db 83 BF 6C 57 18 00 00
 
+cameragamelock_aob:
+  db 0F 85 30 38 00 00
+
+skipupdategame_aob:
+  db 49 8B 8E F8 1B 25 00
+
 unregistersymbol(freezeframe_aob)
+unregistersymbol(cameragamelock_aob)
+unregistersymbol(skipupdategame_aob)
 unregistersymbol(freezeframe_pointer)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ys8.exe+29E344
+// ORIGINAL CODE - INJECTION POINT: ys8.exe+29E344 - Freeze Frame (Game Pause)
 
 ys8.exe+29E30C: F3 41 0F 59 C5                 - mulss xmm0,xmm13
 ys8.exe+29E311: F3 0F 11 80 E0 00 00 00        - movss [rax+000000E0],xmm0
@@ -598,6 +671,58 @@ ys8.exe+29E375: 48 83 BF 10 1E 00 00 00        - cmp qword ptr [rdi+00001E10],00
 ys8.exe+29E37D: 0F 85 BD 04 00 00              - jne ys8.exe+29E840
 ys8.exe+29E383: F3 0F 10 83 D0 0E 00 00        - movss xmm0,[rbx+00000ED0]
 ys8.exe+29E38B: 41 0F 2F C0                    - comiss xmm0,xmm8
+
+// ORIGINAL CODE - INJECTION POINT: ys8.exe+28969D - Camera / Game Lock during pause
+
+ys8.exe+28965E: EB 03                             - jmp ys8.exe+289663
+ys8.exe+289660: 49 8B FD                          - mov rdi,r13
+ys8.exe+289663: 41 80 BF C5 A9 19 00 00           - cmp byte ptr [r15+0019A9C5],00
+ys8.exe+28966B: 74 08                             - je ys8.exe+289675
+ys8.exe+28966D: 41 C6 87 BB A9 19 00 00           - mov byte ptr [r15+0019A9BB],00
+ys8.exe+289675: 41 83 BF 68 57 18 00 00           - cmp dword ptr [r15+00185768],00
+ys8.exe+28967D: 44 0F 29 9C 24 80 01 00 00        - movaps [rsp+00000180],xmm11
+ys8.exe+289686: 44 0F 29 A4 24 70 01 00 00        - movaps [rsp+00000170],xmm12
+ys8.exe+28968F: 0F 85 3E 38 00 00                 - jne ys8.exe+28CED3
+ys8.exe+289695: 41 83 BF 6C 57 18 00 00           - cmp dword ptr [r15+0018576C],00
+// ---------- INJECTING HERE ----------
+ys8.exe+28969D: 0F 85 30 38 00 00                 - jne ys8.exe+28CED3
+// ---------- DONE INJECTING  ----------
+ys8.exe+2896A3: 41 F7 86 B0 BB 2E 00 08 02 00 00  - test [r14+002EBBB0],00000208
+ys8.exe+2896AE: 0F 85 1F 38 00 00                 - jne ys8.exe+28CED3
+ys8.exe+2896B4: 41 BC 02 00 00 00                 - mov r12d,00000002
+ys8.exe+2896BA: 44 88 AD 20 01 00 00              - mov [rbp+00000120],r13l
+ys8.exe+2896C1: 49 8D B7 70 DD 01 00              - lea rsi,[r15+0001DD70]
+ys8.exe+2896C8: 45 33 ED                          - xor r13d,r13d
+ys8.exe+2896CB: 49 8D 9F 60 DD 01 00              - lea rbx,[r15+0001DD60]
+ys8.exe+2896D2: 49 8D BF 78 DD 01 00              - lea rdi,[r15+0001DD78]
+ys8.exe+2896D9: 45 8D 7C 24 FF                    - lea r15d,[r12-01]
+ys8.exe+2896DE: 66 90                             - nop 2
+
+// ORIGINAL CODE - INJECTION POINT: ys8.exe+289B25 - Above is camera, below is game update
+
+ys8.exe+289AF1: 49 8B 8E F8 1B 25 00  - mov rcx,[r14+00251BF8]
+ys8.exe+289AF8: 48 81 C1 18 1E 00 00  - add rcx,00001E18
+ys8.exe+289AFF: E8 EC E8 F7 FF        - call ys8.exe+2083F0
+ys8.exe+289B04: 33 C0                 - xor eax,eax
+ys8.exe+289B06: 41 89 86 54 6A 2C 00  - mov [r14+002C6A54],eax
+ys8.exe+289B0D: 41 8B 96 B0 BB 2E 00  - mov edx,[r14+002EBBB0]
+ys8.exe+289B14: 45 33 C0              - xor r8d,r8d
+ys8.exe+289B17: 81 E2 04 00 40 00     - and edx,00400004
+ys8.exe+289B1D: 48 8B CE              - mov rcx,rsi
+ys8.exe+289B20: E8 4B FB F6 FF        - call ys8.exe+1F9670
+// ---------- INJECTING HERE ----------
+ys8.exe+289B25: 49 8B 8E F8 1B 25 00  - mov rcx,[r14+00251BF8]
+// ---------- DONE INJECTING  ----------
+ys8.exe+289B2C: EB 07                 - jmp ys8.exe+289B35
+ys8.exe+289B2E: 49 8D B7 18 1E 00 00  - lea rsi,[r15+00001E18]
+ys8.exe+289B35: 48 63 81 F4 1D 00 00  - movsxd  rax,dword ptr [rcx+00001DF4]
+ys8.exe+289B3C: 33 DB                 - xor ebx,ebx
+ys8.exe+289B3E: 48 69 D0 E0 1C 00 00  - imul rdx,rax,00001CE0
+ys8.exe+289B45: 44 8B C3              - mov r8d,ebx
+ys8.exe+289B48: 48 03 D1              - add rdx,rcx
+ys8.exe+289B4B: 74 07                 - je ys8.exe+289B54
+ys8.exe+289B4D: 44 8B 82 C8 02 00 00  - mov r8d,[rdx+000002C8]
+ys8.exe+289B54: 41 38 9F F1 27 00 00  - cmp [r15+000027F1],bl
 }
 </AssemblerScript>
       <CheatEntries>
