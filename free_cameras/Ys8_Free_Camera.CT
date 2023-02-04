@@ -532,9 +532,11 @@ registersymbol(freezeframe_pointer)
 label(toggleon)
 label(toggleoff)
 label(code)
+label(cameragamelockcode)
 label(updategamecode)
 label(freezeframe_pointer)
 label(return)
+label(cameragamelockreturn)
 label(updategamereturn)
 
 newmem:
@@ -596,6 +598,17 @@ code:
   cmp dword ptr [rdi+0018576C],00
   jmp return
 
+cameragamelockcode:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  jmp cameragamelockreturn
+@@:
+  popf
+  jne ys8.exe+28CED3
+  jmp cameragamelockreturn
+
 updategamecode:
   pushf
   cmp [freeze],#0
@@ -621,7 +634,9 @@ freezeframe_aob:
 return:
 
 cameragamelock_aob:
-  db 90 90 90 90 90 90
+  jmp cameragamelockcode
+  nop
+cameragamelockreturn:
 
 skipupdategame_aob:
   jmp updategamecode
