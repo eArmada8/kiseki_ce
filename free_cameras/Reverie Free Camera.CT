@@ -21,34 +21,53 @@ aobscanmodule(camera_aob2,hnk.exe,0F 11 81 20 0B 00 00) // should be unique
 aobscanmodule(camera_aob3,hnk.exe,02 0F 10 42 10 0F 11 41 10 0F 10 42 20) // should be unique
 aobscanmodule(camera_tilt_aob1,hnk.exe,0F 11 93 10 0A 00 00 0F C6) // should be unique
 //aobscanmodule(camera_tilt_aob2,hnk.exe,0F 11 8F 10 0A 00 00 41) // should be unique
+aobscanmodule(player_aob,hnk.exe,E5 0F 5C A0 80 03 00 00) // should be unique
 aobscanmodule(player_movement_aob,hnk.exe,75 10 48 8D 8F A0 CE 06 00) // should be unique
 alloc(newmem,$1000,camera_aob1)
 
-label(code)
+label(cameracode)
+label(playercode)
+label(playercoordinates)
 label(cameracoordinates)
-label(return)
+label(camerareturn)
+label(playerreturn)
 
 registersymbol(camera_aob1)
 registersymbol(camera_aob2)
 registersymbol(camera_aob3)
 registersymbol(camera_tilt_aob1)
+registersymbol(player_aob)
 registersymbol(player_movement_aob)
+registersymbol(playercoordinates)
 registersymbol(cameracoordinates)
 
 newmem:
-  mov [cameracoordinates],rbx
 
-code:
+cameracode:
+  mov [cameracoordinates],rbx
   mov [rbx+00000B10],ax
-  jmp return
+  jmp camerareturn
+
+playercode:
+  mov [playercoordinates],rdi
+  subps xmm4,[rax+00000380]
+  jmp playerreturn
+
+playercoordinates:
+  dq #0
 
 cameracoordinates:
-  dd #0
+  dq #0
 
 camera_aob1:
-  jmp newmem
+  jmp cameracode
   nop 2
-return:
+camerareturn:
+
+player_aob+01:
+  jmp playercode
+  nop 2
+playerreturn:
 
 camera_aob1+1C:
   db 90 90 90 90 90 90 90 0F 10 83 00 0A 00 00 90 90 90 90 90 90 90
@@ -233,8 +252,12 @@ function checkKeys()
 
       --Copy buffer back into memory read by game engine
       copyMemory("cameracoordinates+20",32,"[cameracoordinates]+B20")
-    end
 
+      --Teleport to where the camera is looking
+      if isKeyPressed(VK_OEM3) then
+        copyMemory("cameracoordinates+20",12,"[playercoordinates]+380")
+      end
+    end
 
     --Speed Modifiers
     if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
@@ -285,6 +308,9 @@ camera_aob3+05:
 camera_tilt_aob1:
   db 0F 11 93 10 0A 00 00
 
+player_aob+01:
+  db 0F 5C A0 80 03 00 00
+
 player_movement_aob:
   db 75 10
 
@@ -292,7 +318,9 @@ unregistersymbol(camera_aob1)
 unregistersymbol(camera_aob2)
 unregistersymbol(camera_aob3)
 unregistersymbol(camera_tilt_aob1)
+unregistersymbol(player_aob)
 unregistersymbol(player_movement_aob)
+unregistersymbol(playercoordinates)
 unregistersymbol(cameracoordinates)
 dealloc(newmem)
 
@@ -429,6 +457,32 @@ hnk.exe+1EE2B4: 0F 57 E4                    - xorps xmm4,xmm4
 hnk.exe+1EE2B7: 66 44 0F 6F 05 F0 B2 A2 00  - movdqa xmm8,[hnk.exe+C195B0]
 hnk.exe+1EE2C0: 0F 28 CE                    - movaps xmm1,xmm6
 
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+2F50D6 - Player Location
+
+hnk.exe+2F50A0: 66 44 0F 6F 1D 07 45 92 00     - movdqa xmm11,[hnk.exe+C195B0]
+hnk.exe+2F50A9: 8B F0                          - mov esi,eax
+hnk.exe+2F50AB: 0F 1F 44 00 00                 - nop dword ptr [rax+rax+00]
+hnk.exe+2F50B0: 49 8B 03                       - mov rax,[r11]
+hnk.exe+2F50B3: F7 80 28 0A 00 00 21 00 20 00  - test [rax+00000A28],00200021
+hnk.exe+2F50BD: 0F 85 87 01 00 00              - jne hnk.exe+2F524A
+hnk.exe+2F50C3: 48 3B F8                       - cmp rdi,rax
+hnk.exe+2F50C6: 0F 84 7E 01 00 00              - je hnk.exe+2F524A
+hnk.exe+2F50CC: 0F 10 AF 80 03 00 00           - movups xmm5,[rdi+00000380]
+hnk.exe+2F50D3: 0F 28 E5                       - movaps xmm4,xmm5
+// ---------- INJECTING HERE ----------
+hnk.exe+2F50D6: 0F 5C A0 80 03 00 00           - subps xmm4,[rax+00000380]
+// ---------- DONE INJECTING  ----------
+hnk.exe+2F50DD: 0F 28 CC                       - movaps xmm1,xmm4
+hnk.exe+2F50E0: 0F 59 CC                       - mulps xmm1,xmm4
+hnk.exe+2F50E3: 0F 28 D1                       - movaps xmm2,xmm1
+hnk.exe+2F50E6: 0F 28 C1                       - movaps xmm0,xmm1
+hnk.exe+2F50E9: 0F C6 C1 00                    - shufps xmm0,xmm1,00
+hnk.exe+2F50ED: 0F C6 D1 55                    - shufps xmm2,xmm1,55
+hnk.exe+2F50F1: 0F 58 D0                       - addps xmm2,xmm0
+hnk.exe+2F50F4: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
+hnk.exe+2F50F8: F3 0F 10 80 80 07 00 00        - movss xmm0,[rax+00000780]
+hnk.exe+2F5100: F3 0F 59 C0                    - mulss xmm0,xmm0
+
 // ORIGINAL CODE - INJECTION POINT: hnk.exe+301B2D - Player Movement
 
 hnk.exe+301B01: 48 8B D8                 - mov rbx,rax
@@ -470,6 +524,182 @@ hnk.exe+301B6D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
     </CheatEntry>
     <CheatEntry>
       <ID>2</ID>
+      <Description>"Force Pause Action (Enable first, F5 pause / F6 unpause)"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(forcepauseinject_aob,hnk.exe,E8 3B 7E D4 FF) // should be unique
+aobscanmodule(forcepause_aob,hnk.exe,FF 50 18 F3 0F 10 83 7C 4E 00 00) // should be unique
+alloc(newmem,$1000,forcepauseinject_aob)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(pausecode)
+label(freeze)
+label(return)
+label(pausereturn)
+
+registersymbol(forcepauseinject_aob)
+registersymbol(forcepause_aob)
+registersymbol(freeze)
+
+newmem:
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,74 //VK_F5
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  mov [freeze],#1
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,75 //VK_F6
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  mov [freeze],#0
+
+code:
+  call hnk.exe+80EF0
+  jmp return
+
+pausecode:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  movss xmm0,[rbx+00004E7C]
+  jmp pausereturn
+@@:
+  popf
+  call qword ptr [rax+18]
+  movss xmm0,[rbx+00004E7C]
+  jmp pausereturn
+
+freeze:
+  dd #0
+
+forcepauseinject_aob:
+  jmp newmem
+return:
+
+forcepause_aob:
+  jmp pausecode
+  nop 6
+pausereturn:
+
+[DISABLE]
+
+forcepauseinject_aob:
+  db E8 3B 7E D4 FF
+
+forcepause_aob:
+  db FF 50 18 F3 0F 10 83 7C 4E 00 00
+
+unregistersymbol(forcepauseinject_aob)
+unregistersymbol(forcepause_aob)
+unregistersymbol(freeze)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+3390B0 - Safe injection point
+
+hnk.exe+33908D: C3                       - ret
+hnk.exe+33908E: CC                       - int 3
+hnk.exe+33908F: CC                       - int 3
+hnk.exe+339090: 40 53                    - push rbx
+hnk.exe+339092: 48 83 EC 50              - sub rsp,50
+hnk.exe+339096: 48 8B D9                 - mov rbx,rcx
+hnk.exe+339099: 0F 29 74 24 30           - movaps [rsp+30],xmm6
+hnk.exe+33909E: 0F 28 F1                 - movaps xmm6,xmm1
+hnk.exe+3390A1: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
+hnk.exe+3390A9: 48 81 C1 20 4E 00 00     - add rcx,00004E20
+// ---------- INJECTING HERE ----------
+hnk.exe+3390B0: E8 3B 7E D4 FF           - call hnk.exe+80EF0
+// ---------- DONE INJECTING  ----------
+hnk.exe+3390B5: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
+hnk.exe+3390BD: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
+hnk.exe+3390C4: 7A 09                    - jp hnk.exe+3390CF
+hnk.exe+3390C6: 75 07                    - jne hnk.exe+3390CF
+hnk.exe+3390C8: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
+hnk.exe+3390CF: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
+hnk.exe+3390D6: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+3390D9: E8 12 7E D4 FF           - call hnk.exe+80EF0
+hnk.exe+3390DE: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
+hnk.exe+3390E6: 0F 2E 0D 17 48 93 00     - ucomiss xmm1,[hnk.exe+C6D904]
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+33911C - Freeze Action
+
+hnk.exe+3390ED: 7A 09                    - jp hnk.exe+3390F8
+hnk.exe+3390EF: 75 07                    - jne hnk.exe+3390F8
+hnk.exe+3390F1: C6 83 61 4E 00 00 00     - mov byte ptr [rbx+00004E61],00
+hnk.exe+3390F8: 48 8B 8B A8 1D 00 00     - mov rcx,[rbx+00001DA8]
+hnk.exe+3390FF: 0F 28 C6                 - movaps xmm0,xmm6
+hnk.exe+339102: F3 0F 59 83 30 4E 00 00  - mulss xmm0,[rbx+00004E30]
+hnk.exe+33910A: F3 0F 59 C1              - mulss xmm0,xmm1
+hnk.exe+33910E: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+339111: F3 0F 11 83 58 59 00 00  - movss [rbx+00005958],xmm0
+hnk.exe+339119: 48 8B 01                 - mov rax,[rcx]
+// ---------- INJECTING HERE ----------
+hnk.exe+33911C: FF 50 18                 - call qword ptr [rax+18]
+// ---------- DONE INJECTING  ----------
+hnk.exe+33911F: F3 0F 10 83 7C 4E 00 00  - movss xmm0,[rbx+00004E7C]
+hnk.exe+339127: 0F 2F C6                 - comiss xmm0,xmm6
+hnk.exe+33912A: 76 06                    - jna hnk.exe+339132
+hnk.exe+33912C: F3 0F 5C C6              - subss xmm0,xmm6
+hnk.exe+339130: EB 03                    - jmp hnk.exe+339135
+hnk.exe+339132: 0F 57 C0                 - xorps xmm0,xmm0
+hnk.exe+339135: F3 0F 11 83 7C 4E 00 00  - movss [rbx+00004E7C],xmm0
+hnk.exe+33913D: 48 8B CB                 - mov rcx,rbx
+hnk.exe+339140: 48 8B 03                 - mov rax,[rbx]
+hnk.exe+339143: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>201</ID>
+          <Description>"Enable Free Camera BEFORE pausing"</Description>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
       <Description>"Increase Tilt Limit (Field)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
