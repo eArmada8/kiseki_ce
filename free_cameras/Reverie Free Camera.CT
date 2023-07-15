@@ -776,6 +776,7 @@ hnk.exe+1ECD73: F3 0F 10 44 24 60              - movss xmm0,[rsp+60]
     <CheatEntry>
       <ID>4</ID>
       <Description>"Enable Field Min Z"</Description>
+      <Options moHideChildren="1"/>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
@@ -821,6 +822,57 @@ hnk.exe+1EE67D: 48 8D 55 D0              - lea rdx,[rbp-30]
 hnk.exe+1EE681: 4C 8B C0                 - mov r8,rax
 }
 </AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>401</ID>
+          <Description>"Enable no camera collision"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+aobscanmodule(field_camera_collider_aob,hnk.exe,0F 11 87 00 0A 00 00 E8) // should be unique
+registersymbol(field_camera_collider_aob)
+
+field_camera_collider_aob:
+  db 90 90 90 90 90 90 90
+
+[DISABLE]
+
+field_camera_collider_aob:
+  db 0F 11 87 00 0A 00 00
+
+unregistersymbol(field_camera_collider_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EE6DD
+
+hnk.exe+1EE6AC: 0F C6 C0 00              - shufps xmm0,xmm0,00
+hnk.exe+1EE6B0: 41 0F 59 00              - mulps xmm0,[r8]
+hnk.exe+1EE6B4: 45 33 C0                 - xor r8d,r8d
+hnk.exe+1EE6B7: 0F 59 C8                 - mulps xmm1,xmm0
+hnk.exe+1EE6BA: 0F 28 05 DF 8B AE 00     - movaps xmm0,[hnk.exe+CD72A0]
+hnk.exe+1EE6C1: 0F 59 C1                 - mulps xmm0,xmm1
+hnk.exe+1EE6C4: F3 0F 10 4D 80           - movss xmm1,[rbp-80]
+hnk.exe+1EE6C9: 0F 11 87 B0 01 00 00     - movups [rdi+000001B0],xmm0
+hnk.exe+1EE6D0: F3 0F 11 8F 38 0A 00 00  - movss [rdi+00000A38],xmm1
+hnk.exe+1EE6D8: 0F 28 44 24 40           - movaps xmm0,[rsp+40]
+// ---------- INJECTING HERE ----------
+hnk.exe+1EE6DD: 0F 11 87 00 0A 00 00     - movups [rdi+00000A00],xmm0
+// ---------- DONE INJECTING  ----------
+hnk.exe+1EE6E4: E8 57 A5 FF FF           - call hnk.exe+1E8C40
+hnk.exe+1EE6E9: 4C 8D 9C 24 E8 08 00 00  - lea r11,[rsp+000008E8]
+hnk.exe+1EE6F1: 41 0F 28 73 E8           - movaps xmm6,[r11-18]
+hnk.exe+1EE6F6: 41 0F 28 7B D8           - movaps xmm7,[r11-28]
+hnk.exe+1EE6FB: 45 0F 28 43 C8           - movaps xmm8,[r11-38]
+hnk.exe+1EE700: 45 0F 28 4B B8           - movaps xmm9,[r11-48]
+hnk.exe+1EE705: 45 0F 28 53 A8           - movaps xmm10,[r11-58]
+hnk.exe+1EE70A: 45 0F 28 5B 98           - movaps xmm11,[r11-68]
+hnk.exe+1EE70F: 45 0F 28 63 88           - movaps xmm12,[r11-78]
+hnk.exe+1EE714: 45 0F 28 AB 78 FF FF FF  - movaps xmm13,[r11-00000088]
+}
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
     </CheatEntry>
     <CheatEntry>
       <ID>100</ID>
