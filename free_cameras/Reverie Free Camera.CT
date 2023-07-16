@@ -919,6 +919,55 @@ hnk.exe+1EE714: 45 0F 28 AB 78 FF FF FF  - movaps xmm13,[r11-00000088]
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
+      <ID>5</ID>
+      <Description>"Hide Minimap"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(minimap_aob,hnk.exe,83 BB C0 01 00 00 01) // should be unique
+registersymbol(minimap_aob)
+
+minimap_aob:
+  db 83 BB C0 01 00 00 02
+
+[DISABLE]
+
+minimap_aob:
+  db 83 BB C0 01 00 00 01
+
+unregistersymbol(minimap_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+316060
+
+hnk.exe+316030: 0F BA F0 1F                    - btr eax,1F
+hnk.exe+316034: 44 3B F0                       - cmp r14d,eax
+hnk.exe+316037: 72 87                          - jb hnk.exe+315FC0
+hnk.exe+316039: 48 8B BF 18 32 00 00           - mov rdi,[rdi+00003218]
+hnk.exe+316040: 48 85 FF                       - test rdi,rdi
+hnk.exe+316043: 0F 85 67 FF FF FF              - jne hnk.exe+315FB0
+hnk.exe+316049: 4C 8D BE C0 1E 05 00           - lea r15,[rsi+00051EC0]
+hnk.exe+316050: 48 8B 9E 08 CE 06 00           - mov rbx,[rsi+0006CE08]
+hnk.exe+316057: 48 85 DB                       - test rbx,rbx
+hnk.exe+31605A: 0F 84 88 00 00 00              - je hnk.exe+3160E8
+// ---------- INJECTING HERE ----------
+hnk.exe+316060: 83 BB C0 01 00 00 01           - cmp dword ptr [rbx+000001C0],01
+// ---------- DONE INJECTING  ----------
+hnk.exe+316067: 75 7F                          - jne hnk.exe+3160E8
+hnk.exe+316069: 66 83 BB BE 01 00 00 02        - cmp word ptr [rbx+000001BE],02
+hnk.exe+316071: 75 75                          - jne hnk.exe+3160E8
+hnk.exe+316073: 48 8B 05 66 60 B6 00           - mov rax,[hnk.exe+E7C0E0]
+hnk.exe+31607A: 48 83 B8 B0 48 00 00 00        - cmp qword ptr [rax+000048B0],00
+hnk.exe+316082: 74 64                          - je hnk.exe+3160E8
+hnk.exe+316084: 48 8D 8B 10 2C 00 00           - lea rcx,[rbx+00002C10]
+hnk.exe+31608B: C7 81 30 01 00 00 39 8E E3 3F  - mov [rcx+00000130],3FE38E39
+hnk.exe+316095: 48 8B 01                       - mov rax,[rcx]
+hnk.exe+316098: FF 50 08                       - call qword ptr [rax+08]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
       <ID>100</ID>
       <Description>"Dev Stuff"</Description>
       <Options moHideChildren="1"/>
