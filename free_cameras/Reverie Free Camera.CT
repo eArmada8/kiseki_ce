@@ -700,48 +700,66 @@ hnk.exe+339143: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
-      <Description>"Increase Tilt Limit (Field)"</Description>
+      <Description>"Increase Tilt Limit"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(tilt_limit_aob,hnk.exe,F3 0F 10 8B 3C 0A 00 00) // should be unique
-alloc(newmem,$1000,tilt_limit_aob)
+aobscanmodule(tilt_limit_field_aob,hnk.exe,F3 0F 10 8B 3C 0A 00 00) // should be unique
+aobscanmodule(tilt_limit_battle_aob,hnk.exe,F3 0F 10 8B 58 01 00 00 F3 0F 10 83) // should be unique
+alloc(newmem,$1000,tilt_limit_field_aob)
 
-label(code)
-label(tiltlimitfielddown)
-label(tiltlimitfieldup)
-label(return)
+label(tilt_limit_field_code)
+label(tilt_limit_battle_code)
+label(tiltlimitdown)
+label(tiltlimitup)
+label(tilt_limit_field_return)
+label(tilt_limit_battle_return)
 
-registersymbol(tilt_limit_aob)
-registersymbol(tiltlimitfielddown)
-registersymbol(tiltlimitfieldup)
+registersymbol(tilt_limit_field_aob)
+registersymbol(tilt_limit_battle_aob)
+registersymbol(tiltlimitdown)
+registersymbol(tiltlimitup)
 
 newmem:
 
-code:
-  movss xmm1,[tiltlimitfielddown]
-  movss xmm0,[tiltlimitfieldup]
-  jmp return
+tilt_limit_field_code:
+  movss xmm1,[tiltlimitdown]
+  movss xmm0,[tiltlimitup]
+  jmp tilt_limit_field_return
 
-tiltlimitfielddown:
+tilt_limit_battle_code:
+  movss xmm1,[tiltlimitup]
+  movss xmm0,[tiltlimitdown]
+  jmp tilt_limit_battle_return
+
+tiltlimitdown:
 dd (float)-89.5
 
-tiltlimitfieldup:
+tiltlimitup:
 dd (float)89.5
 
-tilt_limit_aob:
-  jmp newmem
+tilt_limit_field_aob:
+  jmp tilt_limit_field_code
   db 90 90 90 90 90 90 90 90 90 90 90
-return:
+tilt_limit_field_return:
+
+tilt_limit_battle_aob:
+  jmp tilt_limit_battle_code
+  db 90 90 90 90 90 90 90 90 90 90 90
+tilt_limit_battle_return:
 
 [DISABLE]
 
-tilt_limit_aob:
+tilt_limit_field_aob:
   db F3 0F 10 8B 3C 0A 00 00 F3 0F 10 83 40 0A 00 00
 
-unregistersymbol(tilt_limit_aob)
-unregistersymbol(tiltlimitfielddown)
-unregistersymbol(tiltlimitfieldup)
+tilt_limit_battle_aob:
+  db F3 0F 10 8B 58 01 00 00 F3 0F 10 83 54 01 00 00
+
+unregistersymbol(tilt_limit_field_aob)
+unregistersymbol(tilt_limit_battle_aob)
+unregistersymbol(tiltlimitdown)
+unregistersymbol(tiltlimitup)
 dealloc(newmem)
 
 {
@@ -770,6 +788,32 @@ hnk.exe+1ECD65: 74 0C                          - je hnk.exe+1ECD73
 hnk.exe+1ECD67: C7 83 68 02 00 00 00 00 80 3F  - mov [rbx+00000268],3F800000
 hnk.exe+1ECD71: EB 7C                          - jmp hnk.exe+1ECDEF
 hnk.exe+1ECD73: F3 0F 10 44 24 60              - movss xmm0,[rsp+60]
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1CBAF0
+
+hnk.exe+1CBAC2: F3 0F 5C C8              - subss xmm1,xmm0
+hnk.exe+1CBAC6: F3 44 0F 5C C1           - subss xmm8,xmm1
+hnk.exe+1CBACB: 41 0F 28 C0              - movaps xmm0,xmm8
+hnk.exe+1CBACF: E8 2C AD 01 00           - call hnk.exe+1E6800
+hnk.exe+1CBAD4: 0F 10 0F                 - movups xmm1,[rdi]
+hnk.exe+1CBAD7: 0F C6 C0 00              - shufps xmm0,xmm0,00
+hnk.exe+1CBADB: 0F C6 C8 50              - shufps xmm1,xmm0,50
+hnk.exe+1CBADF: 0F C6 0F EC              - shufps xmm1,[rdi],-14
+hnk.exe+1CBAE3: E9 E0 00 00 00           - jmp hnk.exe+1CBBC8
+hnk.exe+1CBAE8: 48 83 B8 80 00 00 00 00  - cmp qword ptr [rax+00000080],00
+// ---------- INJECTING HERE ----------
+hnk.exe+1CBAF0: F3 0F 10 8B 58 01 00 00  - movss xmm1,[rbx+00000158]
+hnk.exe+1CBAF8: F3 0F 10 83 54 01 00 00  - movss xmm0,[rbx+00000154]
+// ---------- DONE INJECTING  ----------
+hnk.exe+1CBB00: 74 60                    - je hnk.exe+1CBB62
+hnk.exe+1CBB02: F3 44 0F 5D C9           - minss xmm9,xmm1
+hnk.exe+1CBB07: F3 41 0F 5F C1           - maxss xmm0,xmm9
+hnk.exe+1CBB0C: E8 EF AC 01 00           - call hnk.exe+1E6800
+hnk.exe+1CBB11: 0F 10 37                 - movups xmm6,[rdi]
+hnk.exe+1CBB14: F3 0F 10 F0              - movss xmm6,xmm0
+hnk.exe+1CBB18: 0F 11 37                 - movups [rdi],xmm6
+hnk.exe+1CBB1B: 80 BB ED 01 00 00 00     - cmp byte ptr [rbx+000001ED],00
+hnk.exe+1CBB22: 74 0C                    - je hnk.exe+1CBB30
 }
 </AssemblerScript>
     </CheatEntry>
