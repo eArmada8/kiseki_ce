@@ -529,7 +529,7 @@ hnk.exe+301B6D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(forcepauseinject_aob,hnk.exe,E8 3B 7E D4 FF) // should be unique
+aobscanmodule(forcepauseinject_aob,hnk.exe,E8 4B 7E D4 FF) // should be unique
 aobscanmodule(forcepause_aob,hnk.exe,FF 50 18 F3 0F 10 83 7C 4E 00 00) // should be unique
 alloc(newmem,$1000,forcepauseinject_aob)
 
@@ -626,7 +626,7 @@ pausereturn:
 [DISABLE]
 
 forcepauseinject_aob:
-  db E8 3B 7E D4 FF
+  db E8 4B 7E D4 FF
 
 forcepause_aob:
   db FF 50 18 F3 0F 10 83 7C 4E 00 00
@@ -637,57 +637,57 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+3390B0 - Safe injection point
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+3390A0 - Safe injection point
 
-hnk.exe+33908D: C3                       - ret
-hnk.exe+33908E: CC                       - int 3
-hnk.exe+33908F: CC                       - int 3
-hnk.exe+339090: 40 53                    - push rbx
-hnk.exe+339092: 48 83 EC 50              - sub rsp,50
-hnk.exe+339096: 48 8B D9                 - mov rbx,rcx
-hnk.exe+339099: 0F 29 74 24 30           - movaps [rsp+30],xmm6
-hnk.exe+33909E: 0F 28 F1                 - movaps xmm6,xmm1
-hnk.exe+3390A1: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
-hnk.exe+3390A9: 48 81 C1 20 4E 00 00     - add rcx,00004E20
+hnk.exe+33907D: C3                       - ret
+hnk.exe+33907E: CC                       - int 3
+hnk.exe+33907F: CC                       - int 3
+hnk.exe+339080: 40 53                    - push rbx
+hnk.exe+339082: 48 83 EC 50              - sub rsp,50
+hnk.exe+339086: 48 8B D9                 - mov rbx,rcx
+hnk.exe+339089: 0F 29 74 24 30           - movaps [rsp+30],xmm6
+hnk.exe+33908E: 0F 28 F1                 - movaps xmm6,xmm1
+hnk.exe+339091: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
+hnk.exe+339099: 48 81 C1 20 4E 00 00     - add rcx,00004E20
 // ---------- INJECTING HERE ----------
-hnk.exe+3390B0: E8 3B 7E D4 FF           - call hnk.exe+80EF0
+hnk.exe+3390A0: E8 4B 7E D4 FF           - call hnk.exe+80EF0
 // ---------- DONE INJECTING  ----------
-hnk.exe+3390B5: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
-hnk.exe+3390BD: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
-hnk.exe+3390C4: 7A 09                    - jp hnk.exe+3390CF
-hnk.exe+3390C6: 75 07                    - jne hnk.exe+3390CF
-hnk.exe+3390C8: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
-hnk.exe+3390CF: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
-hnk.exe+3390D6: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+3390D9: E8 12 7E D4 FF           - call hnk.exe+80EF0
-hnk.exe+3390DE: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
-hnk.exe+3390E6: 0F 2E 0D 17 48 93 00     - ucomiss xmm1,[hnk.exe+C6D904]
+hnk.exe+3390A5: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
+hnk.exe+3390AD: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
+hnk.exe+3390B4: 7A 09                    - jp hnk.exe+3390BF
+hnk.exe+3390B6: 75 07                    - jne hnk.exe+3390BF
+hnk.exe+3390B8: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
+hnk.exe+3390BF: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
+hnk.exe+3390C6: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+3390C9: E8 22 7E D4 FF           - call hnk.exe+80EF0
+hnk.exe+3390CE: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
+hnk.exe+3390D6: 0F 2E 0D 67 48 93 00     - ucomiss xmm1,[hnk.exe+C6D944]
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+33911C - Freeze Action
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+33910C - Freeze Action
 
-hnk.exe+3390ED: 7A 09                    - jp hnk.exe+3390F8
-hnk.exe+3390EF: 75 07                    - jne hnk.exe+3390F8
-hnk.exe+3390F1: C6 83 61 4E 00 00 00     - mov byte ptr [rbx+00004E61],00
-hnk.exe+3390F8: 48 8B 8B A8 1D 00 00     - mov rcx,[rbx+00001DA8]
-hnk.exe+3390FF: 0F 28 C6                 - movaps xmm0,xmm6
-hnk.exe+339102: F3 0F 59 83 30 4E 00 00  - mulss xmm0,[rbx+00004E30]
-hnk.exe+33910A: F3 0F 59 C1              - mulss xmm0,xmm1
-hnk.exe+33910E: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+339111: F3 0F 11 83 58 59 00 00  - movss [rbx+00005958],xmm0
-hnk.exe+339119: 48 8B 01                 - mov rax,[rcx]
+hnk.exe+3390DD: 7A 09                    - jp hnk.exe+3390E8
+hnk.exe+3390DF: 75 07                    - jne hnk.exe+3390E8
+hnk.exe+3390E1: C6 83 61 4E 00 00 00     - mov byte ptr [rbx+00004E61],00
+hnk.exe+3390E8: 48 8B 8B A8 1D 00 00     - mov rcx,[rbx+00001DA8]
+hnk.exe+3390EF: 0F 28 C6                 - movaps xmm0,xmm6
+hnk.exe+3390F2: F3 0F 59 83 30 4E 00 00  - mulss xmm0,[rbx+00004E30]
+hnk.exe+3390FA: F3 0F 59 C1              - mulss xmm0,xmm1
+hnk.exe+3390FE: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+339101: F3 0F 11 83 58 59 00 00  - movss [rbx+00005958],xmm0
+hnk.exe+339109: 48 8B 01                 - mov rax,[rcx]
 // ---------- INJECTING HERE ----------
-hnk.exe+33911C: FF 50 18                 - call qword ptr [rax+18]
+hnk.exe+33910C: FF 50 18                 - call qword ptr [rax+18]
 // ---------- DONE INJECTING  ----------
-hnk.exe+33911F: F3 0F 10 83 7C 4E 00 00  - movss xmm0,[rbx+00004E7C]
-hnk.exe+339127: 0F 2F C6                 - comiss xmm0,xmm6
-hnk.exe+33912A: 76 06                    - jna hnk.exe+339132
-hnk.exe+33912C: F3 0F 5C C6              - subss xmm0,xmm6
-hnk.exe+339130: EB 03                    - jmp hnk.exe+339135
-hnk.exe+339132: 0F 57 C0                 - xorps xmm0,xmm0
-hnk.exe+339135: F3 0F 11 83 7C 4E 00 00  - movss [rbx+00004E7C],xmm0
-hnk.exe+33913D: 48 8B CB                 - mov rcx,rbx
-hnk.exe+339140: 48 8B 03                 - mov rax,[rbx]
-hnk.exe+339143: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
+hnk.exe+33910F: F3 0F 10 83 7C 4E 00 00  - movss xmm0,[rbx+00004E7C]
+hnk.exe+339117: 0F 2F C6                 - comiss xmm0,xmm6
+hnk.exe+33911A: 76 06                    - jna hnk.exe+339122
+hnk.exe+33911C: F3 0F 5C C6              - subss xmm0,xmm6
+hnk.exe+339120: EB 03                    - jmp hnk.exe+339125
+hnk.exe+339122: 0F 57 C0                 - xorps xmm0,xmm0
+hnk.exe+339125: F3 0F 11 83 7C 4E 00 00  - movss [rbx+00004E7C],xmm0
+hnk.exe+33912D: 48 8B CB                 - mov rcx,rbx
+hnk.exe+339130: 48 8B 03                 - mov rax,[rbx]
+hnk.exe+339133: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
 }
 </AssemblerScript>
       <CheatEntries>
