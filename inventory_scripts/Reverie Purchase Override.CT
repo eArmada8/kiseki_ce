@@ -3377,7 +3377,7 @@ al[mr.Index].DisplayAsDropDownListItem = true
 {$asm}
 
 
-aobscanmodule(overridepurchaseitem_aob,hnk.exe,0F B7 D1 88 5C 24 20 E8 48) // should be unique
+aobscanmodule(overridepurchaseitem_aob,hnk.exe,0F B7 D1 88 5C 24 20 E8 F8) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -3412,31 +3412,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+612F6C
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+612FAC
 
-hnk.exe+612F3E: FF 90 A0 01 00 00        - call qword ptr [rax+000001A0]
-hnk.exe+612F44: 89 9F 30 13 00 00        - mov [rdi+00001330],ebx
-hnk.exe+612F4A: 48 8B CF                 - mov rcx,rdi
-hnk.exe+612F4D: E8 2E 26 01 00           - call hnk.exe+625580
-hnk.exe+612F52: 4C 8B 74 24 60           - mov r14,[rsp+60]
-hnk.exe+612F57: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
-hnk.exe+612F5D: EB 2C                    - jmp hnk.exe+612F8B
-hnk.exe+612F5F: 40 88 74 24 30           - mov [rsp+30],sil
-hnk.exe+612F64: 4D 8B CC                 - mov r9,r12
-hnk.exe+612F67: 40 88 74 24 28           - mov [rsp+28],sil
+hnk.exe+612F7E: FF 90 A0 01 00 00        - call qword ptr [rax+000001A0]
+hnk.exe+612F84: 89 9F 30 13 00 00        - mov [rdi+00001330],ebx
+hnk.exe+612F8A: 48 8B CF                 - mov rcx,rdi
+hnk.exe+612F8D: E8 2E 26 01 00           - call hnk.exe+6255C0
+hnk.exe+612F92: 4C 8B 74 24 60           - mov r14,[rsp+60]
+hnk.exe+612F97: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
+hnk.exe+612F9D: EB 2C                    - jmp hnk.exe+612FCB
+hnk.exe+612F9F: 40 88 74 24 30           - mov [rsp+30],sil
+hnk.exe+612FA4: 4D 8B CC                 - mov r9,r12
+hnk.exe+612FA7: 40 88 74 24 28           - mov [rsp+28],sil
 // ---------- INJECTING HERE ----------
-hnk.exe+612F6C: 0F B7 D1                 - movzx edx,cx
+hnk.exe+612FAC: 0F B7 D1                 - movzx edx,cx
 // ---------- DONE INJECTING  ----------
-hnk.exe+612F6F: 88 5C 24 20              - mov [rsp+20],bl
-hnk.exe+612F73: E8 48 C4 DD FF           - call hnk.exe+3EF3C0
-hnk.exe+612F78: E9 E3 FE FF FF           - jmp hnk.exe+612E60
-hnk.exe+612F7D: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
-hnk.exe+612F83: 4C 8B AC 24 F0 02 00 00  - mov r13,[rsp+000002F0]
-hnk.exe+612F8B: 48 8B BC 24 00 03 00 00  - mov rdi,[rsp+00000300]
-hnk.exe+612F93: 0F 28 D7                 - movaps xmm2,xmm7
-hnk.exe+612F96: 33 D2                    - xor edx,edx
-hnk.exe+612F98: 49 8B CE                 - mov rcx,r14
-hnk.exe+612F9B: 66 89 B7 42 03 00 00     - mov [rdi+00000342],si
+hnk.exe+612FAF: 88 5C 24 20              - mov [rsp+20],bl
+hnk.exe+612FB3: E8 F8 C3 DD FF           - call hnk.exe+3EF3B0
+hnk.exe+612FB8: E9 E3 FE FF FF           - jmp hnk.exe+612EA0
+hnk.exe+612FBD: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
+hnk.exe+612FC3: 4C 8B AC 24 F0 02 00 00  - mov r13,[rsp+000002F0]
+hnk.exe+612FCB: 48 8B BC 24 00 03 00 00  - mov rdi,[rsp+00000300]
+hnk.exe+612FD3: 0F 28 D7                 - movaps xmm2,xmm7
+hnk.exe+612FD6: 33 D2                    - xor edx,edx
+hnk.exe+612FD8: 49 8B CE                 - mov rcx,r14
+hnk.exe+612FDB: 66 89 B7 42 03 00 00     - mov [rdi+00000342],si
 }
 </AssemblerScript>
       <CheatEntries>
