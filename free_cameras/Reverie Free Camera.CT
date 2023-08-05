@@ -968,6 +968,69 @@ hnk.exe+316098: FF 50 08                       - call qword ptr [rax+08]
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
+      <ID>6</ID>
+      <Description>"Disable Dialogue"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(dialogue_aob,hnk.exe,0F 11 4B 60 80 BB 3C 01 00 00 0D) // should be unique
+alloc(newmem,$1000,dialogue_aob)
+
+label(code)
+label(return)
+
+newmem:
+  pxor xmm1,xmm1
+
+code:
+  movups [rbx+60],xmm1
+  cmp byte ptr [rbx+0000013C],0D
+  jmp return
+
+dialogue_aob:
+  jmp newmem
+  nop 6
+return:
+registersymbol(dialogue_aob)
+
+[DISABLE]
+
+dialogue_aob:
+  db 0F 11 4B 60 80 BB 3C 01 00 00 0D
+
+unregistersymbol(dialogue_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+6E6840
+
+hnk.exe+6E680D: FF 90 88 00 00 00     - call qword ptr [rax+00000088]
+hnk.exe+6E6813: 48 8B 0D C6 58 79 00  - mov rcx,[hnk.exe+E7C0E0]
+hnk.exe+6E681A: 48 8B B1 F8 51 00 00  - mov rsi,[rcx+000051F8]
+hnk.exe+6E6821: 48 85 F6              - test rsi,rsi
+hnk.exe+6E6824: 75 07                 - jne hnk.exe+6E682D
+hnk.exe+6E6826: 48 8B B1 B8 51 00 00  - mov rsi,[rcx+000051B8]
+hnk.exe+6E682D: 0F 28 0D 5C E0 5E 00  - movaps xmm1,[hnk.exe+CD4890]
+hnk.exe+6E6834: 0F 28 C1              - movaps xmm0,xmm1
+hnk.exe+6E6837: 0F C6 43 60 FA        - shufps xmm0,[rbx+60],-06
+hnk.exe+6E683C: 0F C6 C8 C4           - shufps xmm1,xmm0,-3C
+// ---------- INJECTING HERE ----------
+hnk.exe+6E6840: 0F 11 4B 60           - movups [rbx+60],xmm1
+// ---------- DONE INJECTING  ----------
+hnk.exe+6E6844: 80 BB 3C 01 00 00 0D  - cmp byte ptr [rbx+0000013C],0D
+hnk.exe+6E684B: 74 17                 - je hnk.exe+6E6864
+hnk.exe+6E684D: 48 8B 03              - mov rax,[rbx]
+hnk.exe+6E6850: 4C 8D 43 60           - lea r8,[rbx+60]
+hnk.exe+6E6854: 48 8B D6              - mov rdx,rsi
+hnk.exe+6E6857: 48 8B CB              - mov rcx,rbx
+hnk.exe+6E685A: FF 50 38              - call qword ptr [rax+38]
+hnk.exe+6E685D: 48 8B 0D 7C 58 79 00  - mov rcx,[hnk.exe+E7C0E0]
+hnk.exe+6E6864: 48 C7 C0 FF FF FF FF  - mov rax,FFFFFFFFFFFFFFFF
+hnk.exe+6E686B: 0F 1F 44 00 00        - nop dword ptr [rax+rax+00]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
       <ID>100</ID>
       <Description>"Dev Stuff"</Description>
       <Options moHideChildren="1"/>
