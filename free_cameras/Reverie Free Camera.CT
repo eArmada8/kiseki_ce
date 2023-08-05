@@ -969,6 +969,66 @@ hnk.exe+316098: FF 50 08                       - call qword ptr [rax+08]
     </CheatEntry>
     <CheatEntry>
       <ID>6</ID>
+      <Description>"Hide Field HUD"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(field_hud_aob,hnk.exe,F3 0F 11 87 E0 03 00 00) // should be unique
+alloc(newmem,$1000,field_hud_aob)
+
+label(code)
+label(return)
+
+newmem:
+  pxor xmm0,xmm0
+code:
+  movss [rdi+000003E0],xmm0
+  jmp return
+
+field_hud_aob:
+  jmp newmem
+  nop 3
+return:
+registersymbol(field_hud_aob)
+
+[DISABLE]
+
+field_hud_aob:
+  db F3 0F 11 87 E0 03 00 00
+
+unregistersymbol(field_hud_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+326AED
+
+hnk.exe+326AC4: 0F 57 0D B5 2A 8F 00           - xorps xmm1,[hnk.exe+C19580]
+hnk.exe+326ACB: EB E5                          - jmp hnk.exe+326AB2
+hnk.exe+326ACD: C7 87 E0 03 00 00 00 00 80 3F  - mov [rdi+000003E0],3F800000
+hnk.exe+326AD7: 0F 28 CE                       - movaps xmm1,xmm6
+hnk.exe+326ADA: 48 8B 07                       - mov rax,[rdi]
+hnk.exe+326ADD: F3 0F 5D CE                    - minss xmm1,xmm6
+hnk.exe+326AE1: 0F 57 C0                       - xorps xmm0,xmm0
+hnk.exe+326AE4: B2 01                          - mov dl,01
+hnk.exe+326AE6: 48 8B CF                       - mov rcx,rdi
+hnk.exe+326AE9: F3 0F 5F C1                    - maxss xmm0,xmm1
+// ---------- INJECTING HERE ----------
+hnk.exe+326AED: F3 0F 11 87 E0 03 00 00        - movss [rdi+000003E0],xmm0
+// ---------- DONE INJECTING  ----------
+hnk.exe+326AF5: FF 90 A0 00 00 00              - call qword ptr [rax+000000A0]
+hnk.exe+326AFB: 48 8B CF                       - mov rcx,rdi
+hnk.exe+326AFE: 44 0F 28 C8                    - movaps xmm9,xmm0
+hnk.exe+326B02: E8 B9 10 00 00                 - call hnk.exe+327BC0
+hnk.exe+326B07: F3 44 0F 59 C8                 - mulss xmm9,xmm0
+hnk.exe+326B0C: 48 8D 9F 38 03 00 00           - lea rbx,[rdi+00000338]
+hnk.exe+326B13: 45 33 E4                       - xor r12d,r12d
+hnk.exe+326B16: BE 07 00 00 00                 - mov esi,00000007
+hnk.exe+326B1B: 0F 1F 44 00 00                 - nop dword ptr [rax+rax+00]
+hnk.exe+326B20: 48 8B 0B                       - mov rcx,[rbx]
+}</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
       <Description>"Disable Dialogue"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
