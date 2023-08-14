@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Disable DLC Character Check"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(dlc_char_check_aob,hnk.exe,74 5C BA BC 88 00 00) // should be unique
+registersymbol(dlc_char_check_aob)
+
+dlc_char_check_aob:
+  db EB 5C
+
+[DISABLE]
+
+dlc_char_check_aob:
+  db 74 5C
+
+unregistersymbol(dlc_char_check_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+208410
+
+hnk.exe+2083DB: 0F 57 DB                 - xorps xmm3,xmm3
+hnk.exe+2083DE: F3 0F 10 15 5E 55 A6 00  - movss xmm2,[hnk.exe+C6D944]
+hnk.exe+2083E6: 48 8B 0D F3 3C C7 00     - mov rcx,[hnk.exe+E7C0E0]
+hnk.exe+2083ED: 48 89 74 24 48           - mov [rsp+48],rsi
+hnk.exe+2083F2: F3 0F 11 5C 24 40        - movss [rsp+40],xmm3
+hnk.exe+2083F8: 48 89 74 24 38           - mov [rsp+38],rsi
+hnk.exe+2083FD: 40 88 74 24 30           - mov [rsp+30],sil
+hnk.exe+208402: F3 0F 11 5C 24 28        - movss [rsp+28],xmm3
+hnk.exe+208408: F3 0F 11 5C 24 20        - movss [rsp+20],xmm3
+hnk.exe+20840E: 84 C0                    - test al,al
+// ---------- INJECTING HERE ----------
+hnk.exe+208410: 74 5C                    - je hnk.exe+20846E
+// ---------- DONE INJECTING  ----------
+hnk.exe+208412: BA BC 88 00 00           - mov edx,000088BC
+hnk.exe+208417: E8 14 B5 13 00           - call hnk.exe+343930
+hnk.exe+20841C: 48 8B 05 BD 3C C7 00     - mov rax,[hnk.exe+E7C0E0]
+hnk.exe+208423: 4C 8B 80 68 81 5F 00     - mov r8,[rax+005F8168]
+hnk.exe+20842A: 8B C6                    - mov eax,esi
+hnk.exe+20842C: 41 8B 50 38              - mov edx,[r8+38]
+hnk.exe+208430: 81 E2 FF FF FF 7F        - and edx,7FFFFFFF
+hnk.exe+208436: 0F 86 F5 00 00 00        - jbe hnk.exe+208531
+hnk.exe+20843C: 4D 8B 40 40              - mov r8,[r8+40]
+hnk.exe+208440: 41 B9 A8 00 00 00        - mov r9d,000000A8
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"Disable Already Used DLC Check"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(dlc_consumed_check_aob,hnk.exe,0F 83 86 00 00 00 BA) // should be unique
+registersymbol(dlc_consumed_check_aob)
+
+dlc_consumed_check_aob:
+  db E9 87 00 00 00 90
+
+[DISABLE]
+
+dlc_consumed_check_aob:
+  db 0F 83 86 00 00 00
+
+unregistersymbol(dlc_consumed_check_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+208341
+
+hnk.exe+20830D: 41 F6 83 F5 2C 00 00 20  - test byte ptr [r11+00002CF5],20
+hnk.exe+208315: 0F 85 EF 02 00 00        - jne hnk.exe+20860A
+hnk.exe+20831B: 41 F6 83 EB 9C 67 00 04  - test byte ptr [r11+00679CEB],04
+hnk.exe+208323: 0F 85 E1 02 00 00        - jne hnk.exe+20860A
+hnk.exe+208329: 41 8B C8                 - mov ecx,r8d
+hnk.exe+20832C: 83 E1 1F                 - and ecx,1F
+hnk.exe+20832F: 49 8B C0                 - mov rax,r8
+hnk.exe+208332: 48 C1 E8 05              - shr rax,05
+hnk.exe+208336: 41 8B 84 83 34 50 7D 00  - mov eax,[r11+rax*4+007D5034]
+hnk.exe+20833E: 0F A3 C8                 - bt eax,ecx
+// ---------- INJECTING HERE ----------
+hnk.exe+208341: 0F 83 86 00 00 00        - jae hnk.exe+2083CD
+// ---------- DONE INJECTING  ----------
+hnk.exe+208347: BA BC 88 00 00           - mov edx,000088BC
+hnk.exe+20834C: 48 89 74 24 50           - mov [rsp+50],rsi
+hnk.exe+208351: 48 89 74 24 48           - mov [rsp+48],rsi
+hnk.exe+208356: 0F 57 DB                 - xorps xmm3,xmm3
+hnk.exe+208359: F3 0F 11 5C 24 40        - movss [rsp+40],xmm3
+hnk.exe+20835F: 48 89 74 24 38           - mov [rsp+38],rsi
+hnk.exe+208364: 40 88 74 24 30           - mov [rsp+30],sil
+hnk.exe+208369: F3 0F 11 5C 24 28        - movss [rsp+28],xmm3
+hnk.exe+20836F: F3 0F 11 5C 24 20        - movss [rsp+20],xmm3
+hnk.exe+208375: F3 0F 10 15 C7 55 A6 00  - movss xmm2,[hnk.exe+C6D944]
+}
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+</CheatTable>
