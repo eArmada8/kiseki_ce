@@ -529,7 +529,7 @@ hnk.exe+301B6D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(forcepauseinject_aob,hnk.exe,E8 4B 7E D4 FF) // should be unique
+aobscanmodule(forcepauseinject_aob,hnk.exe,E8 1B 7F D4 FF) // should be unique
 aobscanmodule(forcepause_aob,hnk.exe,FF 50 18 F3 0F 10 83 7C 4E 00 00) // should be unique
 alloc(newmem,$1000,forcepauseinject_aob)
 
