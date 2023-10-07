@@ -626,7 +626,7 @@ pausereturn:
 [DISABLE]
 
 forcepauseinject_aob:
-  db E8 4B 7E D4 FF
+  db E8 1B 7F D4 FF
 
 forcepause_aob:
   db FF 50 18 F3 0F 10 83 7C 4E 00 00
