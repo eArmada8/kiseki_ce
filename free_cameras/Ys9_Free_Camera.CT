@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"Free Camera (Press 0 to toggle)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+globalalloc(speedModifier,8)
+speedModifier:
+dd (float)3
+globalalloc(useMouse,8)
+useMouse:
+dd (float)1 // 1 to use mouse, 0 to not use mouse
+globalalloc(mouseSensitivity,8)
+mouseSensitivity:
+dd (float)8
+
+aobscanmodule(cameracoordinates_aob,ys9.exe,0F 10 83 6C 0C 00 00 0F 11 83) // should be unique
+aobscanmodule(detachcamera_xyz_aob,ys9.exe,0F 11 AB 4C 0C 00 00) // should be unique
+aobscanmodule(detach_camera_target_xyz_aob,ys9.exe,0F 11 B3 6C 0C 00 00) // should be unique
+alloc(newmem,$1000,cameracoordinates_aob)
+
+label(cameracoordinatescode)
+label(cameracoordinates)
+label(cameracoordinatesreturn)
+
+registersymbol(cameracoordinates_aob)
+registersymbol(cameracoordinates)
+registersymbol(detachcamera_xyz_aob)
+registersymbol(detach_camera_target_xyz_aob)
+
+newmem:
+
+cameracoordinatescode:
+  movups xmm0,[rbx+00000C6C]
+  mov [cameracoordinates], rbx
+  jmp cameracoordinatesreturn
+
+cameracoordinates:
+  dq 0
+
+cameracoordinates_aob:
+  jmp cameracoordinatescode
+  nop 2
+cameracoordinatesreturn:
+
+detachcamera_xyz_aob:
+  db 90 90 90 90 90 90 90
+
+detach_camera_target_xyz_aob:
+  db 90 90 90 90 90 90 90
+
+{$lua}
+
+function checkKeys()
+  if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
+  if (getAddressSafe("[cameracoordinates]")) then
+    --Read and assign speed modifier value
+    local speed = readFloat("speedModifier")
+    local use_mouse = readFloat("useMouse")
+    local mouse_speed = readFloat("mouseSensitivity")
+
+    --Camera Coordinates
+    local camx = readFloat("[cameracoordinates]+C4C") -- Camera X
+    local camy = readFloat("[cameracoordinates]+C50") -- Camera Y
+    local camz = readFloat("[cameracoordinates]+C54") -- Camera Z
+
+    --Target Coordinates
+    local targetx = readFloat("[cameracoordinates]+C6C") -- Camera X
+    local targety = readFloat("[cameracoordinates]+C70") -- Camera Y
+    local targetz = readFloat("[cameracoordinates]+C74") -- Camera Z
+
+    --Prevent endless error loop if camera status is not initiated
+    if (targetz == nil) or (targetz == camz and targetx == camx and targety == camy) then
+      speed = 0
+      camx = 0
+      camy = 0
+      camz = 0
+      targetx = 0
+      targety = 0
+      targetz = 0
+    else
+
+      local new_mouse_x,new_mouse_y = getMousePos()
+      local mouse_loaded = readInteger("cameracoordinates+48")
+
+      --Initialize mouse coordinates on first run (if using mouse)
+      if not (mouse_loaded == 1) and (use_mouse == 1) then
+        new_mouse_x = getScreenWidth() / 2
+        new_mouse_y = getScreenHeight() / 2
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+        writeInteger("cameracoordinates+48",1)
+      end
+
+      --Measure mouse movement from previous cycle
+      local mouse_move_x = new_mouse_x - getScreenWidth() / 2
+      local mouse_move_y = new_mouse_y - getScreenHeight() / 2
+
+      --Use math.rad() to convert from degrees if game values aren't in radians
+      local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
+      local tilt = math.atan2(camz - targetz, ((targetx - camx)^2 + (targety - camy)^2)^0.5)
+      local pan = math.atan2(targetx - camx, targety - camy) - math.rad(180) -- Horizontal (pan)
+
+      --Sine and Cosine of Rotation Values
+      local siny = math.sin(pan) -- Sine of Horizontal (pan)
+      local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+      local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+      local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+
+      --Forward
+      if isKeyPressed(VK_NUMPAD8) then
+        camx = camx - (siny * speed * 0.3)
+        camy = camy - (cosy * speed * 0.3)
+        camz = camz - (sinp * speed * 0.3)
+      end
+      --Left
+      if isKeyPressed(VK_NUMPAD4) then
+        camx = camx + (math.sin(pan - math.rad(-90)) * speed * 0.3)
+        camy = camy + (math.cos(pan - math.rad(-90)) * speed * 0.3)
+      end
+      --Back
+      if isKeyPressed(VK_NUMPAD5) then
+        camx = camx + (siny * speed * 0.3)
+        camy = camy + (cosy * speed * 0.3)
+        camz = camz + (sinp * speed * 0.3)
+      end
+      --Right
+      if isKeyPressed(VK_NUMPAD6) then
+        camx = camx - (math.sin(pan - math.rad(-90)) * speed * 0.3)
+        camy = camy - (math.cos(pan - math.rad(-90)) * speed * 0.3)
+      end
+      --Forward/Right
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD6) then
+        camx = camx - (math.sin(pan - math.rad(-45)) * speed * 0.3)
+        camy = camy - (math.cos(pan - math.rad(-45)) * speed * 0.3)
+        camz = camz - (sinp * speed * 0.3)
+      end
+      --Forward/Left
+      if isKeyPressed(VK_NUMPAD8) and isKeyPressed(VK_NUMPAD4) then
+        camx = camx - (math.sin(pan + math.rad(-45)) * speed * 0.3)
+        camy = camy - (math.cos(pan + math.rad(-45)) * speed * 0.3)
+        camz = camz - (sinp * speed * 0.3)
+      end
+      --Back/Left
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD4) then
+        camx = camx + (math.sin(pan - math.rad(-45)) * speed * 0.3)
+        camy = camy + (math.cos(pan - math.rad(-45)) * speed * 0.3)
+        camz = camz + (sinp * speed * 0.3)
+      end
+      --Back/Right
+      if isKeyPressed(VK_NUMPAD5) and isKeyPressed(VK_NUMPAD6) then
+        camx = camx + (math.sin(pan + math.rad(-45)) * speed * 0.3)
+        camy = camy + (math.cos(pan + math.rad(-45)) * speed * 0.3)
+        camz = camz + (sinp * speed * 0.3)
+      end
+      --Up
+      if isKeyPressed(VK_SUBTRACT) then
+       camz = camz + (speed * 0.2)
+      end
+      --Down
+      if isKeyPressed(VK_ADD) then
+       camz = camz - (speed * 0.2)
+      end
+      --Pan right
+      if isKeyPressed(VK_RIGHT) then
+        pan = pan + speed * 0.01
+      end
+      --Pan left
+      if isKeyPressed(VK_LEFT) then
+        pan = pan - speed * 0.01
+      end
+      --Tilt up
+      if isKeyPressed(VK_UP) then
+        tilt = math.max(tilt - speed * 0.01, math.rad(-89.5))
+      end
+      --Tilt down
+      if isKeyPressed(VK_DOWN) then
+        tilt = math.min(tilt + speed * 0.01, math.rad(89.5))
+      end
+
+      if (use_mouse == 1) then
+        --Tilt by mouse
+        if not(mouse_move_y == 0) then
+          tilt = math.min(math.max(tilt + mouse_move_y * mouse_speed * 0.003, math.rad(-89.5)), math.rad(89.5))
+        end
+        --Tilt by mouse
+        if not(mouse_move_x == 0) then
+          pan = pan + mouse_move_x * mouse_speed * 0.003
+        end
+
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+      end
+
+      --Create a copy of the entire memory block before alterations.  I do not know if +C58, +C5C, +C60, +C64, +C7C are used, but this preserves them.
+      copyMemory("[cameracoordinates]+0",48,"cameracoordinates+10")
+
+      --Write new values into the temporary buffer
+      writeFloat("cameracoordinates+10", camx)
+      writeFloat("cameracoordinates+14", camy)
+      writeFloat("cameracoordinates+18", camz)
+      writeFloat("cameracoordinates+30", camx - (camdist * math.cos(tilt) * math.sin(pan)))
+      writeFloat("cameracoordinates+34", camy - (camdist * math.cos(tilt) * math.cos(pan)))
+      writeFloat("cameracoordinates+38", camz - (camdist * math.sin(tilt)))
+
+      --Copy buffer back into memory read by game engine
+      copyMemory("cameracoordinates+10",48,"[cameracoordinates]+C4C")
+    end
+
+    --Speed Modifiers
+    if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+      writeFloat("speedModifier", 12)
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+      writeFloat("speedModifier", 6)
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+      writeFloat("speedModifier", .5)
+    else --If nothing is pressed, speed is normal
+      writeFloat("speedModifier", 3)
+    end
+
+    --Mouse Support
+    if isKeyPressed(VK_PRIOR) then --If Page Up is pressed, enable mouse
+      writeFloat("useMouse", 1)
+    elseif isKeyPressed(VK_NEXT) then --If Page Down is pressed, disable mouse
+      writeFloat("useMouse", 0)
+    end
+  end
+end
+
+t=createTimer(nil)
+timer_setInterval(t, 10)
+timer_onTimer(t, checkKeys)
+timer_setEnabled(t, true)
+
+{$asm}
+
+[DISABLE]
+
+{$lua}
+
+timer_setEnabled(t, false)
+
+{$asm}
+
+cameracoordinates_aob:
+  db 0F 10 83 6C 0C 00 00
+
+detachcamera_xyz_aob:
+  db 0F 11 AB 4C 0C 00 00
+
+detach_camera_target_xyz_aob:
+  db 0F 11 B3 6C 0C 00 00
+
+unregistersymbol(cameracoordinates_aob)
+unregistersymbol(cameracoordinates)
+unregistersymbol(detachcamera_xyz_aob)
+unregistersymbol(detach_camera_target_xyz_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ys9.exe+244420 - Camera Coordinates
+
+ys9.exe+2443E9: F3 0F 59 C8              - mulss xmm1,xmm0
+ys9.exe+2443ED: F3 0F 58 CB              - addss xmm1,xmm3
+ys9.exe+2443F1: F3 0F 5C CC              - subss xmm1,xmm4
+ys9.exe+2443F5: F3 41 0F 59 C9           - mulss xmm1,xmm9
+ys9.exe+2443FA: F3 0F 58 CC              - addss xmm1,xmm4
+ys9.exe+2443FE: F3 0F 11 8B 14 0D 00 00  - movss [rbx+00000D14],xmm1
+ys9.exe+244406: E8 75 53 00 00           - call ys9.exe+249780
+ys9.exe+24440B: 0F 10 83 5C 0C 00 00     - movups xmm0,[rbx+00000C5C]
+ys9.exe+244412: 4C 8D B3 0C 0C 00 00     - lea r14,[rbx+00000C0C]
+ys9.exe+244419: 0F 11 83 AC 0C 00 00     - movups [rbx+00000CAC],xmm0
+// ---------- INJECTING HERE ----------
+ys9.exe+244420: 0F 10 83 6C 0C 00 00     - movups xmm0,[rbx+00000C6C]
+// ---------- DONE INJECTING  ----------
+ys9.exe+244427: 0F 11 83 BC 0C 00 00     - movups [rbx+00000CBC],xmm0
+ys9.exe+24442E: 0F 10 83 4C 0C 00 00     - movups xmm0,[rbx+00000C4C]
+ys9.exe+244435: 0F 11 83 9C 0C 00 00     - movups [rbx+00000C9C],xmm0
+ys9.exe+24443C: 0F 10 83 EC 0B 00 00     - movups xmm0,[rbx+00000BEC]
+ys9.exe+244443: 0F 11 83 1C 0C 00 00     - movups [rbx+00000C1C],xmm0
+ys9.exe+24444A: 0F 10 83 FC 0B 00 00     - movups xmm0,[rbx+00000BFC]
+ys9.exe+244451: 0F 11 83 2C 0C 00 00     - movups [rbx+00000C2C],xmm0
+ys9.exe+244458: 41 0F 10 06              - movups xmm0,[r14]
+ys9.exe+24445C: 0F 11 83 3C 0C 00 00     - movups [rbx+00000C3C],xmm0
+ys9.exe+244463: 48 8B 05 0E D8 53 00     - mov rax,[ys9.exe+781C78]
+
+// ORIGINAL CODE - INJECTION POINT: ys9.exe+24487B - Camera XYZ
+
+ys9.exe+244852: F3 0F 58 EE                 - addss xmm5,xmm6
+ys9.exe+244856: F3 41 0F 59 C2              - mulss xmm0,xmm10
+ys9.exe+24485B: 0F C6 ED E1                 - shufps xmm5,xmm5,-1F
+ys9.exe+24485F: F3 0F 58 C4                 - addss xmm0,xmm4
+ys9.exe+244863: F3 0F 10 EB                 - movss xmm5,xmm3
+ys9.exe+244867: 0F C6 ED C6                 - shufps xmm5,xmm5,-3A
+ys9.exe+24486B: F3 0F 10 EA                 - movss xmm5,xmm2
+ys9.exe+24486F: 0F C6 ED 27                 - shufps xmm5,xmm5,27
+ys9.exe+244873: F3 0F 10 E8                 - movss xmm5,xmm0
+ys9.exe+244877: 0F C6 ED 39                 - shufps xmm5,xmm5,39
+// ---------- INJECTING HERE ----------
+ys9.exe+24487B: 0F 11 AB 4C 0C 00 00        - movups [rbx+00000C4C],xmm5
+// ---------- DONE INJECTING  ----------
+ys9.exe+244882: 0F 11 6D 80                 - movups [rbp-80],xmm5
+ys9.exe+244886: 44 38 A7 C3 8C 41 00        - cmp [rdi+00418CC3],r12l
+ys9.exe+24488D: 0F 84 0F 01 00 00           - je ys9.exe+2449A2
+ys9.exe+244893: F3 0F 10 9B 6C 0C 00 00     - movss xmm3,[rbx+00000C6C]
+ys9.exe+24489B: F3 0F 10 93 70 0C 00 00     - movss xmm2,[rbx+00000C70]
+ys9.exe+2448A3: 0F 28 C3                    - movaps xmm0,xmm3
+ys9.exe+2448A6: F3 44 0F 10 93 A0 0C 00 00  - movss xmm10,[rbx+00000CA0]
+ys9.exe+2448AF: F3 0F 5C C6                 - subss xmm0,xmm6
+ys9.exe+2448B3: F3 0F 10 A3 4C 0C 00 00     - movss xmm4,[rbx+00000C4C]
+ys9.exe+2448BB: 0F 28 CA                    - movaps xmm1,xmm2
+
+// ORIGINAL CODE - INJECTION POINT: ys9.exe+2447E9 - Camera Target XYZ
+
+ys9.exe+2447C0: F3 0F 5C C5              - subss xmm0,xmm5
+ys9.exe+2447C4: 0F C6 F6 E1              - shufps xmm6,xmm6,-1F
+ys9.exe+2447C8: F3 0F 10 F4              - movss xmm6,xmm4
+ys9.exe+2447CC: F3 41 0F 59 C2           - mulss xmm0,xmm10
+ys9.exe+2447D1: 0F C6 F6 C6              - shufps xmm6,xmm6,-3A
+ys9.exe+2447D5: F3 0F 10 F3              - movss xmm6,xmm3
+ys9.exe+2447D9: F3 0F 58 C5              - addss xmm0,xmm5
+ys9.exe+2447DD: 0F C6 F6 27              - shufps xmm6,xmm6,27
+ys9.exe+2447E1: F3 0F 10 F0              - movss xmm6,xmm0
+ys9.exe+2447E5: 0F C6 F6 39              - shufps xmm6,xmm6,39
+// ---------- INJECTING HERE ----------
+ys9.exe+2447E9: 0F 11 B3 6C 0C 00 00     - movups [rbx+00000C6C],xmm6
+// ---------- DONE INJECTING  ----------
+ys9.exe+2447F0: F3 0F 10 83 A0 0C 00 00  - movss xmm0,[rbx+00000CA0]
+ys9.exe+2447F8: F3 41 0F 10 2E           - movss xmm5,[r14]
+ys9.exe+2447FD: F3 0F 10 8B A4 0C 00 00  - movss xmm1,[rbx+00000CA4]
+ys9.exe+244805: F3 0F 10 A3 A8 0C 00 00  - movss xmm4,[rbx+00000CA8]
+ys9.exe+24480D: F3 41 0F 10 5E 04        - movss xmm3,[r14+04]
+ys9.exe+244813: F3 41 0F 10 56 08        - movss xmm2,[r14+08]
+ys9.exe+244819: F3 0F 5C D8              - subss xmm3,xmm0
+ys9.exe+24481D: F3 0F 5C D1              - subss xmm2,xmm1
+ys9.exe+244821: 0F 11 75 80              - movups [rbp-80],xmm6
+ys9.exe+244825: F3 0F 10 B3 9C 0C 00 00  - movss xmm6,[rbx+00000C9C]
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>96</Key>
+          </Keys>
+          <ID>0</ID>
+          <ActivateSound>Activate</ActivateSound>
+          <DeactivateSound>Deactivate</DeactivateSound>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+  </CheatEntries>
+</CheatTable>
