@@ -350,5 +350,53 @@ ys9.exe+244825: F3 0F 10 B3 9C 0C 00 00  - movss xmm6,[rbx+00000C9C]
         </Hotkey>
       </Hotkeys>
     </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Hide HUD (except NOX)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(hide_interface_aob,ys9.exe,75 3D 8B 87 64 EA 3E 00) // should be unique
+registersymbol(hide_interface_aob)
+
+hide_interface_aob:
+  db EB 3D 8B 87 64 EA 3E 00
+
+[DISABLE]
+
+hide_interface_aob:
+  db 75 3D 8B 87 64 EA 3E 00
+
+unregistersymbol(hide_interface_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ys9.exe+2FC923
+
+ys9.exe+2FC8EA: EB 03                       - jmp ys9.exe+2FC8EF
+ys9.exe+2FC8EC: 0F 57 C0                    - xorps xmm0,xmm0
+ys9.exe+2FC8EF: F3 0F 11 81 A0 EA 3E 00     - movss [rcx+003EEAA0],xmm0
+ys9.exe+2FC8F7: 33 ED                       - xor ebp,ebp
+ys9.exe+2FC8F9: F3 0F 10 A1 2C EA 3E 00     - movss xmm4,[rcx+003EEA2C]
+ys9.exe+2FC901: 48 8B 89 20 FB 00 00        - mov rcx,[rcx+0000FB20]
+ys9.exe+2FC908: 0F 28 CC                    - movaps xmm1,xmm4
+ys9.exe+2FC90B: F3 0F 59 0D AD FF 3E 00     - mulss xmm1,[ys9.exe+6EC8C0]
+ys9.exe+2FC913: F3 44 0F 10 0D AC 05 3F 00  - movss xmm9,[ys9.exe+6ECEC8]
+ys9.exe+2FC91C: F6 81 88 E2 11 00 10        - test byte ptr [rcx+0011E288],10
+// ---------- INJECTING HERE ----------
+ys9.exe+2FC923: 75 3D                       - jne ys9.exe+2FC962
+// ---------- DONE INJECTING  ----------
+ys9.exe+2FC925: 8B 87 64 EA 3E 00           - mov eax,[rdi+003EEA64]
+ys9.exe+2FC92B: FF C8                       - dec eax
+ys9.exe+2FC92D: 83 F8 02                    - cmp eax,02
+ys9.exe+2FC930: 76 30                       - jna ys9.exe+2FC962
+ys9.exe+2FC932: F3 0F 10 87 A4 EA 3E 00     - movss xmm0,[rdi+003EEAA4]
+ys9.exe+2FC93A: 41 0F 2F C1                 - comiss xmm0,xmm9
+ys9.exe+2FC93E: 0F 83 8D 00 00 00           - jae ys9.exe+2FC9D1
+ys9.exe+2FC944: F3 0F 58 C1                 - addss xmm0,xmm1
+ys9.exe+2FC948: 41 0F 2F C1                 - comiss xmm0,xmm9
+ys9.exe+2FC94C: F3 0F 11 87 A4 EA 3E 00     - movss [rdi+003EEAA4],xmm0
+}
+</AssemblerScript>
+    </CheatEntry>
   </CheatEntries>
 </CheatTable>
