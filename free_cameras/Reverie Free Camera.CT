@@ -16,12 +16,11 @@ globalalloc(mouseSensitivity,8)
 mouseSensitivity:
 dd (float)8
 
-aobscanmodule(camera_aob1,hnk.exe,66 89 83 10 0B 00 00 0F B7 83) // should be unique
-aobscanmodule(camera_aob2,hnk.exe,0F 11 81 20 0B 00 00) // should be unique
-aobscanmodule(camera_aob3,hnk.exe,02 0F 10 42 10 0F 11 41 10 0F 10 42 20) // should be unique
-aobscanmodule(camera_tilt_aob1,hnk.exe,0F 11 93 10 0A 00 00 0F C6) // should be unique
-//aobscanmodule(camera_tilt_aob2,hnk.exe,0F 11 8F 10 0A 00 00 41) // should be unique
-aobscanmodule(player_aob,hnk.exe,E5 0F 5C A0 80 03 00 00) // should be unique
+aobscanmodule(camera_aob1,hnk.exe,0F 11 83 10 0B 00 00 0F 10 47) // should be unique
+aobscanmodule(camera_aob2,hnk.exe,44 0F 11 81 20 0B 00 00) // should be unique
+aobscanmodule(camera_aob3,hnk.exe,0F 11 89 20 0B 00 00) // should be unique
+aobscanmodule(camera_tilt_aob1,hnk.exe,0F 11 93 10 0A 00 00 E8) // should be unique
+aobscanmodule(player_aob,hnk.exe,0F 5C A8 80 03 00 00) // should be unique
 aobscanmodule(player_movement_aob,hnk.exe,75 10 48 8D 8F A0 CE 06 00) // should be unique
 alloc(newmem,$1000,camera_aob1)
 
@@ -45,12 +44,12 @@ newmem:
 
 cameracode:
   mov [cameracoordinates],rbx
-  mov [rbx+00000B10],ax
+  movups [rbx+00000B10],xmm0
   jmp camerareturn
 
 playercode:
   mov [playercoordinates],rdi
-  subps xmm4,[rax+00000380]
+  subps xmm5,[rax+00000380]
   jmp playerreturn
 
 playercoordinates:
@@ -64,19 +63,19 @@ camera_aob1:
   nop 2
 camerareturn:
 
-player_aob+01:
+player_aob:
   jmp playercode
   nop 2
 playerreturn:
 
-camera_aob1+1C:
-  db 90 90 90 90 90 90 90 0F 10 83 00 0A 00 00 90 90 90 90 90 90 90
+camera_aob1+B:
+  db 90 90 90 90 90 90 90 0F 10 4F 30 90 90 90 90 90 90 90
 
 camera_aob2:
-  db 90 90 90 90 90 90 90 0F 10 81 00 0A 00 00 90 90 90 90 90 90 90
+  db 90 90 90 90 90 90 90 90 45 0F 28 43 C8 90 90 90 90 90 90 90
 
-camera_aob3+05:
-  db 90 90 90 90 0F 10 42 20 90 90 90 90
+camera_aob3:
+  db 90 90 90 90 90 90 90 0F 10 89 10 0A 00 00 90 90 90 90 90 90 90
 
 camera_tilt_aob1:
   db 90 90 90 90 90 90 90
@@ -294,22 +293,22 @@ timer_setEnabled(t, false)
 {$asm}
 
 camera_aob1:
-  db 66 89 83 10 0B 00 00
+  db 0F 11 83 10 0B 00 00
 
-camera_aob1+1C:
-  db 0F 11 83 20 0B 00 00 0F 10 83 00 0A 00 00 0F 11 83 30 0B 00 00
+camera_aob1+B:
+  db 0F 11 8B 20 0B 00 00 0F 10 4F 30 0F 11 83 30 0B 00 00
 
 camera_aob2:
-  db 0F 11 81 20 0B 00 00 0F 10 81 00 0A 00 00 0F 11 81 30 0B 00 00
+  db 44 0F 11 81 20 0B 00 00 45 0F 28 43 C8 0F 11 81 30 0B 00 00
 
-camera_aob3+05:
-  db 0F 11 41 10 0F 10 42 20 0F 11 41 20
+camera_aob3:
+  db 0F 11 89 20 0B 00 00 0F 10 89 10 0A 00 00 0F 11 81 30 0B 00 00
 
 camera_tilt_aob1:
   db 0F 11 93 10 0A 00 00
 
-player_aob+01:
-  db 0F 5C A0 80 03 00 00
+player_aob:
+  db 0F 5C A8 80 03 00 00
 
 player_movement_aob:
   db 75 10
@@ -325,189 +324,163 @@ unregistersymbol(cameracoordinates)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1E8FA4 - Camera XYZ 1
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1E95D1 - Camera XYZ 1
 
-hnk.exe+1E8F75: 0F 28 C2                 - movaps xmm0,xmm2
-hnk.exe+1E8F78: 0F 59 C4                 - mulps xmm0,xmm4
-hnk.exe+1E8F7B: 0F 59 C2                 - mulps xmm0,xmm2
-hnk.exe+1E8F7E: 0F 59 15 3B 06 A3 00     - mulps xmm2,[hnk.exe+C195C0]
-hnk.exe+1E8F85: 0F 5C E8                 - subps xmm5,xmm0
-hnk.exe+1E8F88: 0F 59 EA                 - mulps xmm5,xmm2
-hnk.exe+1E8F8B: 0F 59 EE                 - mulps xmm5,xmm6
-hnk.exe+1E8F8E: 0F 28 B4 24 90 00 00 00  - movaps xmm6,[rsp+00000090]
-hnk.exe+1E8F96: 0F 11 AB 60 01 00 00     - movups [rbx+00000160],xmm5
-hnk.exe+1E8F9D: 0F B7 83 E0 09 00 00     - movzx eax,word ptr [rbx+000009E0]
+hnk.exe+1E95AA: 0F 59 0D CF 2E A8 00  - mulps xmm1,[hnk.exe+C6C480]
+hnk.exe+1E95B1: 0F 5C D0              - subps xmm2,xmm0
+hnk.exe+1E95B4: 0F 59 D1              - mulps xmm2,xmm1
+hnk.exe+1E95B7: 0F 10 4F 10           - movups xmm1,[rdi+10]
+hnk.exe+1E95BB: 0F 28 C2              - movaps xmm0,xmm2
+hnk.exe+1E95BE: 0F 59 C5              - mulps xmm0,xmm5
+hnk.exe+1E95C1: 0F 59 C2              - mulps xmm0,xmm2
+hnk.exe+1E95C4: 0F 59 15 B5 2E A8 00  - mulps xmm2,[hnk.exe+C6C480]
+hnk.exe+1E95CB: 0F 5C E0              - subps xmm4,xmm0
+hnk.exe+1E95CE: 0F 10 07              - movups xmm0,[rdi]
 // ---------- INJECTING HERE ----------
-hnk.exe+1E8FA4: 66 89 83 10 0B 00 00     - mov [rbx+00000B10],ax - Safe Injection Point for Camera Module (rbx)
+hnk.exe+1E95D1: 0F 11 83 10 0B 00 00  - movups [rbx+00000B10],xmm0 - Safe Injection Point for Camera Module (rbx)
 // ---------- DONE INJECTING  ----------
-hnk.exe+1E8FAB: 0F B7 83 E2 09 00 00     - movzx eax,word ptr [rbx+000009E2]
-hnk.exe+1E8FB2: 66 89 83 12 0B 00 00     - mov [rbx+00000B12],ax
-hnk.exe+1E8FB9: 0F 10 83 F0 09 00 00     - movups xmm0,[rbx+000009F0]
+hnk.exe+1E95D8: 0F 10 47 20           - movups xmm0,[rdi+20]
 // ---------- INJECTING HERE ----------
-hnk.exe+1E8FC0: 0F 11 83 20 0B 00 00     - movups [rbx+00000B20],xmm0 - Camera Target XYZ 1
-hnk.exe+1E8FC7: 0F 10 83 00 0A 00 00     - movups xmm0,[rbx+00000A00]
-hnk.exe+1E8FCE: 0F 11 83 30 0B 00 00     - movups [rbx+00000B30],xmm0 - Camera XYZ 1
+hnk.exe+1E95DC: 0F 11 8B 20 0B 00 00  - movups [rbx+00000B20],xmm1 - Camera Target XYZ 1
+hnk.exe+1E95E3: 0F 10 4F 30           - movups xmm1,[rdi+30]
+hnk.exe+1E95E7: 0F 11 83 30 0B 00 00  - movups [rbx+00000B30],xmm0 - Camera XYZ 1
 // ---------- DONE INJECTING  ----------
-hnk.exe+1E8FD5: 0F 10 83 10 0A 00 00     - movups xmm0,[rbx+00000A10]
-hnk.exe+1E8FDC: 0F 11 83 40 0B 00 00     - movups [rbx+00000B40],xmm0
-hnk.exe+1E8FE3: 0F 10 83 20 0A 00 00     - movups xmm0,[rbx+00000A20]
-hnk.exe+1E8FEA: 0F 11 83 50 0B 00 00     - movups [rbx+00000B50],xmm0
+hnk.exe+1E95EE: 0F 10 47 40           - movups xmm0,[rdi+40]
+hnk.exe+1E95F2: 0F 11 8B 40 0B 00 00  - movups [rbx+00000B40],xmm1
+hnk.exe+1E95F9: 0F 10 4F 50           - movups xmm1,[rdi+50]
+hnk.exe+1E95FD: 0F 11 83 50 0B 00 00  - movups [rbx+00000B50],xmm0
+hnk.exe+1E9604: 0F 10 47 60           - movups xmm0,[rdi+60]
+hnk.exe+1E9608: 0F 11 8B 60 0B 00 00  - movups [rbx+00000B60],xmm1
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EEF3A - Camera XYZ 2
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EF0CF - Camera XYZ 2
 
-hnk.exe+1EEEFA: 44 0F 10 81 40 0B 00 00  - movups xmm8,[rcx+00000B40]
-hnk.exe+1EEF02: 41 0F 28 F8              - movaps xmm7,xmm8
-hnk.exe+1EEF06: 41 0F C6 F8 AA           - shufps xmm7,xmm8,-56
-hnk.exe+1EEF0B: 0F 8A 0F 01 00 00        - jp hnk.exe+1EF020
-hnk.exe+1EEF11: 0F 85 09 01 00 00        - jne hnk.exe+1EF020
-hnk.exe+1EEF17: 0F B7 81 E0 09 00 00     - movzx eax,word ptr [rcx+000009E0]
-hnk.exe+1EEF1E: 66 89 81 10 0B 00 00     - mov [rcx+00000B10],ax
-hnk.exe+1EEF25: 0F B7 81 E2 09 00 00     - movzx eax,word ptr [rcx+000009E2]
-hnk.exe+1EEF2C: 66 89 81 12 0B 00 00     - mov [rcx+00000B12],ax
-hnk.exe+1EEF33: 0F 10 81 F0 09 00 00     - movups xmm0,[rcx+000009F0]
+hnk.exe+1EF0A1: 0F 10 89 10 0A 00 00     - movups xmm1,[rcx+00000A10]
+hnk.exe+1EF0A8: 0F 59 D0                 - mulps xmm2,xmm0
+hnk.exe+1EF0AB: 0F 28 C2                 - movaps xmm0,xmm2
+hnk.exe+1EF0AE: 0F 59 DA                 - mulps xmm3,xmm2
+hnk.exe+1EF0B1: 0F 59 C5                 - mulps xmm0,xmm5
+hnk.exe+1EF0B4: 0F 59 C2                 - mulps xmm0,xmm2
+hnk.exe+1EF0B7: 0F 5C E0                 - subps xmm4,xmm0
+hnk.exe+1EF0BA: 0F 10 81 E0 09 00 00     - movups xmm0,[rcx+000009E0]
+hnk.exe+1EF0C1: 0F 11 81 10 0B 00 00     - movups [rcx+00000B10],xmm0
+hnk.exe+1EF0C8: 0F 10 81 00 0A 00 00     - movups xmm0,[rcx+00000A00]
 // ---------- INJECTING HERE ----------
-hnk.exe+1EEF3A: 0F 11 81 20 0B 00 00     - movups [rcx+00000B20],xmm0 - Camera Target XYZ 2
-hnk.exe+1EEF41: 0F 10 81 00 0A 00 00     - movups xmm0,[rcx+00000A00]
-hnk.exe+1EEF48: 0F 11 81 30 0B 00 00     - movups [rcx+00000B30],xmm0 - Camera XYZ 2
+hnk.exe+1EF0CF: 44 0F 11 81 20 0B 00 00  - movups [rcx+00000B20],xmm8 - Camera Target XYZ 2
+hnk.exe+1EF0D7: 45 0F 28 43 C8           - movaps xmm8,[r11-38]
+hnk.exe+1EF0DC: 0F 11 81 30 0B 00 00     - movups [rcx+00000B30],xmm0 - Camera XYZ 2
 // ---------- DONE INJECTING  ----------
-hnk.exe+1EEF4F: 0F 10 81 10 0A 00 00     - movups xmm0,[rcx+00000A10]
-hnk.exe+1EEF56: 0F 11 81 40 0B 00 00     - movups [rcx+00000B40],xmm0
-hnk.exe+1EEF5D: 0F 10 81 20 0A 00 00     - movups xmm0,[rcx+00000A20]
-hnk.exe+1EEF64: 0F 11 81 50 0B 00 00     - movups [rcx+00000B50],xmm0
-hnk.exe+1EEF6B: 8B 81 30 0A 00 00        - mov eax,[rcx+00000A30]
-hnk.exe+1EEF71: 89 81 60 0B 00 00        - mov [rcx+00000B60],eax
-hnk.exe+1EEF77: 8B 81 34 0A 00 00        - mov eax,[rcx+00000A34]
-hnk.exe+1EEF7D: 89 81 64 0B 00 00        - mov [rcx+00000B64],eax
+hnk.exe+1EF0E3: 0F 10 81 20 0A 00 00     - movups xmm0,[rcx+00000A20]
+hnk.exe+1EF0EA: 0F 11 89 40 0B 00 00     - movups [rcx+00000B40],xmm1
+hnk.exe+1EF0F1: 0F 10 89 30 0A 00 00     - movups xmm1,[rcx+00000A30]
+hnk.exe+1EF0F8: 0F 11 81 50 0B 00 00     - movups [rcx+00000B50],xmm0
+hnk.exe+1EF0FF: 0F 10 81 40 0A 00 00     - movups xmm0,[rcx+00000A40]
+hnk.exe+1EF106: 0F 11 89 60 0B 00 00     - movups [rcx+00000B60],xmm1
+hnk.exe+1EF10D: 0F 10 89 50 0A 00 00     - movups xmm1,[rcx+00000A50]
+hnk.exe+1EF114: 0F 11 81 70 0B 00 00     - movups [rcx+00000B70],xmm0
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1398E2 - Camera XYZ 3
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EF472 - Camera XYZ 3
 
-hnk.exe+1398CB: CC           - int 3
-hnk.exe+1398CC: CC           - int 3
-hnk.exe+1398CD: CC           - int 3
-hnk.exe+1398CE: CC           - int 3
-hnk.exe+1398CF: CC           - int 3
-hnk.exe+1398D0: 0F B7 02     - movzx eax,word ptr [rdx]
-hnk.exe+1398D3: 66 89 01     - mov [rcx],ax
-hnk.exe+1398D6: 0F B7 42 02  - movzx eax,word ptr [rdx+02]
-hnk.exe+1398DA: 66 89 41 02  - mov [rcx+02],ax
-hnk.exe+1398DE: 0F 10 42 10  - movups xmm0,[rdx+10]
+hnk.exe+1EF431: 0F 2E C6                       - ucomiss xmm0,xmm6
+hnk.exe+1EF434: 44 0F 29 44 24 30              - movaps [rsp+30],xmm8
+hnk.exe+1EF43A: 44 0F 29 4C 24 20              - movaps [rsp+20],xmm9
+hnk.exe+1EF440: 66 44 0F 70 89 40 0B 00 00 AA  - pshufd xmm9,[rcx+00000B40]-56
+hnk.exe+1EF44A: 0F 8A 89 00 00 00              - jp hnk.exe+1EF4D9
+hnk.exe+1EF450: 0F 85 83 00 00 00              - jne hnk.exe+1EF4D9
+hnk.exe+1EF456: 0F 10 81 E0 09 00 00           - movups xmm0,[rcx+000009E0]
+hnk.exe+1EF45D: 0F 10 89 F0 09 00 00           - movups xmm1,[rcx+000009F0]
+hnk.exe+1EF464: 0F 11 81 10 0B 00 00           - movups [rcx+00000B10],xmm0
+hnk.exe+1EF46B: 0F 10 81 00 0A 00 00           - movups xmm0,[rcx+00000A00]
 // ---------- INJECTING HERE ----------
-hnk.exe+1398E2: 0F 11 41 10  - movups [rcx+10],xmm0 - Camera Target XYZ 3
-hnk.exe+1398E6: 0F 10 42 20  - movups xmm0,[rdx+20]
-hnk.exe+1398EA: 0F 11 41 20  - movups [rcx+20],xmm0 - Camera XYZ 3
+hnk.exe+1EF472: 0F 11 89 20 0B 00 00           - movups [rcx+00000B20],xmm1 - Camera Target XYZ 3
+hnk.exe+1EF479: 0F 10 89 10 0A 00 00           - movups xmm1,[rcx+00000A10]
+hnk.exe+1EF480: 0F 11 81 30 0B 00 00           - movups [rcx+00000B30],xmm0 - Camera XYZ 3
 // ---------- DONE INJECTING  ----------
-hnk.exe+1398EE: 0F 10 42 30  - movups xmm0,[rdx+30]
-hnk.exe+1398F2: 0F 11 41 30  - movups [rcx+30],xmm0
-hnk.exe+1398F6: 0F 10 42 40  - movups xmm0,[rdx+40]
-hnk.exe+1398FA: 0F 11 41 40  - movups [rcx+40],xmm0
-hnk.exe+1398FE: 8B 42 50     - mov eax,[rdx+50]
-hnk.exe+139901: 89 41 50     - mov [rcx+50],eax
-hnk.exe+139904: 8B 42 54     - mov eax,[rdx+54]
-hnk.exe+139907: 89 41 54     - mov [rcx+54],eax
+hnk.exe+1EF487: 0F 10 81 20 0A 00 00           - movups xmm0,[rcx+00000A20]
+hnk.exe+1EF48E: 0F 11 89 40 0B 00 00           - movups [rcx+00000B40],xmm1
+hnk.exe+1EF495: 0F 10 89 30 0A 00 00           - movups xmm1,[rcx+00000A30]
+hnk.exe+1EF49C: 0F 11 81 50 0B 00 00           - movups [rcx+00000B50],xmm0
+hnk.exe+1EF4A3: 0F 10 81 40 0A 00 00           - movups xmm0,[rcx+00000A40]
+hnk.exe+1EF4AA: 0F 11 89 60 0B 00 00           - movups [rcx+00000B60],xmm1
+hnk.exe+1EF4B1: 0F 10 89 50 0A 00 00           - movups xmm1,[rcx+00000A50]
+hnk.exe+1EF4B8: 0F 11 81 70 0B 00 00           - movups [rcx+00000B70],xmm0
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1ED038 - Camera Tilt / Pan / Roll 1
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1ED0C4 - Camera Tilt / Pan / Roll 1
 
-hnk.exe+1ED00E: 0F 28 D1                    - movaps xmm2,xmm1
-hnk.exe+1ED011: 48 8D 54 24 70              - lea rdx,[rsp+70]
-hnk.exe+1ED016: 0F 28 C7                    - movaps xmm0,xmm7
-hnk.exe+1ED019: 48 8D 8C 24 80 00 00 00     - lea rcx,[rsp+00000080]
-hnk.exe+1ED021: 0F C6 C0 00                 - shufps xmm0,xmm0,00
-hnk.exe+1ED025: 0F C6 D0 50                 - shufps xmm2,xmm0,50
-hnk.exe+1ED029: 0F 57 C0                    - xorps xmm0,xmm0
-hnk.exe+1ED02C: 0F C6 D1 EC                 - shufps xmm2,xmm1,-14
-hnk.exe+1ED030: F3 41 0F 10 D6              - movss xmm2,xmm14
-hnk.exe+1ED035: 0F 28 CA                    - movaps xmm1,xmm2
+hnk.exe+1ED09A: E8 51 D1 FF FF              - call hnk.exe+1EA1F0
+hnk.exe+1ED09F: 0F 10 8B 10 0A 00 00        - movups xmm1,[rbx+00000A10]
+hnk.exe+1ED0A6: E9 55 2F E0 FF              - jmp 13FFF0000
+hnk.exe+1ED0AB: 66 90                       - nop 2
+hnk.exe+1ED0AD: 0F 28 C6                    - movaps xmm0,xmm6
+hnk.exe+1ED0B0: 0F 28 D1                    - movaps xmm2,xmm1
+hnk.exe+1ED0B3: 0F C6 C0 00                 - shufps xmm0,xmm0,00
+hnk.exe+1ED0B7: 0F C6 D0 50                 - shufps xmm2,xmm0,50
+hnk.exe+1ED0BB: 0F C6 D1 EC                 - shufps xmm2,xmm1,-14
+hnk.exe+1ED0BF: F3 41 0F 10 D7              - movss xmm2,xmm15
 // ---------- INJECTING HERE ----------
-hnk.exe+1ED038: 0F 11 93 10 0A 00 00        - movups [rbx+00000A10],xmm2
+hnk.exe+1ED0C4: 0F 11 93 10 0A 00 00        - movups [rbx+00000A10],xmm2
 // ---------- DONE INJECTING  ----------
-hnk.exe+1ED03F: 0F C6 CA 55                 - shufps xmm1,xmm2,55
-hnk.exe+1ED043: 0F C6 D2 00                 - shufps xmm2,xmm2,00
-hnk.exe+1ED047: 0F 57 15 32 C5 A2 00        - xorps xmm2,[hnk.exe+C19580]
-hnk.exe+1ED04E: 0F 14 D1                    - unpcklps xmm2,xmm1
-hnk.exe+1ED051: 0F 16 D0                    - movlhps xmm2,xmm0
-hnk.exe+1ED054: 66 0F 6F 05 E4 C4 A2 00     - movdqa xmm0,[hnk.exe+C19540]
-hnk.exe+1ED05C: 66 0F DF C2                 - pandn xmm0,xmm2
-hnk.exe+1ED060: 66 0F 7F 84 24 80 00 00 00  - movdqa [rsp+00000080],xmm0
-hnk.exe+1ED069: E8 52 6B E9 FF              - call hnk.exe+83BC0
-hnk.exe+1ED06E: 0F 28 BC 24 90 00 00 00     - movaps xmm7,[rsp+00000090]
+hnk.exe+1ED0CB: E8 E0 AA FF FF              - call hnk.exe+1E7BB0
+hnk.exe+1ED0D0: 0F 28 B4 24 20 01 00 00     - movaps xmm6,[rsp+00000120]
+hnk.exe+1ED0D8: 41 0F B6 C5                 - movzx eax,r13l
+hnk.exe+1ED0DC: 0F 28 BC 24 10 01 00 00     - movaps xmm7,[rsp+00000110]
+hnk.exe+1ED0E4: 44 0F 28 BC 24 90 00 00 00  - movaps xmm15,[rsp+00000090]
+hnk.exe+1ED0ED: 48 81 C4 48 01 00 00        - add rsp,00000148
+hnk.exe+1ED0F4: 41 5D                       - pop r13
+hnk.exe+1ED0F6: 5E                          - pop rsi
+hnk.exe+1ED0F7: 5D                          - pop rbp
+hnk.exe+1ED0F8: 5B                          - pop rbx
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EE28E - Camera Tilt / Pan / Roll 1 (Unneeded)
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+2F5576 - Player Location
 
-hnk.exe+1EE264: 41 0F 28 C8                 - movaps xmm1,xmm8
-hnk.exe+1EE268: 0F 28 C7                    - movaps xmm0,xmm7
-hnk.exe+1EE26B: E8 A3 4A 82 00              - call hnk.exe+A12D13
-hnk.exe+1EE270: E8 9B 70 EA FF              - call hnk.exe+95310
-hnk.exe+1EE275: 0F C6 C0 00                 - shufps xmm0,xmm0,00
-hnk.exe+1EE279: 0F 28 CE                    - movaps xmm1,xmm6
-hnk.exe+1EE27C: 0F C6 C8 50                 - shufps xmm1,xmm0,50
-hnk.exe+1EE280: 0F 28 C7                    - movaps xmm0,xmm7
-hnk.exe+1EE283: 0F C6 CE EC                 - shufps xmm1,xmm6,-14
-hnk.exe+1EE287: 0F 29 8D F0 04 00 00        - movaps [rbp+000004F0],xmm1
+hnk.exe+2F553D: 4C 8B 99 40 10 00 00           - mov r11,[rcx+00001040]
+hnk.exe+2F5544: 8B F0                          - mov esi,eax
+hnk.exe+2F5546: 66 66 0F 1F 84 00 00 00 00 00  - nop word ptr [rax+rax+00000000]
+hnk.exe+2F5550: 49 8B 03                       - mov rax,[r11]
+hnk.exe+2F5553: F7 80 28 0A 00 00 21 00 20 00  - test [rax+00000A28],00200021
+hnk.exe+2F555D: 0F 85 34 01 00 00              - jne hnk.exe+2F5697
+hnk.exe+2F5563: 48 3B F8                       - cmp rdi,rax
+hnk.exe+2F5566: 0F 84 2B 01 00 00              - je hnk.exe+2F5697
+hnk.exe+2F556C: 0F 10 97 80 03 00 00           - movups xmm2,[rdi+00000380]
+hnk.exe+2F5573: 0F 28 EA                       - movaps xmm5,xmm2
 // ---------- INJECTING HERE ----------
-hnk.exe+1EE28E: 0F 11 8F 10 0A 00 00        - movups [rdi+00000A10],xmm1
+hnk.exe+2F5576: 0F 5C A8 80 03 00 00           - subps xmm5,[rax+00000380]
 // ---------- DONE INJECTING  ----------
-hnk.exe+1EE295: 41 0F 28 C8                 - movaps xmm1,xmm8
-hnk.exe+1EE299: E8 75 4A 82 00              - call hnk.exe+A12D13
-hnk.exe+1EE29E: E8 6D 70 EA FF              - call hnk.exe+95310
-hnk.exe+1EE2A3: 0F 28 E8                    - movaps xmm5,xmm0
-hnk.exe+1EE2A6: 48 85 DB                    - test rbx,rbx
-hnk.exe+1EE2A9: 0F 84 A2 03 00 00           - je hnk.exe+1EE651
-hnk.exe+1EE2AF: 0F 28 74 24 40              - movaps xmm6,[rsp+40]
-hnk.exe+1EE2B4: 0F 57 E4                    - xorps xmm4,xmm4
-hnk.exe+1EE2B7: 66 44 0F 6F 05 F0 B2 A2 00  - movdqa xmm8,[hnk.exe+C195B0]
-hnk.exe+1EE2C0: 0F 28 CE                    - movaps xmm1,xmm6
+hnk.exe+2F557D: 0F 28 CD                       - movaps xmm1,xmm5
+hnk.exe+2F5580: 0F 59 CD                       - mulps xmm1,xmm5
+hnk.exe+2F5583: 0F 28 F9                       - movaps xmm7,xmm1
+hnk.exe+2F5586: 0F 28 C1                       - movaps xmm0,xmm1
+hnk.exe+2F5589: 0F C6 C1 00                    - shufps xmm0,xmm1,00
+hnk.exe+2F558D: 0F C6 F9 55                    - shufps xmm7,xmm1,55
+hnk.exe+2F5591: 0F 58 F8                       - addps xmm7,xmm0
+hnk.exe+2F5594: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
+hnk.exe+2F5598: F3 0F 10 80 80 07 00 00        - movss xmm0,[rax+00000780]
+hnk.exe+2F55A0: F3 0F 59 C0                    - mulss xmm0,xmm0
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+2F50D6 - Player Location
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+301BDD - Player Movement
 
-hnk.exe+2F50A0: 66 44 0F 6F 1D 07 45 92 00     - movdqa xmm11,[hnk.exe+C195B0]
-hnk.exe+2F50A9: 8B F0                          - mov esi,eax
-hnk.exe+2F50AB: 0F 1F 44 00 00                 - nop dword ptr [rax+rax+00]
-hnk.exe+2F50B0: 49 8B 03                       - mov rax,[r11]
-hnk.exe+2F50B3: F7 80 28 0A 00 00 21 00 20 00  - test [rax+00000A28],00200021
-hnk.exe+2F50BD: 0F 85 87 01 00 00              - jne hnk.exe+2F524A
-hnk.exe+2F50C3: 48 3B F8                       - cmp rdi,rax
-hnk.exe+2F50C6: 0F 84 7E 01 00 00              - je hnk.exe+2F524A
-hnk.exe+2F50CC: 0F 10 AF 80 03 00 00           - movups xmm5,[rdi+00000380]
-hnk.exe+2F50D3: 0F 28 E5                       - movaps xmm4,xmm5
+hnk.exe+301BB1: 48 8B D8                 - mov rbx,rax
+hnk.exe+301BB4: 41 8D 50 28              - lea edx,[r8+28]
+hnk.exe+301BB8: E8 C3 DB 55 00           - call hnk.exe+85F780
+hnk.exe+301BBD: 84 C0                    - test al,al
+hnk.exe+301BBF: 0F 85 B1 00 00 00        - jne hnk.exe+301C76
+hnk.exe+301BC5: BA 2E 00 00 00           - mov edx,0000002E
+hnk.exe+301BCA: 48 8B CB                 - mov rcx,rbx
+hnk.exe+301BCD: 44 8D 42 D4              - lea r8d,[rdx-2C]
+hnk.exe+301BD1: E8 AA DB 55 00           - call hnk.exe+85F780
+hnk.exe+301BD6: 40 38 B7 30 CF 06 00     - cmp [rdi+0006CF30],sil
 // ---------- INJECTING HERE ----------
-hnk.exe+2F50D6: 0F 5C A0 80 03 00 00           - subps xmm4,[rax+00000380]
+hnk.exe+301BDD: 75 10                    - jne hnk.exe+301BEF
 // ---------- DONE INJECTING  ----------
-hnk.exe+2F50DD: 0F 28 CC                       - movaps xmm1,xmm4
-hnk.exe+2F50E0: 0F 59 CC                       - mulps xmm1,xmm4
-hnk.exe+2F50E3: 0F 28 D1                       - movaps xmm2,xmm1
-hnk.exe+2F50E6: 0F 28 C1                       - movaps xmm0,xmm1
-hnk.exe+2F50E9: 0F C6 C1 00                    - shufps xmm0,xmm1,00
-hnk.exe+2F50ED: 0F C6 D1 55                    - shufps xmm2,xmm1,55
-hnk.exe+2F50F1: 0F 58 D0                       - addps xmm2,xmm0
-hnk.exe+2F50F4: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
-hnk.exe+2F50F8: F3 0F 10 80 80 07 00 00        - movss xmm0,[rax+00000780]
-hnk.exe+2F5100: F3 0F 59 C0                    - mulss xmm0,xmm0
-
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+301B2D - Player Movement
-
-hnk.exe+301B01: 48 8B D8                 - mov rbx,rax
-hnk.exe+301B04: 41 8D 50 28              - lea edx,[r8+28]
-hnk.exe+301B08: E8 E3 4E 55 00           - call hnk.exe+8569F0
-hnk.exe+301B0D: 84 C0                    - test al,al
-hnk.exe+301B0F: 0F 85 B1 00 00 00        - jne hnk.exe+301BC6
-hnk.exe+301B15: BA 2E 00 00 00           - mov edx,0000002E
-hnk.exe+301B1A: 48 8B CB                 - mov rcx,rbx
-hnk.exe+301B1D: 44 8D 42 D4              - lea r8d,[rdx-2C]
-hnk.exe+301B21: E8 CA 4E 55 00           - call hnk.exe+8569F0
-hnk.exe+301B26: 40 38 B7 30 CF 06 00     - cmp [rdi+0006CF30],sil
-// ---------- INJECTING HERE ----------
-hnk.exe+301B2D: 75 10                    - jne hnk.exe+301B3F
-// ---------- DONE INJECTING  ----------
-hnk.exe+301B2F: 48 8D 8F A0 CE 06 00     - lea rcx,[rdi+0006CEA0]
-hnk.exe+301B36: 41 0F 28 C9              - movaps xmm1,xmm9
-hnk.exe+301B3A: E8 31 95 00 00           - call hnk.exe+30B070
-hnk.exe+301B3F: 0F 28 BC 24 80 00 00 00  - movaps xmm7,[rsp+00000080]
-hnk.exe+301B47: 0F 28 B4 24 90 00 00 00  - movaps xmm6,[rsp+00000090]
-hnk.exe+301B4F: 4C 8B BC 24 A0 00 00 00  - mov r15,[rsp+000000A0]
-hnk.exe+301B57: 4C 8B B4 24 A8 00 00 00  - mov r14,[rsp+000000A8]
-hnk.exe+301B5F: 48 8B B4 24 E0 00 00 00  - mov rsi,[rsp+000000E0]
-hnk.exe+301B67: 44 0F 28 44 24 70        - movaps xmm8,[rsp+70]
-hnk.exe+301B6D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
+hnk.exe+301BDF: 48 8D 8F A0 CE 06 00     - lea rcx,[rdi+0006CEA0]
+hnk.exe+301BE6: 41 0F 28 C9              - movaps xmm1,xmm9
+hnk.exe+301BEA: E8 C1 99 00 00           - call hnk.exe+30B5B0
+hnk.exe+301BEF: 0F 28 BC 24 80 00 00 00  - movaps xmm7,[rsp+00000080]
+hnk.exe+301BF7: 0F 28 B4 24 90 00 00 00  - movaps xmm6,[rsp+00000090]
+hnk.exe+301BFF: 4C 8B BC 24 A0 00 00 00  - mov r15,[rsp+000000A0]
+hnk.exe+301C07: 4C 8B B4 24 A8 00 00 00  - mov r14,[rsp+000000A8]
+hnk.exe+301C0F: 48 8B B4 24 E0 00 00 00  - mov rsi,[rsp+000000E0]
+hnk.exe+301C17: 44 0F 28 44 24 70        - movaps xmm8,[rsp+70]
+hnk.exe+301C1D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
 }
 </AssemblerScript>
       <Hotkeys>
@@ -529,7 +502,7 @@ hnk.exe+301B6D: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(forcepauseinject_aob,hnk.exe,E8 1B 7F D4 FF) // should be unique
+aobscanmodule(forcepauseinject_aob,hnk.exe,E8 9B 74 D4 FF) // should be unique
 aobscanmodule(forcepause_aob,hnk.exe,FF 50 18 F3 0F 10 83 7C 4E 00 00) // should be unique
 alloc(newmem,$1000,forcepauseinject_aob)
 
@@ -595,7 +568,7 @@ toggleoff:
   mov [freeze],#0
 
 code:
-  call hnk.exe+80EF0
+  call hnk.exe+80AB0
   jmp return
 
 pausecode:
@@ -626,7 +599,7 @@ pausereturn:
 [DISABLE]
 
 forcepauseinject_aob:
-  db E8 1B 7F D4 FF
+  db E8 9B 74 D4 FF
 
 forcepause_aob:
   db FF 50 18 F3 0F 10 83 7C 4E 00 00
@@ -637,57 +610,57 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+3390A0 - Safe injection point
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+339610 - Safe injection point
 
-hnk.exe+33907D: C3                       - ret
-hnk.exe+33907E: CC                       - int 3
-hnk.exe+33907F: CC                       - int 3
-hnk.exe+339080: 40 53                    - push rbx
-hnk.exe+339082: 48 83 EC 50              - sub rsp,50
-hnk.exe+339086: 48 8B D9                 - mov rbx,rcx
-hnk.exe+339089: 0F 29 74 24 30           - movaps [rsp+30],xmm6
-hnk.exe+33908E: 0F 28 F1                 - movaps xmm6,xmm1
-hnk.exe+339091: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
-hnk.exe+339099: 48 81 C1 20 4E 00 00     - add rcx,00004E20
+hnk.exe+3395ED: C3                       - ret
+hnk.exe+3395EE: CC                       - int 3
+hnk.exe+3395EF: CC                       - int 3
+hnk.exe+3395F0: 40 53                    - push rbx
+hnk.exe+3395F2: 48 83 EC 50              - sub rsp,50
+hnk.exe+3395F6: 48 8B D9                 - mov rbx,rcx
+hnk.exe+3395F9: 0F 29 74 24 30           - movaps [rsp+30],xmm6
+hnk.exe+3395FE: 0F 28 F1                 - movaps xmm6,xmm1
+hnk.exe+339601: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
+hnk.exe+339609: 48 81 C1 20 4E 00 00     - add rcx,00004E20
 // ---------- INJECTING HERE ----------
-hnk.exe+3390A0: E8 4B 7E D4 FF           - call hnk.exe+80EF0
+hnk.exe+339610: E8 9B 74 D4 FF           - call hnk.exe+80AB0
 // ---------- DONE INJECTING  ----------
-hnk.exe+3390A5: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
-hnk.exe+3390AD: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
-hnk.exe+3390B4: 7A 09                    - jp hnk.exe+3390BF
-hnk.exe+3390B6: 75 07                    - jne hnk.exe+3390BF
-hnk.exe+3390B8: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
-hnk.exe+3390BF: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
-hnk.exe+3390C6: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+3390C9: E8 22 7E D4 FF           - call hnk.exe+80EF0
-hnk.exe+3390CE: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
-hnk.exe+3390D6: 0F 2E 0D 67 48 93 00     - ucomiss xmm1,[hnk.exe+C6D944]
+hnk.exe+339615: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
+hnk.exe+33961D: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
+hnk.exe+339624: 7A 09                    - jp hnk.exe+33962F
+hnk.exe+339626: 75 07                    - jne hnk.exe+33962F
+hnk.exe+339628: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
+hnk.exe+33962F: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
+hnk.exe+339636: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+339639: E8 72 74 D4 FF           - call hnk.exe+80AB0
+hnk.exe+33963E: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
+hnk.exe+339646: 0F 2E 0D 7F DD 93 00     - ucomiss xmm1,[hnk.exe+C773CC]
 
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+33910C - Freeze Action
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+33967C - Freeze Action
 
-hnk.exe+3390DD: 7A 09                    - jp hnk.exe+3390E8
-hnk.exe+3390DF: 75 07                    - jne hnk.exe+3390E8
-hnk.exe+3390E1: C6 83 61 4E 00 00 00     - mov byte ptr [rbx+00004E61],00
-hnk.exe+3390E8: 48 8B 8B A8 1D 00 00     - mov rcx,[rbx+00001DA8]
-hnk.exe+3390EF: 0F 28 C6                 - movaps xmm0,xmm6
-hnk.exe+3390F2: F3 0F 59 83 30 4E 00 00  - mulss xmm0,[rbx+00004E30]
-hnk.exe+3390FA: F3 0F 59 C1              - mulss xmm0,xmm1
-hnk.exe+3390FE: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+339101: F3 0F 11 83 58 59 00 00  - movss [rbx+00005958],xmm0
-hnk.exe+339109: 48 8B 01                 - mov rax,[rcx]
+hnk.exe+33964D: 7A 09                    - jp hnk.exe+339658
+hnk.exe+33964F: 75 07                    - jne hnk.exe+339658
+hnk.exe+339651: C6 83 61 4E 00 00 00     - mov byte ptr [rbx+00004E61],00
+hnk.exe+339658: 48 8B 8B A8 1D 00 00     - mov rcx,[rbx+00001DA8]
+hnk.exe+33965F: 0F 28 C6                 - movaps xmm0,xmm6
+hnk.exe+339662: F3 0F 59 83 30 4E 00 00  - mulss xmm0,[rbx+00004E30]
+hnk.exe+33966A: F3 0F 59 C1              - mulss xmm0,xmm1
+hnk.exe+33966E: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+339671: F3 0F 11 83 58 59 00 00  - movss [rbx+00005958],xmm0
+hnk.exe+339679: 48 8B 01                 - mov rax,[rcx]
 // ---------- INJECTING HERE ----------
-hnk.exe+33910C: FF 50 18                 - call qword ptr [rax+18]
+hnk.exe+33967C: FF 50 18                 - call qword ptr [rax+18]
 // ---------- DONE INJECTING  ----------
-hnk.exe+33910F: F3 0F 10 83 7C 4E 00 00  - movss xmm0,[rbx+00004E7C]
-hnk.exe+339117: 0F 2F C6                 - comiss xmm0,xmm6
-hnk.exe+33911A: 76 06                    - jna hnk.exe+339122
-hnk.exe+33911C: F3 0F 5C C6              - subss xmm0,xmm6
-hnk.exe+339120: EB 03                    - jmp hnk.exe+339125
-hnk.exe+339122: 0F 57 C0                 - xorps xmm0,xmm0
-hnk.exe+339125: F3 0F 11 83 7C 4E 00 00  - movss [rbx+00004E7C],xmm0
-hnk.exe+33912D: 48 8B CB                 - mov rcx,rbx
-hnk.exe+339130: 48 8B 03                 - mov rax,[rbx]
-hnk.exe+339133: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
+hnk.exe+33967F: F3 0F 10 83 7C 4E 00 00  - movss xmm0,[rbx+00004E7C]
+hnk.exe+339687: 0F 2F C6                 - comiss xmm0,xmm6
+hnk.exe+33968A: 76 06                    - jna hnk.exe+339692
+hnk.exe+33968C: F3 0F 5C C6              - subss xmm0,xmm6
+hnk.exe+339690: EB 03                    - jmp hnk.exe+339695
+hnk.exe+339692: 0F 57 C0                 - xorps xmm0,xmm0
+hnk.exe+339695: F3 0F 11 83 7C 4E 00 00  - movss [rbx+00004E7C],xmm0
+hnk.exe+33969D: 48 8B CB                 - mov rcx,rbx
+hnk.exe+3396A0: 48 8B 03                 - mov rax,[rbx]
+hnk.exe+3396A3: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
 }
 </AssemblerScript>
       <CheatEntries>
@@ -824,7 +797,7 @@ hnk.exe+1CBB22: 74 0C                    - je hnk.exe+1CBB30
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(minZ_aob,hnk.exe,66 0F 7F 4C 24 40 F3 0F 10 87) // should be unique
+aobscanmodule(minZ_aob,hnk.exe,66 0F 7F 4C 24 60 F3 0F 10) // should be unique
 registersymbol(minZ_aob)
 
 minZ_aob:
@@ -833,37 +806,37 @@ minZ_aob:
 [DISABLE]
 
 minZ_aob:
-  db 66 0F 7F 4C 24 40
+  db 66 0F 7F 4C 24 60
 
 unregistersymbol(minZ_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EE64B
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EEB26
 
-hnk.exe+1EE629: 0F C6 C6 55              - shufps xmm0,xmm6,55
-hnk.exe+1EE62D: 0F 5C C1                 - subps xmm0,xmm1
-hnk.exe+1EE630: 0F 2F D0                 - comiss xmm2,xmm0
-hnk.exe+1EE633: 76 1C                    - jna hnk.exe+1EE651
-hnk.exe+1EE635: F3 0F 58 CA              - addss xmm1,xmm2
-hnk.exe+1EE639: 0F 28 C1                 - movaps xmm0,xmm1
-hnk.exe+1EE63C: 0F C6 C0 00              - shufps xmm0,xmm0,00
-hnk.exe+1EE640: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+1EE643: 0F C6 C8 50              - shufps xmm1,xmm0,50
-hnk.exe+1EE647: 0F C6 CE EC              - shufps xmm1,xmm6,-14
+hnk.exe+1EEB00: 0F 5C C1                 - subps xmm0,xmm1
+hnk.exe+1EEB03: 66 0F 7F 8D F0 09 00 00  - movdqa [rbp+000009F0],xmm1
+hnk.exe+1EEB0B: 0F 2F D0                 - comiss xmm2,xmm0
+hnk.exe+1EEB0E: 76 1C                    - jna hnk.exe+1EEB2C
+hnk.exe+1EEB10: F3 0F 58 CA              - addss xmm1,xmm2
+hnk.exe+1EEB14: 0F 28 C1                 - movaps xmm0,xmm1
+hnk.exe+1EEB17: 0F C6 C0 00              - shufps xmm0,xmm0,00
+hnk.exe+1EEB1B: 0F 28 CE                 - movaps xmm1,xmm6
+hnk.exe+1EEB1E: 0F C6 C8 50              - shufps xmm1,xmm0,50
+hnk.exe+1EEB22: 0F C6 CE EC              - shufps xmm1,xmm6,-14
 // ---------- INJECTING HERE ----------
-hnk.exe+1EE64B: 66 0F 7F 4C 24 40        - movdqa [rsp+40],xmm1
+hnk.exe+1EEB26: 66 0F 7F 4C 24 60        - movdqa [rsp+60],xmm1
 // ---------- DONE INJECTING  ----------
-hnk.exe+1EE651: F3 0F 10 87 C8 0A 00 00  - movss xmm0,[rdi+00000AC8]
-hnk.exe+1EE659: F3 0F 11 45 80           - movss [rbp-80],xmm0
-hnk.exe+1EE65E: 41 0F 28 C1              - movaps xmm0,xmm9
-hnk.exe+1EE662: 48 8D 55 D0              - lea rdx,[rbp-30]
-hnk.exe+1EE666: 0F 5C 87 90 01 00 00     - subps xmm0,[rdi+00000190]
-hnk.exe+1EE66D: 48 8D 8D 30 06 00 00     - lea rcx,[rbp+00000630]
-hnk.exe+1EE674: 0F 29 45 D0              - movaps [rbp-30],xmm0
-hnk.exe+1EE678: E8 C3 4D F1 FF           - call hnk.exe+103440
-hnk.exe+1EE67D: 48 8D 55 D0              - lea rdx,[rbp-30]
-hnk.exe+1EE681: 4C 8B C0                 - mov r8,rax
+hnk.exe+1EEB2C: F3 0F 10 87 C8 0A 00 00  - movss xmm0,[rdi+00000AC8]
+hnk.exe+1EEB34: F3 0F 11 85 D8 0B 00 00  - movss [rbp+00000BD8],xmm0
+hnk.exe+1EEB3C: 44 0F 5C 87 90 01 00 00  - subps xmm8,[rdi+00000190]
+hnk.exe+1EEB44: 48 8D 95 80 00 00 00     - lea rdx,[rbp+00000080]
+hnk.exe+1EEB4B: 48 8D 8D 10 0A 00 00     - lea rcx,[rbp+00000A10]
+hnk.exe+1EEB52: 44 0F 29 85 80 00 00 00  - movaps [rbp+00000080],xmm8
+hnk.exe+1EEB5A: E8 91 46 F1 FF           - call hnk.exe+1031F0
+hnk.exe+1EEB5F: 48 8D 95 80 00 00 00     - lea rdx,[rbp+00000080]
+hnk.exe+1EEB66: 4C 8B C0                 - mov r8,rax
+hnk.exe+1EEB69: 48 8D 8D 20 0A 00 00     - lea rcx,[rbp+00000A20]
 }
 </AssemblerScript>
       <CheatEntries>
@@ -873,7 +846,7 @@ hnk.exe+1EE681: 4C 8B C0                 - mov r8,rax
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
-aobscanmodule(field_camera_collider_aob,hnk.exe,0F 11 87 00 0A 00 00 E8) // should be unique
+aobscanmodule(field_camera_collider_aob,hnk.exe,0F 11 87 00 0A 00 00 0F 28) // should be unique
 registersymbol(field_camera_collider_aob)
 
 field_camera_collider_aob:
@@ -888,31 +861,31 @@ unregistersymbol(field_camera_collider_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EE6DD
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1EEBC5
 
-hnk.exe+1EE6AC: 0F C6 C0 00              - shufps xmm0,xmm0,00
-hnk.exe+1EE6B0: 41 0F 59 00              - mulps xmm0,[r8]
-hnk.exe+1EE6B4: 45 33 C0                 - xor r8d,r8d
-hnk.exe+1EE6B7: 0F 59 C8                 - mulps xmm1,xmm0
-hnk.exe+1EE6BA: 0F 28 05 DF 8B AE 00     - movaps xmm0,[hnk.exe+CD72A0]
-hnk.exe+1EE6C1: 0F 59 C1                 - mulps xmm0,xmm1
-hnk.exe+1EE6C4: F3 0F 10 4D 80           - movss xmm1,[rbp-80]
-hnk.exe+1EE6C9: 0F 11 87 B0 01 00 00     - movups [rdi+000001B0],xmm0
-hnk.exe+1EE6D0: F3 0F 11 8F 38 0A 00 00  - movss [rdi+00000A38],xmm1
-hnk.exe+1EE6D8: 0F 28 44 24 40           - movaps xmm0,[rsp+40]
+hnk.exe+1EEB89: F3 0F 10 85 C8 0B 00 00     - movss xmm0,[rbp+00000BC8]
+hnk.exe+1EEB91: 0F C6 C0 00                 - shufps xmm0,xmm0,00
+hnk.exe+1EEB95: 66 0F 70 C8 00              - pshufd xmm1,xmm000
+hnk.exe+1EEB9A: 66 0F 70 05 DD 2C AF 00 00  - pshufd xmm0,[hnk.exe+CE1880]00
+hnk.exe+1EEBA3: 0F 59 D9                    - mulps xmm3,xmm1
+hnk.exe+1EEBA6: 0F 59 D8                    - mulps xmm3,xmm0
+hnk.exe+1EEBA9: F3 0F 10 85 D8 0B 00 00     - movss xmm0,[rbp+00000BD8]
+hnk.exe+1EEBB1: 0F 11 9F B0 01 00 00        - movups [rdi+000001B0],xmm3
+hnk.exe+1EEBB8: F3 0F 11 87 38 0A 00 00     - movss [rdi+00000A38],xmm0
+hnk.exe+1EEBC0: 0F 28 44 24 60              - movaps xmm0,[rsp+60]
 // ---------- INJECTING HERE ----------
-hnk.exe+1EE6DD: 0F 11 87 00 0A 00 00     - movups [rdi+00000A00],xmm0
+hnk.exe+1EEBC5: 0F 11 87 00 0A 00 00        - movups [rdi+00000A00],xmm0
 // ---------- DONE INJECTING  ----------
-hnk.exe+1EE6E4: E8 57 A5 FF FF           - call hnk.exe+1E8C40
-hnk.exe+1EE6E9: 4C 8D 9C 24 E8 08 00 00  - lea r11,[rsp+000008E8]
-hnk.exe+1EE6F1: 41 0F 28 73 E8           - movaps xmm6,[r11-18]
-hnk.exe+1EE6F6: 41 0F 28 7B D8           - movaps xmm7,[r11-28]
-hnk.exe+1EE6FB: 45 0F 28 43 C8           - movaps xmm8,[r11-38]
-hnk.exe+1EE700: 45 0F 28 4B B8           - movaps xmm9,[r11-48]
-hnk.exe+1EE705: 45 0F 28 53 A8           - movaps xmm10,[r11-58]
-hnk.exe+1EE70A: 45 0F 28 5B 98           - movaps xmm11,[r11-68]
-hnk.exe+1EE70F: 45 0F 28 63 88           - movaps xmm12,[r11-78]
-hnk.exe+1EE714: 45 0F 28 AB 78 FF FF FF  - movaps xmm13,[r11-00000088]
+hnk.exe+1EEBCC: 0F 28 4C 24 40              - movaps xmm1,[rsp+40]
+hnk.exe+1EEBD1: 41 0F 11 0C 24              - movups [r12],xmm1
+hnk.exe+1EEBD6: 41 0F 28 73 E8              - movaps xmm6,[r11-18]
+hnk.exe+1EEBDB: 41 0F 28 7B D8              - movaps xmm7,[r11-28]
+hnk.exe+1EEBE0: 45 0F 28 43 C8              - movaps xmm8,[r11-38]
+hnk.exe+1EEBE5: 45 0F 28 4B B8              - movaps xmm9,[r11-48]
+hnk.exe+1EEBEA: 45 0F 28 53 A8              - movaps xmm10,[r11-58]
+hnk.exe+1EEBEF: 45 0F 28 5B 98              - movaps xmm11,[r11-68]
+hnk.exe+1EEBF4: 45 0F 28 63 88              - movaps xmm12,[r11-78]
+hnk.exe+1EEBF9: 45 0F 28 AB 78 FF FF FF     - movaps xmm13,[r11-00000088]
 }
 </AssemblerScript>
         </CheatEntry>
@@ -1025,7 +998,8 @@ hnk.exe+326B13: 45 33 E4                       - xor r12d,r12d
 hnk.exe+326B16: BE 07 00 00 00                 - mov esi,00000007
 hnk.exe+326B1B: 0F 1F 44 00 00                 - nop dword ptr [rax+rax+00]
 hnk.exe+326B20: 48 8B 0B                       - mov rcx,[rbx]
-}</AssemblerScript>
+}
+</AssemblerScript>
     </CheatEntry>
     <CheatEntry>
       <ID>7</ID>
@@ -1103,8 +1077,7 @@ hnk.exe+6E686B: 0F 1F 44 00 00        - nop dword ptr [rax+rax+00]
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
-aobscanmodule(camera_aob,hnk.exe,4C 8D 84 24 90 00 00 00 0F 28 D1) // should be unique
-//aobscanmodule(camera_aob,hnk.exe,0F 11 93 10 0A 00 00 0F C6) // should be unique
+aobscanmodule(camera_aob,hnk.exe,48 8D 8B E0 09 00 00 0F 28) // should be unique
 alloc(newmem,$1000,camera_aob)
 alloc(camerastatus,8)
 
@@ -1118,63 +1091,51 @@ newmem:
   mov [camerastatus],rbx
 
 code:
-  lea r8,[rsp+00000090]
+  lea rcx,[rbx+000009E0]
   jmp return
 
 camera_aob:
   jmp newmem
-  nop 3
+  nop 2
 return:
 
 [DISABLE]
 
 camera_aob:
-  db 4C 8D 84 24 90 00 00 00
+  db 48 8D 8B E0 09 00 00
 
 unregistersymbol(camera_aob)
 unregistersymbol(camerastatus)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1ED006
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1ED0A6
 
-hnk.exe+1ECFDB: 0F 14 DE                 - unpcklps xmm3,xmm6
-hnk.exe+1ECFDE: 45 33 C9                 - xor r9d,r9d
-hnk.exe+1ECFE1: 0F 14 E7                 - unpcklps xmm4,xmm7
-hnk.exe+1ECFE4: 0F 28 D6                 - movaps xmm2,xmm6
-hnk.exe+1ECFE7: 0F 16 E3                 - movlhps xmm4,xmm3
-hnk.exe+1ECFEA: 48 8B CB                 - mov rcx,rbx
-hnk.exe+1ECFED: 0F 29 A4 24 80 00 00 00  - movaps [rsp+00000080],xmm4
-hnk.exe+1ECFF5: 66 89 74 24 20           - mov [rsp+20],si
-hnk.exe+1ECFFA: E8 31 D0 FF FF           - call hnk.exe+1EA030
-hnk.exe+1ECFFF: 0F 10 8B 10 0A 00 00     - movups xmm1,[rbx+00000A10]
+hnk.exe+1ED07B: 0F 14 DF                 - unpcklps xmm3,xmm7
+hnk.exe+1ED07E: 0F 14 E6                 - unpcklps xmm4,xmm6
+hnk.exe+1ED081: 45 33 C9                 - xor r9d,r9d
+hnk.exe+1ED084: 0F 16 E3                 - movlhps xmm4,xmm3
+hnk.exe+1ED087: 0F 28 D7                 - movaps xmm2,xmm7
+hnk.exe+1ED08A: 48 8B CB                 - mov rcx,rbx
+hnk.exe+1ED08D: 0F 29 A4 24 80 00 00 00  - movaps [rsp+00000080],xmm4
+hnk.exe+1ED095: 66 89 74 24 20           - mov [rsp+20],si
+hnk.exe+1ED09A: E8 51 D1 FF FF           - call hnk.exe+1EA1F0
+hnk.exe+1ED09F: 0F 10 8B 10 0A 00 00     - movups xmm1,[rbx+00000A10]
 // ---------- INJECTING HERE ----------
-hnk.exe+1ED006: 4C 8D 84 24 90 00 00 00  - lea r8,[rsp+00000090]
+hnk.exe+1ED0A6: 48 8D 8B E0 09 00 00     - lea rcx,[rbx+000009E0]
 // ---------- DONE INJECTING  ----------
-hnk.exe+1ED00E: 0F 28 D1                 - movaps xmm2,xmm1
-hnk.exe+1ED00E: 0F 28 D1                    - movaps xmm2,xmm1
-hnk.exe+1ED011: 48 8D 54 24 70              - lea rdx,[rsp+70]
-hnk.exe+1ED016: 0F 28 C7                    - movaps xmm0,xmm7
-hnk.exe+1ED019: 48 8D 8C 24 80 00 00 00     - lea rcx,[rsp+00000080]
-hnk.exe+1ED021: 0F C6 C0 00                 - shufps xmm0,xmm0,00
-hnk.exe+1ED025: 0F C6 D0 50                 - shufps xmm2,xmm0,50
-hnk.exe+1ED029: 0F 57 C0                    - xorps xmm0,xmm0
-hnk.exe+1ED02C: 0F C6 D1 EC                 - shufps xmm2,xmm1,-14
-hnk.exe+1ED030: F3 41 0F 10 D6              - movss xmm2,xmm14
-hnk.exe+1ED035: 0F 28 CA                    - movaps xmm1,xmm2
+hnk.exe+1ED0AD: 0F 28 C6                 - movaps xmm0,xmm6
+hnk.exe+1ED0B0: 0F 28 D1                 - movaps xmm2,xmm1
+hnk.exe+1ED0B3: 0F C6 C0 00              - shufps xmm0,xmm0,00
+hnk.exe+1ED0B7: 0F C6 D0 50              - shufps xmm2,xmm0,50
+hnk.exe+1ED0BB: 0F C6 D1 EC              - shufps xmm2,xmm1,-14
+hnk.exe+1ED0BF: F3 41 0F 10 D7           - movss xmm2,xmm15
 // ---------- RBX points to the camera module
-hnk.exe+1ED038: 0F 11 93 10 0A 00 00        - movups [rbx+00000A10],xmm2
+hnk.exe+1ED0C4: 0F 11 93 10 0A 00 00     - movups [rbx+00000A10],xmm2
 // ----------
-hnk.exe+1ED03F: 0F C6 CA 55                 - shufps xmm1,xmm2,55
-hnk.exe+1ED043: 0F C6 D2 00                 - shufps xmm2,xmm2,00
-hnk.exe+1ED047: 0F 57 15 32 C5 A2 00        - xorps xmm2,[hnk.exe+C19580]
-hnk.exe+1ED04E: 0F 14 D1                    - unpcklps xmm2,xmm1
-hnk.exe+1ED051: 0F 16 D0                    - movlhps xmm2,xmm0
-hnk.exe+1ED054: 66 0F 6F 05 E4 C4 A2 00     - movdqa xmm0,[hnk.exe+C19540]
-hnk.exe+1ED05C: 66 0F DF C2                 - pandn xmm0,xmm2
-hnk.exe+1ED060: 66 0F 7F 84 24 80 00 00 00  - movdqa [rsp+00000080],xmm0
-hnk.exe+1ED069: E8 52 6B E9 FF              - call hnk.exe+83BC0
-hnk.exe+1ED06E: 0F 28 BC 24 90 00 00 00     - movaps xmm7,[rsp+00000090]
+hnk.exe+1ED0CB: E8 E0 AA FF FF           - call hnk.exe+1E7BB0
+hnk.exe+1ED0D0: 0F 28 B4 24 20 01 00 00  - movaps xmm6,[rsp+00000120]
+hnk.exe+1ED0D8: 41 0F B6 C5              - movzx eax,r13l
 }
 </AssemblerScript>
           <CheatEntries>
@@ -1277,7 +1238,7 @@ hnk.exe+1ED06E: 0F 28 BC 24 90 00 00 00     - movaps xmm7,[rsp+00000090]
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
-aobscanmodule(player_location_aob,hnk.exe,0F 10 AF 80 03 00 00 0F 28 E5) // should be unique
+aobscanmodule(player_location_aob,hnk.exe,0F 10 97 80 03 00 00 0F) // should be unique
 alloc(newmem,$1000,player_location_aob)
 
 label(code)
@@ -1290,7 +1251,7 @@ registersymbol(player_location)
 newmem:
   mov [player_location],rdi
 code:
-  movups xmm5,[rdi+00000380]
+  movups xmm2,[rdi+00000380]
   jmp return
 
 player_location:
@@ -1304,38 +1265,38 @@ return:
 [DISABLE]
 
 player_location_aob:
-  db 0F 10 AF 80 03 00 00
+  db 0F 10 97 80 03 00 00
 
 unregistersymbol(player_location_aob)
 unregistersymbol(player_location)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+2F50CC
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+2F556C
 
-hnk.exe+2F5094: 45 0F 29 5B 98                 - movaps [r11-68],xmm11
-hnk.exe+2F5099: 4C 8B 99 40 10 00 00           - mov r11,[rcx+00001040]
-hnk.exe+2F50A0: 66 44 0F 6F 1D 07 45 92 00     - movdqa xmm11,[hnk.exe+C195B0]
-hnk.exe+2F50A9: 8B F0                          - mov esi,eax
-hnk.exe+2F50AB: 0F 1F 44 00 00                 - nop dword ptr [rax+rax+00]
-hnk.exe+2F50B0: 49 8B 03                       - mov rax,[r11]
-hnk.exe+2F50B3: F7 80 28 0A 00 00 21 00 20 00  - test [rax+00000A28],00200021
-hnk.exe+2F50BD: 0F 85 87 01 00 00              - jne hnk.exe+2F524A
-hnk.exe+2F50C3: 48 3B F8                       - cmp rdi,rax
-hnk.exe+2F50C6: 0F 84 7E 01 00 00              - je hnk.exe+2F524A
+hnk.exe+2F5532: 48 8D 2D 67 4D B9 00           - lea rbp,[hnk.exe+E8A2A0]
+hnk.exe+2F5539: 49 89 73 18                    - mov [r11+18],rsi
+hnk.exe+2F553D: 4C 8B 99 40 10 00 00           - mov r11,[rcx+00001040]
+hnk.exe+2F5544: 8B F0                          - mov esi,eax
+hnk.exe+2F5546: 66 66 0F 1F 84 00 00 00 00 00  - nop word ptr [rax+rax+00000000]
+hnk.exe+2F5550: 49 8B 03                       - mov rax,[r11]
+hnk.exe+2F5553: F7 80 28 0A 00 00 21 00 20 00  - test [rax+00000A28],00200021
+hnk.exe+2F555D: 0F 85 34 01 00 00              - jne hnk.exe+2F5697
+hnk.exe+2F5563: 48 3B F8                       - cmp rdi,rax
+hnk.exe+2F5566: 0F 84 2B 01 00 00              - je hnk.exe+2F5697
 // ---------- INJECTING HERE ----------
-hnk.exe+2F50CC: 0F 10 AF 80 03 00 00           - movups xmm5,[rdi+00000380]
+hnk.exe+2F556C: 0F 10 97 80 03 00 00           - movups xmm2,[rdi+00000380]
 // ---------- DONE INJECTING  ----------
-hnk.exe+2F50D3: 0F 28 E5                       - movaps xmm4,xmm5
-hnk.exe+2F50D6: 0F 5C A0 80 03 00 00           - subps xmm4,[rax+00000380]
-hnk.exe+2F50DD: 0F 28 CC                       - movaps xmm1,xmm4
-hnk.exe+2F50E0: 0F 59 CC                       - mulps xmm1,xmm4
-hnk.exe+2F50E3: 0F 28 D1                       - movaps xmm2,xmm1
-hnk.exe+2F50E6: 0F 28 C1                       - movaps xmm0,xmm1
-hnk.exe+2F50E9: 0F C6 C1 00                    - shufps xmm0,xmm1,00
-hnk.exe+2F50ED: 0F C6 D1 55                    - shufps xmm2,xmm1,55
-hnk.exe+2F50F1: 0F 58 D0                       - addps xmm2,xmm0
-hnk.exe+2F50F4: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
+hnk.exe+2F5573: 0F 28 EA                       - movaps xmm5,xmm2
+hnk.exe+2F5576: 0F 5C A8 80 03 00 00           - subps xmm5,[rax+00000380]
+hnk.exe+2F557D: 0F 28 CD                       - movaps xmm1,xmm5
+hnk.exe+2F5580: 0F 59 CD                       - mulps xmm1,xmm5
+hnk.exe+2F5583: 0F 28 F9                       - movaps xmm7,xmm1
+hnk.exe+2F5586: 0F 28 C1                       - movaps xmm0,xmm1
+hnk.exe+2F5589: 0F C6 C1 00                    - shufps xmm0,xmm1,00
+hnk.exe+2F558D: 0F C6 F9 55                    - shufps xmm7,xmm1,55
+hnk.exe+2F5591: 0F 58 F8                       - addps xmm7,xmm0
+hnk.exe+2F5594: 0F C6 C9 AA                    - shufps xmm1,xmm1,-56
 }
 </AssemblerScript>
           <CheatEntries>
