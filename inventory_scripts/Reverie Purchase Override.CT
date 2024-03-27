@@ -3377,7 +3377,7 @@ al[mr.Index].DisplayAsDropDownListItem = true
 {$asm}
 
 
-aobscanmodule(overridepurchaseitem_aob,hnk.exe,0F B7 D1 88 5C 24 20 E8 28) // should be unique
+aobscanmodule(overridepurchaseitem_aob,hnk.exe,0F B7 D1 88 5C 24 20 E8 88) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -3412,31 +3412,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+6132AC
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+618F4C
 
-hnk.exe+61327E: FF 90 A0 01 00 00        - call qword ptr [rax+000001A0]
-hnk.exe+613284: 89 9F 30 13 00 00        - mov [rdi+00001330],ebx
-hnk.exe+61328A: 48 8B CF                 - mov rcx,rdi
-hnk.exe+61328D: E8 2E 26 01 00           - call hnk.exe+6258C0
-hnk.exe+613292: 4C 8B 74 24 60           - mov r14,[rsp+60]
-hnk.exe+613297: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
-hnk.exe+61329D: EB 2C                    - jmp hnk.exe+6132CB
-hnk.exe+61329F: 40 88 74 24 30           - mov [rsp+30],sil
-hnk.exe+6132A4: 4D 8B CC                 - mov r9,r12
-hnk.exe+6132A7: 40 88 74 24 28           - mov [rsp+28],sil
+hnk.exe+618F1E: FF 90 A0 01 00 00        - call qword ptr [rax+000001A0]
+hnk.exe+618F24: 89 9F 30 13 00 00        - mov [rdi+00001330],ebx
+hnk.exe+618F2A: 48 8B CF                 - mov rcx,rdi
+hnk.exe+618F2D: E8 DE 24 01 00           - call hnk.exe+62B410
+hnk.exe+618F32: 4C 8B 74 24 60           - mov r14,[rsp+60]
+hnk.exe+618F37: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
+hnk.exe+618F3D: EB 2C                    - jmp hnk.exe+618F6B
+hnk.exe+618F3F: 40 88 74 24 30           - mov [rsp+30],sil
+hnk.exe+618F44: 4D 8B CC                 - mov r9,r12
+hnk.exe+618F47: 40 88 74 24 28           - mov [rsp+28],sil
 // ---------- INJECTING HERE ----------
-hnk.exe+6132AC: 0F B7 D1                 - movzx edx,cx
+hnk.exe+618F4C: 0F B7 D1                 - movzx edx,cx
 // ---------- DONE INJECTING  ----------
-hnk.exe+6132AF: 88 5C 24 20              - mov [rsp+20],bl
-hnk.exe+6132B3: E8 28 C0 DD FF           - call hnk.exe+3EF2E0
-hnk.exe+6132B8: E9 E3 FE FF FF           - jmp hnk.exe+6131A0
-hnk.exe+6132BD: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
-hnk.exe+6132C3: 4C 8B AC 24 F0 02 00 00  - mov r13,[rsp+000002F0]
-hnk.exe+6132CB: 48 8B BC 24 00 03 00 00  - mov rdi,[rsp+00000300]
-hnk.exe+6132D3: 0F 28 D7                 - movaps xmm2,xmm7
-hnk.exe+6132D6: 33 D2                    - xor edx,edx
-hnk.exe+6132D8: 49 8B CE                 - mov rcx,r14
-hnk.exe+6132DB: 66 89 B7 42 03 00 00     - mov [rdi+00000342],si
+hnk.exe+618F4F: 88 5C 24 20              - mov [rsp+20],bl
+hnk.exe+618F53: E8 88 88 DD FF           - call hnk.exe+3F17E0
+hnk.exe+618F58: E9 E3 FE FF FF           - jmp hnk.exe+618E40
+hnk.exe+618F5D: 89 9F 2C 13 00 00        - mov [rdi+0000132C],ebx
+hnk.exe+618F63: 4C 8B AC 24 F0 02 00 00  - mov r13,[rsp+000002F0]
+hnk.exe+618F6B: 48 8B BC 24 00 03 00 00  - mov rdi,[rsp+00000300]
+hnk.exe+618F73: 0F 28 D7                 - movaps xmm2,xmm7
+hnk.exe+618F76: 33 D2                    - xor edx,edx
+hnk.exe+618F78: 49 8B CE                 - mov rcx,r14
+hnk.exe+618F7B: 66 89 B7 42 03 00 00     - mov [rdi+00000342],si
 }
 </AssemblerScript>
       <CheatEntries>
@@ -3454,10 +3454,9 @@ hnk.exe+6132DB: 66 89 B7 42 03 00 00     - mov [rdi+00000342],si
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>hnk.exe+1632498</Address>
+      <Address>hnk.exe+163D458</Address>
     </CheatEntry>
   </CheatEntries>
-  <UserdefinedSymbols/>
   <Comments>This table is adapted from DrummerIX's Trails of Cold Steel IV table.
 </Comments>
 </CheatTable>
