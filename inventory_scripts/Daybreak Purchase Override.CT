@@ -1176,7 +1176,7 @@ kuro.exe+2EBC49: 48 89 44 24 20           - mov [rsp+20],rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>kuro.exe+910A10</Address>
+      <Address>kuro.exe+914A90</Address>
       <Offsets>
         <Offset>001901A8</Offset>
       </Offsets>
