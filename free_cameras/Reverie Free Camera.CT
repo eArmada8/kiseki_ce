@@ -1077,7 +1077,7 @@ hnk.exe+6E686B: 0F 1F 44 00 00        - nop dword ptr [rax+rax+00]
           <VariableType>Auto Assembler Script</VariableType>
           <AssemblerScript>[ENABLE]
 
-aobscanmodule(camera_aob,hnk.exe,48 8D 8B E0 09 00 00 0F 28) // should be unique
+aobscanmodule(camera_aob,hnk.exe,0F 10 4F 10 0F 28 C2 0F 59 C5) // should be unique
 alloc(newmem,$1000,camera_aob)
 alloc(camerastatus,8)
 
@@ -1091,7 +1091,8 @@ newmem:
   mov [camerastatus],rbx
 
 code:
-  lea rcx,[rbx+000009E0]
+  movups xmm1,[rdi+10]
+  movaps xmm0,xmm2
   jmp return
 
 camera_aob:
@@ -1102,40 +1103,40 @@ return:
 [DISABLE]
 
 camera_aob:
-  db 48 8D 8B E0 09 00 00
+  db 0F 10 4F 10 0F 28 C2
 
 unregistersymbol(camera_aob)
 unregistersymbol(camerastatus)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+1ED0A6
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1E95B7
 
-hnk.exe+1ED07B: 0F 14 DF                 - unpcklps xmm3,xmm7
-hnk.exe+1ED07E: 0F 14 E6                 - unpcklps xmm4,xmm6
-hnk.exe+1ED081: 45 33 C9                 - xor r9d,r9d
-hnk.exe+1ED084: 0F 16 E3                 - movlhps xmm4,xmm3
-hnk.exe+1ED087: 0F 28 D7                 - movaps xmm2,xmm7
-hnk.exe+1ED08A: 48 8B CB                 - mov rcx,rbx
-hnk.exe+1ED08D: 0F 29 A4 24 80 00 00 00  - movaps [rsp+00000080],xmm4
-hnk.exe+1ED095: 66 89 74 24 20           - mov [rsp+20],si
-hnk.exe+1ED09A: E8 51 D1 FF FF           - call hnk.exe+1EA1F0
-hnk.exe+1ED09F: 0F 10 8B 10 0A 00 00     - movups xmm1,[rbx+00000A10]
+hnk.exe+1E9594: 0F 58 E8              - addps xmm5,xmm0
+hnk.exe+1E9597: 0F C6 C9 AA           - shufps xmm1,xmm1,-56
+hnk.exe+1E959B: 0F 58 E9              - addps xmm5,xmm1
+hnk.exe+1E959E: 0F 52 CD              - rsqrtps xmm1,xmm5
+hnk.exe+1E95A1: 0F 28 C1              - movaps xmm0,xmm1
+hnk.exe+1E95A4: 0F 59 C5              - mulps xmm0,xmm5
+hnk.exe+1E95A7: 0F 59 C1              - mulps xmm0,xmm1
+hnk.exe+1E95AA: 0F 59 0D CF 2E A8 00  - mulps xmm1,[hnk.exe+C6C480]
+hnk.exe+1E95B1: 0F 5C D0              - subps xmm2,xmm0
+hnk.exe+1E95B4: 0F 59 D1              - mulps xmm2,xmm1
 // ---------- INJECTING HERE ----------
-hnk.exe+1ED0A6: 48 8D 8B E0 09 00 00     - lea rcx,[rbx+000009E0]
+hnk.exe+1E95B7: 0F 10 4F 10           - movups xmm1,[rdi+10]
 // ---------- DONE INJECTING  ----------
-hnk.exe+1ED0AD: 0F 28 C6                 - movaps xmm0,xmm6
-hnk.exe+1ED0B0: 0F 28 D1                 - movaps xmm2,xmm1
-hnk.exe+1ED0B3: 0F C6 C0 00              - shufps xmm0,xmm0,00
-hnk.exe+1ED0B7: 0F C6 D0 50              - shufps xmm2,xmm0,50
-hnk.exe+1ED0BB: 0F C6 D1 EC              - shufps xmm2,xmm1,-14
-hnk.exe+1ED0BF: F3 41 0F 10 D7           - movss xmm2,xmm15
+hnk.exe+1E95BB: 0F 28 C2              - movaps xmm0,xmm2
+hnk.exe+1E95BE: 0F 59 C5              - mulps xmm0,xmm5
+hnk.exe+1E95C1: 0F 59 C2              - mulps xmm0,xmm2
+hnk.exe+1E95C4: 0F 59 15 B5 2E A8 00  - mulps xmm2,[hnk.exe+C6C480]
+hnk.exe+1E95CB: 0F 5C E0              - subps xmm4,xmm0
+hnk.exe+1E95CE: 0F 10 07              - movups xmm0,[rdi]
 // ---------- RBX points to the camera module
-hnk.exe+1ED0C4: 0F 11 93 10 0A 00 00     - movups [rbx+00000A10],xmm2
+hnk.exe+1E95D1: 0F 11 83 10 0B 00 00  - movups [rbx+00000B10],xmm0
 // ----------
-hnk.exe+1ED0CB: E8 E0 AA FF FF           - call hnk.exe+1E7BB0
-hnk.exe+1ED0D0: 0F 28 B4 24 20 01 00 00  - movaps xmm6,[rsp+00000120]
-hnk.exe+1ED0D8: 41 0F B6 C5              - movzx eax,r13l
+hnk.exe+1E95D8: 0F 10 47 20           - movups xmm0,[rdi+20]
+hnk.exe+1E95DC: 0F 11 8B 20 0B 00 00  - movups [rbx+00000B20],xmm1
+hnk.exe+1E95E3: 0F 10 4F 30           - movups xmm1,[rdi+30]
 }
 </AssemblerScript>
           <CheatEntries>
@@ -1146,7 +1147,7 @@ hnk.exe+1ED0D8: 41 0F B6 C5              - movzx eax,r13l
               <VariableType>Float</VariableType>
               <Address>camerastatus</Address>
               <Offsets>
-                <Offset>A10</Offset>
+                <Offset>B40</Offset>
               </Offsets>
             </CheatEntry>
             <CheatEntry>
@@ -1156,7 +1157,7 @@ hnk.exe+1ED0D8: 41 0F B6 C5              - movzx eax,r13l
               <VariableType>Float</VariableType>
               <Address>camerastatus</Address>
               <Offsets>
-                <Offset>A14</Offset>
+                <Offset>B44</Offset>
               </Offsets>
             </CheatEntry>
             <CheatEntry>
@@ -1166,7 +1167,7 @@ hnk.exe+1ED0D8: 41 0F B6 C5              - movzx eax,r13l
               <VariableType>Float</VariableType>
               <Address>camerastatus</Address>
               <Offsets>
-                <Offset>A18</Offset>
+                <Offset>B48</Offset>
               </Offsets>
             </CheatEntry>
             <CheatEntry>
