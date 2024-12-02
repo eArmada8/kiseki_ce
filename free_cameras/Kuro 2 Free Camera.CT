@@ -873,7 +873,7 @@ ed9.exe+2059D5: 48 8D 44 24 38                 - lea rax,[rsp+38]
       <AssemblerScript>[ENABLE]
 
 aobscanmodule(freezeaction_aob,ed9.exe,FF 50 18 48 8D 5B 08 48 83 EE) // should be unique
-aobscanmodule(freezeaction_aob2,ed9.exe,E8 C3 B3 50 00) // should be unique
+aobscanmodule(freezeaction_aob2,ed9.exe,E8 33 BA 50 00) // should be unique
 aobscanmodule(cutscenefreeze_aob,ed9.exe,48 8B 01 FF 50 20 48 8D) // should be unique
 aobscanmodule(cutscenefreeze_aob2,ed9.exe,0F 85 DB 00 00 00 48 8B 8F) // should be unique
 alloc(newmem,$1000,freezeaction_aob)
@@ -999,13 +999,13 @@ code1:
 code2:
   cmp [freeze],#0
   jne @f
-  call ed9.exe+27B720
+  call ed9.exe+27BA90
 @@:
   jmp return2
 code3:
   cmp [freeze],#0
   jne @f
-  call ed9.exe+573330
+  call ed9.exe+573A10
 @@:
   jmp return3
 code4:
@@ -1023,7 +1023,7 @@ code5:
   jmp return5
 @@:
   popf
-  jne ed9.exe+13FD0A
+  jne ed9.exe+14007A
   jmp return5
 
 freeze:
@@ -1066,10 +1066,10 @@ freezeaction_aob:
   db FF 50 18 48 8D 5B 08
 
 freezeaction_aob+19:
-  db E8 49 39 21 00
+  db E8 49 3C 21 00
 
 freezeaction_aob2:
-  db E8 C3 B3 50 00
+  db E8 33 BA 50 00
 
 cutscenefreeze_aob:
   db 48 8B 01 FF 50 20
@@ -1085,137 +1085,143 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+67D93 - Safe injection point to check keypresses
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67E03 - Safe injection point to check keypresses
 
-ed9.exe+67D60: F3 0F 59 78 08           - mulss xmm7,[rax+08]
-ed9.exe+67D65: 48 83 C0 18              - add rax,18
-ed9.exe+67D69: 49 3B C5                 - cmp rax,r13
-ed9.exe+67D6C: 75 F2                    - jne ed9.exe+67D60
-ed9.exe+67D6E: F3 0F 11 7C 24 40        - movss [rsp+40],xmm7
-ed9.exe+67D74: 0F 28 C1                 - movaps xmm0,xmm1
-ed9.exe+67D77: F3 0F 59 87 78 03 00 00  - mulss xmm0,[rdi+00000378]
-ed9.exe+67D7F: F3 0F 11 44 24 44        - movss [rsp+44],xmm0
-ed9.exe+67D85: F3 0F 59 8F 90 03 00 00  - mulss xmm1,[rdi+00000390]
-ed9.exe+67D8D: F3 0F 11 4C 24 48        - movss [rsp+48],xmm1
+ed9.exe+67DD0: F3 0F 59 78 08           - mulss xmm7,[rax+08]
+ed9.exe+67DD5: 48 83 C0 18              - add rax,18
+ed9.exe+67DD9: 49 3B C5                 - cmp rax,r13
+ed9.exe+67DDC: 75 F2                    - jne ed9.exe+67DD0
+ed9.exe+67DDE: F3 0F 11 7C 24 40        - movss [rsp+40],xmm7
+ed9.exe+67DE4: 0F 28 C1                 - movaps xmm0,xmm1
+ed9.exe+67DE7: F3 0F 59 87 78 03 00 00  - mulss xmm0,[rdi+00000378]
+ed9.exe+67DEF: F3 0F 11 44 24 44        - movss [rsp+44],xmm0
+ed9.exe+67DF5: F3 0F 59 8F 90 03 00 00  - mulss xmm1,[rdi+00000390]
+ed9.exe+67DFD: F3 0F 11 4C 24 48        - movss [rsp+48],xmm1
 // ---------- INJECTING HERE ----------
-ed9.exe+67D93: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
+ed9.exe+67E03: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
 // ---------- DONE INJECTING  ----------
-ed9.exe+67D9A: 75 2A                    - jne ed9.exe+67DC6
-ed9.exe+67D9C: 48 8B 1D 15 DB 95 00     - mov rbx,[ed9.exe+9C58B8]
-ed9.exe+67DA3: 48 81 C3 98 16 01 00     - add rbx,00011698
-ed9.exe+67DAA: BE 0A 00 00 00           - mov esi,0000000A
-ed9.exe+67DAF: 90                       - nop 
-ed9.exe+67DB0: 48 8B 0B                 - mov rcx,[rbx]
-ed9.exe+67DB3: 48 8B 01                 - mov rax,[rcx]
-ed9.exe+67DB6: 0F 28 CF                 - movaps xmm1,xmm7
-ed9.exe+67DB9: FF 50 18                 - call qword ptr [rax+18]
-ed9.exe+67DBC: 48 8D 5B 08              - lea rbx,[rbx+08]
+ed9.exe+67E0A: 75 2A                    - jne ed9.exe+67E36
+ed9.exe+67E0C: 48 8B 1D B5 EA 95 00     - mov rbx,[ed9.exe+9C68C8]
+ed9.exe+67E13: 48 81 C3 98 16 01 00     - add rbx,00011698
+ed9.exe+67E1A: BE 0A 00 00 00           - mov esi,0000000A
+ed9.exe+67E1F: 90                       - nop 
+ed9.exe+67E20: 48 8B 0B                 - mov rcx,[rbx]
+ed9.exe+67E23: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+67E26: 0F 28 CF                 - movaps xmm1,xmm7
+ed9.exe+67E29: FF 50 18                 - call qword ptr [rax+18]
+ed9.exe+67E2C: 48 8D 5B 08              - lea rbx,[rbx+08]
 
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+67DB9 - Freeze action
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67E29 - Freeze action
 
-ed9.exe+67D8D: F3 0F 11 4C 24 48     - movss [rsp+48],xmm1
-ed9.exe+67D93: 44 38 A7 C4 03 00 00  - cmp [rdi+000003C4],r12l
-ed9.exe+67D9A: 75 2A                 - jne ed9.exe+67DC6
-ed9.exe+67D9C: 48 8B 1D 15 DB 95 00  - mov rbx,[ed9.exe+9C58B8]
-ed9.exe+67DA3: 48 81 C3 98 16 01 00  - add rbx,00011698
-ed9.exe+67DAA: BE 0A 00 00 00        - mov esi,0000000A
-ed9.exe+67DAF: 90                    - nop 
-ed9.exe+67DB0: 48 8B 0B              - mov rcx,[rbx]
-ed9.exe+67DB3: 48 8B 01              - mov rax,[rcx]
-ed9.exe+67DB6: 0F 28 CF              - movaps xmm1,xmm7
+ed9.exe+67DFD: F3 0F 11 4C 24 48        - movss [rsp+48],xmm1
+ed9.exe+67E03: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
+ed9.exe+67E0A: 75 2A                    - jne ed9.exe+67E36
+ed9.exe+67E0C: 48 8B 1D B5 EA 95 00     - mov rbx,[ed9.exe+9C68C8]
+ed9.exe+67E13: 48 81 C3 98 16 01 00     - add rbx,00011698
+ed9.exe+67E1A: BE 0A 00 00 00           - mov esi,0000000A
+ed9.exe+67E1F: 90                       - nop 
+ed9.exe+67E20: 48 8B 0B                 - mov rcx,[rbx]
+ed9.exe+67E23: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+67E26: 0F 28 CF                 - movaps xmm1,xmm7
 // ---------- INJECTING HERE ----------
-ed9.exe+67DB9: FF 50 18              - call qword ptr [rax+18]
+ed9.exe+67E29: FF 50 18                 - call qword ptr [rax+18]
 // ---------- DONE INJECTING  ----------
-ed9.exe+67DBC: 48 8D 5B 08           - lea rbx,[rbx+08]
-ed9.exe+67DC0: 48 83 EE 01           - sub rsi,01
-ed9.exe+67DC4: 75 EA                 - jne ed9.exe+67DB0
-ed9.exe+67DC6: 48 8D 54 24 38        - lea rdx,[rsp+38]
-ed9.exe+67DCB: 48 8B 0D 86 DA 95 00  - mov rcx,[ed9.exe+9C5858]
+ed9.exe+67E2C: 48 8D 5B 08              - lea rbx,[rbx+08]
+ed9.exe+67E30: 48 83 EE 01              - sub rsi,01
+ed9.exe+67E34: 75 EA                    - jne ed9.exe+67E20
+ed9.exe+67E36: 48 8D 54 24 38           - lea rdx,[rsp+38]
+ed9.exe+67E3B: 48 8B 0D 26 EA 95 00     - mov rcx,[ed9.exe+9C6868]
 // ---------- INJECTING HERE ----------
-ed9.exe+67DD2: E8 49 39 21 00        - call ed9.exe+27B720
+ed9.exe+67E42: E8 49 3C 21 00           - call ed9.exe+27BA90
 // ---------- DONE INJECTING  ----------
-ed9.exe+67DD7: 44 38 A7 C4 03 00 00  - cmp [rdi+000003C4],r12l
-ed9.exe+67DDE: 75 4D                 - jne ed9.exe+67E2D
-ed9.exe+67DE0: 48 8B 05 71 DA 95 00  - mov rax,[ed9.exe+9C5858]
-ed9.exe+67DE7: 44 39 A0 44 1B 00 00  - cmp [rax+00001B44],r12d
+ed9.exe+67E47: 44 38 A7 C4 03 00 00     - cmp [rdi+000003C4],r12l
+ed9.exe+67E4E: 75 4D                    - jne ed9.exe+67E9D
+ed9.exe+67E50: 48 8B 05 11 EA 95 00     - mov rax,[ed9.exe+9C6868]
+ed9.exe+67E57: 44 39 A0 44 1B 00 00     - cmp [rax+00001B44],r12d
+ed9.exe+67E5E: 75 3D                    - jne ed9.exe+67E9D
+ed9.exe+67E60: F3 0F 10 87 A8 03 00 00  - movss xmm0,[rdi+000003A8]
+ed9.exe+67E68: F3 0F 10 97 78 03 00 00  - movss xmm2,[rdi+00000378]
+ed9.exe+67E70: 0F 28 CE                 - movaps xmm1,xmm6
+ed9.exe+67E73: 48 8B 0D D6 E9 95 00     - mov rcx,[ed9.exe+9C6850]
+ed9.exe+67E7A: F3 0F 59 CA              - mulss xmm1,xmm2
 
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+67F68 - Freeze action 2
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+67FD8 - Freeze action 2
 
-ed9.exe+67F4B: 84 C0                 - test al,al
-ed9.exe+67F4D: 74 1E                 - je ed9.exe+67F6D
-ed9.exe+67F4F: FF C5                 - inc ebp
-ed9.exe+67F51: 41 3B EC              - cmp ebp,r12d
-ed9.exe+67F54: 72 EA                 - jb ed9.exe+67F40
-ed9.exe+67F56: 44 8B 76 20           - mov r14d,[rsi+20]
-ed9.exe+67F5A: 41 83 E6 FE           - and r14d,-02
-ed9.exe+67F5E: 44 89 76 20           - mov [rsi+20],r14d
-ed9.exe+67F62: 0F 28 CE              - movaps xmm1,xmm6
-ed9.exe+67F65: 48 8B CE              - mov rcx,rsi
+ed9.exe+67FBB: 84 C0                 - test al,al
+ed9.exe+67FBD: 74 1E                 - je ed9.exe+67FDD
+ed9.exe+67FBF: FF C5                 - inc ebp
+ed9.exe+67FC1: 41 3B EC              - cmp ebp,r12d
+ed9.exe+67FC4: 72 EA                 - jb ed9.exe+67FB0
+ed9.exe+67FC6: 44 8B 76 20           - mov r14d,[rsi+20]
+ed9.exe+67FCA: 41 83 E6 FE           - and r14d,-02
+ed9.exe+67FCE: 44 89 76 20           - mov [rsi+20],r14d
+ed9.exe+67FD2: 0F 28 CE              - movaps xmm1,xmm6
+ed9.exe+67FD5: 48 8B CE              - mov rcx,rsi
 // ---------- INJECTING HERE ----------
-ed9.exe+67F68: E8 C3 B3 50 00        - call ed9.exe+573330
+ed9.exe+67FD8: E8 33 BA 50 00        - call ed9.exe+573A10
 // ---------- DONE INJECTING  ----------
-ed9.exe+67F6D: 48 8B 5B 08           - mov rbx,[rbx+08]
-ed9.exe+67F71: 4C 3B FB              - cmp r15,rbx
-ed9.exe+67F74: 41 BC 00 00 00 00     - mov r12d,00000000
-ed9.exe+67F7A: 0F 85 60 FF FF FF     - jne ed9.exe+67EE0
-ed9.exe+67F80: 4C 8B 7C 24 28        - mov r15,[rsp+28]
-ed9.exe+67F85: 48 8B CF              - mov rcx,rdi
-ed9.exe+67F88: E8 FF 0D 7A 00        - call ed9.exe+808D8C
-ed9.exe+67F8D: 0F 28 CE              - movaps xmm1,xmm6
-ed9.exe+67F90: 48 8B 0D 29 D9 95 00  - mov rcx,[ed9.exe+9C58C0]
-ed9.exe+67F97: E8 14 92 43 00        - call ed9.exe+4A11B0
+ed9.exe+67FDD: 48 8B 5B 08           - mov rbx,[rbx+08]
+ed9.exe+67FE1: 4C 3B FB              - cmp r15,rbx
+ed9.exe+67FE4: 41 BC 00 00 00 00     - mov r12d,00000000
+ed9.exe+67FEA: 0F 85 60 FF FF FF     - jne ed9.exe+67F50
+ed9.exe+67FF0: 4C 8B 7C 24 28        - mov r15,[rsp+28]
+ed9.exe+67FF5: 48 8B CF              - mov rcx,rdi
+ed9.exe+67FF8: E8 6F 12 7A 00        - call ed9.exe+80926C
+ed9.exe+67FFD: 0F 28 CE              - movaps xmm1,xmm6
+ed9.exe+68000: 48 8B 0D C9 E8 95 00  - mov rcx,[ed9.exe+9C68D0]
+ed9.exe+68007: E8 14 95 43 00        - call ed9.exe+4A1520
 
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+13FB53 - Cutscene camera control 1
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+13FEC3 - Cutscene camera control 1
 
-ed9.exe+13FB26: 48 8B 05 6B 66 85 00     - mov rax,[ed9.exe+996198]
-ed9.exe+13FB2D: 48 33 C4                 - xor rax,rsp
-ed9.exe+13FB30: 48 89 44 24 40           - mov [rsp+40],rax
-ed9.exe+13FB35: 4D 63 F8                 - movsxd  r15,r8d
-ed9.exe+13FB38: 48 8B F9                 - mov rdi,rcx
-ed9.exe+13FB3B: 49 69 F7 A0 01 00 00     - imul rsi,r15,000001A0
-ed9.exe+13FB42: 44 0F 28 E1              - movaps xmm12,xmm1
-ed9.exe+13FB46: 4A 8B 8C F9 98 06 00 00  - mov rcx,[rcx+r15*8+00000698]
-ed9.exe+13FB4E: 48 85 C9                 - test rcx,rcx
-ed9.exe+13FB51: 74 06                    - je ed9.exe+13FB59
+ed9.exe+13FE96: 48 8B 05 FB 72 85 00     - mov rax,[ed9.exe+997198]
+ed9.exe+13FE9D: 48 33 C4                 - xor rax,rsp
+ed9.exe+13FEA0: 48 89 44 24 40           - mov [rsp+40],rax
+ed9.exe+13FEA5: 4D 63 F8                 - movsxd  r15,r8d
+ed9.exe+13FEA8: 48 8B F9                 - mov rdi,rcx
+ed9.exe+13FEAB: 49 69 F7 A0 01 00 00     - imul rsi,r15,000001A0
+ed9.exe+13FEB2: 44 0F 28 E1              - movaps xmm12,xmm1
+ed9.exe+13FEB6: 4A 8B 8C F9 98 06 00 00  - mov rcx,[rcx+r15*8+00000698]
+ed9.exe+13FEBE: 48 85 C9                 - test rcx,rcx
+ed9.exe+13FEC1: 74 06                    - je ed9.exe+13FEC9
 // ---------- INJECTING HERE ----------
-ed9.exe+13FB53: 48 8B 01                 - mov rax,[rcx]
+ed9.exe+13FEC3: 48 8B 01                 - mov rax,[rcx]
 // ---------- DONE INJECTING  ----------
-ed9.exe+13FB56: FF 50 20                 - call qword ptr [rax+20]
-ed9.exe+13FB59: 48 8D 9F B0 06 00 00     - lea rbx,[rdi+000006B0]
-ed9.exe+13FB60: 45 32 F6                 - xor r14l,r14l
-ed9.exe+13FB63: 48 8D AB 80 00 00 00     - lea rbp,[rbx+00000080]
-ed9.exe+13FB6A: 0F 57 F6                 - xorps xmm6,xmm6
-ed9.exe+13FB6D: 45 0F 57 DB              - xorps xmm11,xmm11
-ed9.exe+13FB71: 45 0F 57 ED              - xorps xmm13,xmm13
-ed9.exe+13FB75: 45 0F 57 F6              - xorps xmm14,xmm14
-ed9.exe+13FB79: 45 0F 57 D2              - xorps xmm10,xmm10
-ed9.exe+13FB7D: 0F 57 FF                 - xorps xmm7,xmm7
+ed9.exe+13FEC6: FF 50 20                 - call qword ptr [rax+20]
+ed9.exe+13FEC9: 48 8D 9F B0 06 00 00     - lea rbx,[rdi+000006B0]
+ed9.exe+13FED0: 45 32 F6                 - xor r14l,r14l
+ed9.exe+13FED3: 48 8D AB 80 00 00 00     - lea rbp,[rbx+00000080]
+ed9.exe+13FEDA: 0F 57 F6                 - xorps xmm6,xmm6
+ed9.exe+13FEDD: 45 0F 57 DB              - xorps xmm11,xmm11
+ed9.exe+13FEE1: 45 0F 57 ED              - xorps xmm13,xmm13
+ed9.exe+13FEE5: 45 0F 57 F6              - xorps xmm14,xmm14
+ed9.exe+13FEE9: 45 0F 57 D2              - xorps xmm10,xmm10
+ed9.exe+13FEED: 0F 57 FF                 - xorps xmm7,xmm7
 
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+13FC29 - Cutscene camera control 2
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+13FF99 - Cutscene camera control 2
 
-ed9.exe+13FC02: 44 0F 28 DC           - movaps xmm11,xmm4
-ed9.exe+13FC06: 44 0F 28 D0           - movaps xmm10,xmm0
-ed9.exe+13FC0A: 44 0F 28 EB           - movaps xmm13,xmm3
-ed9.exe+13FC0E: 44 0F 28 F2           - movaps xmm14,xmm2
-ed9.exe+13FC12: 48 83 C3 40           - add rbx,40
-ed9.exe+13FC16: 48 3B DD              - cmp rbx,rbp
-ed9.exe+13FC19: 0F 85 72 FF FF FF     - jne ed9.exe+13FB91
-ed9.exe+13FC1F: 8B 87 34 07 00 00     - mov eax,[rdi+00000734]
-ed9.exe+13FC25: D1 E8                 - shr eax,1
-ed9.exe+13FC27: A8 01                 - test al,01
+ed9.exe+13FF72: 44 0F 28 DC           - movaps xmm11,xmm4
+ed9.exe+13FF76: 44 0F 28 D0           - movaps xmm10,xmm0
+ed9.exe+13FF7A: 44 0F 28 EB           - movaps xmm13,xmm3
+ed9.exe+13FF7E: 44 0F 28 F2           - movaps xmm14,xmm2
+ed9.exe+13FF82: 48 83 C3 40           - add rbx,40
+ed9.exe+13FF86: 48 3B DD              - cmp rbx,rbp
+ed9.exe+13FF89: 0F 85 72 FF FF FF     - jne ed9.exe+13FF01
+ed9.exe+13FF8F: 8B 87 34 07 00 00     - mov eax,[rdi+00000734]
+ed9.exe+13FF95: D1 E8                 - shr eax,1
+ed9.exe+13FF97: A8 01                 - test al,01
 // ---------- INJECTING HERE ----------
-ed9.exe+13FC29: 0F 85 DB 00 00 00     - jne ed9.exe+13FD0A
+ed9.exe+13FF99: 0F 85 DB 00 00 00     - jne ed9.exe+14007A
 // ---------- DONE INJECTING  ----------
-ed9.exe+13FC2F: 48 8B 8F 90 06 00 00  - mov rcx,[rdi+00000690]
-ed9.exe+13FC36: 8B 84 3E C8 01 00 00  - mov eax,[rsi+rdi+000001C8]
-ed9.exe+13FC3D: 89 41 08              - mov [rcx+08],eax
-ed9.exe+13FC40: 8B 84 3E CC 01 00 00  - mov eax,[rsi+rdi+000001CC]
-ed9.exe+13FC47: 89 41 0C              - mov [rcx+0C],eax
-ed9.exe+13FC4A: 8B 84 3E D0 01 00 00  - mov eax,[rsi+rdi+000001D0]
-ed9.exe+13FC51: 89 41 10              - mov [rcx+10],eax
-ed9.exe+13FC54: 48 8B 8F 90 06 00 00  - mov rcx,[rdi+00000690]
-ed9.exe+13FC5B: 8B 84 3E 04 02 00 00  - mov eax,[rsi+rdi+00000204]
-ed9.exe+13FC62: 89 41 18              - mov [rcx+18],eax
+ed9.exe+13FF9F: 48 8B 8F 90 06 00 00  - mov rcx,[rdi+00000690]
+ed9.exe+13FFA6: 8B 84 3E C8 01 00 00  - mov eax,[rsi+rdi+000001C8]
+ed9.exe+13FFAD: 89 41 08              - mov [rcx+08],eax
+ed9.exe+13FFB0: 8B 84 3E CC 01 00 00  - mov eax,[rsi+rdi+000001CC]
+ed9.exe+13FFB7: 89 41 0C              - mov [rcx+0C],eax
+ed9.exe+13FFBA: 8B 84 3E D0 01 00 00  - mov eax,[rsi+rdi+000001D0]
+ed9.exe+13FFC1: 89 41 10              - mov [rcx+10],eax
+ed9.exe+13FFC4: 48 8B 8F 90 06 00 00  - mov rcx,[rdi+00000690]
+ed9.exe+13FFCB: 8B 84 3E 04 02 00 00  - mov eax,[rsi+rdi+00000204]
+ed9.exe+13FFD2: 89 41 18              - mov [rcx+18],eax
 }
 </AssemblerScript>
     </CheatEntry>
