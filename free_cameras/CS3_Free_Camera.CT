@@ -769,8 +769,7 @@ detachcamerarotation_aob1:
   db 90 90 90 90 90 90 90
 
 detachcamerarotation_aob2:
-  db 90 90 90 90 90 90 90 90 0F 28 C6 E8 76 F0 53 00 0F 28 F0 E8 7F A9 EE FF 90 90 90 90 90 90 90 90
-
+  db 90 90 90 90 90 90 90 90 0F 28 C6 E8 76 F0 53 00 0F 28 F0 E8 FF A9 EE FF 90 90 90 90 90 90 90 90
 
 {$lua}
 
@@ -928,7 +927,7 @@ detachcamerarotation_aob1:
   db 80 B8 20 AE 05 00 00
 
 detachcamerarotation_aob2:
-  db F3 0F 11 87 9C 07 00 00 0F 28 C6 E8 76 F0 53 00 0F 28 F0 E8 7F A9 EE FF F3 0F 11 87 A0 07 00 00
+  db F3 0F 11 87 9C 07 00 00 0F 28 C6 E8 76 F0 53 00 0F 28 F0 E8 FF A9 EE FF F3 0F 11 87 A0 07 00 00
 
 cameraverticalshake_aob:
   db 4C 8B BC 24 C8 01 00 00
