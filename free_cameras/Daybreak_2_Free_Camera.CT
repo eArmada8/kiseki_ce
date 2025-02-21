@@ -858,9 +858,6 @@ kuro2.exe+21A93E: F3 0F 10 83 48 1E 00 00        - movss xmm0,[rbx+00001E48]
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,kuro2.exe,48 63 84 B7 38 01 00 00) // should be unique
 aobscanmodule(freezeaction_aob1,kuro2.exe,E8 A9 A0 25 00) // should be unique
-aobscanmodule(freezeaction_aob2,kuro2.exe,E8 8A A1 2F 00) // should be unique
-aobscanmodule(cutscene_camera_lock1,kuro2.exe,48 8B 01 FF 50 20 48 8D 9F) // should be unique
-aobscanmodule(cutscene_camera_lock2,kuro2.exe,0F 85 0C 01 00 00 48 8B 8F) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -1000,12 +997,12 @@ kuro2.exe+33649: FF 50 18                 - call qword ptr [rax+18]
 kuro2.exe+3364C: 48 8D 7F 08              - lea rdi,[rdi+08]
 kuro2.exe+33650: 49 83 EE 01              - sub r14,01
 kuro2.exe+33654: 75 EA                    - jne kuro2.exe+33640
-kuro2.exe+33656: 48 8B 0D 23 73 A2 00     - mov rcx,[kuro2.exe+A5A980]
+kuro2.exe+33656: 48 8B 0D 23 83 A2 00     - mov rcx,[kuro2.exe+A5B980]
 kuro2.exe+3365D: 48 8D 54 24 20           - lea rdx,[rsp+20]
 // ---------- INJECTING HERE ----------
 kuro2.exe+33662: E8 A9 A0 25 00           - call kuro2.exe+28D710
 // ---------- DONE INJECTING  ----------
-kuro2.exe+33667: 48 8B 05 12 73 A2 00     - mov rax,[kuro2.exe+A5A980]
+kuro2.exe+33667: 48 8B 05 12 83 A2 00     - mov rax,[kuro2.exe+A5B980]
 kuro2.exe+3366E: 32 C9                    - xor cl,cl
 kuro2.exe+33670: 0F 28 B4 24 80 00 00 00  - movaps xmm6,[rsp+00000080]
 kuro2.exe+33678: 4C 8B B4 24 90 00 00 00  - mov r14,[rsp+00000090]
