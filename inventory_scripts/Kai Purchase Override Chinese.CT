@@ -2176,31 +2176,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ed9.exe+50CE21
+// ORIGINAL CODE - INJECTION POINT: ed9.exe+5104D1
 
-ed9.exe+50CDF0: 48 89 5C 24 08           - mov [rsp+08],rbx
-ed9.exe+50CDF5: 48 89 74 24 10           - mov [rsp+10],rsi
-ed9.exe+50CDFA: 48 89 7C 24 18           - mov [rsp+18],rdi
-ed9.exe+50CDFF: 4C 89 74 24 20           - mov [rsp+20],r14
-ed9.exe+50CE04: 55                       - push rbp
-ed9.exe+50CE05: 48 8D AC 24 E0 FB FF FF  - lea rbp,[rsp-00000420]
-ed9.exe+50CE0D: 48 81 EC 20 05 00 00     - sub rsp,00000520
-ed9.exe+50CE14: 48 8B 05 3D 28 6D 00     - mov rax,[ed9.exe+BDF658]
-ed9.exe+50CE1B: 48 8B F1                 - mov rsi,rcx
-ed9.exe+50CE1E: 45 8B F0                 - mov r14d,r8d
+ed9.exe+5104A0: 48 89 5C 24 08           - mov [rsp+08],rbx
+ed9.exe+5104A5: 48 89 74 24 10           - mov [rsp+10],rsi
+ed9.exe+5104AA: 48 89 7C 24 18           - mov [rsp+18],rdi
+ed9.exe+5104AF: 4C 89 74 24 20           - mov [rsp+20],r14
+ed9.exe+5104B4: 55                       - push rbp
+ed9.exe+5104B5: 48 8D AC 24 E0 FB FF FF  - lea rbp,[rsp-00000420]
+ed9.exe+5104BD: 48 81 EC 20 05 00 00     - sub rsp,00000520
+ed9.exe+5104C4: 48 8B 05 9D 43 6D 00     - mov rax,[ed9.exe+BE4868]
+ed9.exe+5104CB: 48 8B F1                 - mov rsi,rcx
+ed9.exe+5104CE: 45 8B F0                 - mov r14d,r8d
 // ---------- INJECTING HERE ----------
-ed9.exe+50CE21: 8B FA                    - mov edi,edx
+ed9.exe+5104D1: 8B FA                    - mov edi,edx
 // ---------- DONE INJECTING  ----------
-ed9.exe+50CE23: 48 8B 88 40 07 00 00     - mov rcx,[rax+00000740]
-ed9.exe+50CE2A: 48 8B 49 08              - mov rcx,[rcx+08]
-ed9.exe+50CE2E: E8 1D 09 D8 FF           - call ed9.exe+28D750
-ed9.exe+50CE33: 48 8B D8                 - mov rbx,rax
-ed9.exe+50CE36: 48 85 C0                 - test rax,rax
-ed9.exe+50CE39: 75 29                    - jne ed9.exe+50CE64
-ed9.exe+50CE3B: 4C 8D 0D 7E 06 51 00     - lea r9,[ed9.exe+A1D4C0]
-ed9.exe+50CE42: 89 7C 24 20              - mov [rsp+20],edi
-ed9.exe+50CE46: 41 B8 9C 04 00 00        - mov r8d,0000049C
-ed9.exe+50CE4C: 48 8D 15 75 05 51 00     - lea rdx,[ed9.exe+A1D3C8]
+ed9.exe+5104D3: 48 8B 88 40 07 00 00     - mov rcx,[rax+00000740]
+ed9.exe+5104DA: 48 8B 49 08              - mov rcx,[rcx+08]
+ed9.exe+5104DE: E8 0D CE D7 FF           - call ed9.exe+28D2F0
+ed9.exe+5104E3: 48 8B D8                 - mov rbx,rax
+ed9.exe+5104E6: 48 85 C0                 - test rax,rax
+ed9.exe+5104E9: 75 29                    - jne ed9.exe+510514
+ed9.exe+5104EB: 4C 8D 0D 2E 22 51 00     - lea r9,[ed9.exe+A22720]
+ed9.exe+5104F2: 89 7C 24 20              - mov [rsp+20],edi
+ed9.exe+5104F6: 41 B8 9C 04 00 00        - mov r8d,0000049C
+ed9.exe+5104FC: 48 8D 15 25 21 51 00     - lea rdx,[ed9.exe+A22628]
 }
 </AssemblerScript>
       <CheatEntries>
@@ -2218,7 +2218,7 @@ ed9.exe+50CE4C: 48 8D 15 75 05 51 00     - lea rdx,[ed9.exe+A1D3C8]
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>ed9.exe+BDF720</Address>
+      <Address>ed9.exe+BE4928</Address>
       <Offsets>
         <Offset>00297990</Offset>
       </Offsets>
