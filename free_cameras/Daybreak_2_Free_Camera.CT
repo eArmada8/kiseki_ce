@@ -857,7 +857,7 @@ kuro2.exe+21A93E: F3 0F 10 83 48 1E 00 00        - movss xmm0,[rbx+00001E48]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,kuro2.exe,48 63 84 B7 38 01 00 00) // should be unique
-aobscanmodule(freezeaction_aob1,kuro2.exe,E8 A9 A0 25 00) // should be unique
+aobscanmodule(freezeaction_aob1,kuro2.exe,E8 C9 A1 25 00) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -932,7 +932,7 @@ code1:
   jmp return1
 @@:
   popf
-  call kuro2.exe+28D710
+  call kuro2.exe+28D830
   jmp return1
 
 freeze:
@@ -953,7 +953,7 @@ freezemonitorinjectionpoint_aob:
   db 48 63 84 B7 38 01 00 00
 
 freezeaction_aob1:
-  db E8 A9 A0 25 00
+  db E8 C9 A1 25 00
 
 unregistersymbol(freezemonitorinjectionpoint_aob)
 unregistersymbol(freezeaction_aob1)
@@ -997,12 +997,12 @@ kuro2.exe+33649: FF 50 18                 - call qword ptr [rax+18]
 kuro2.exe+3364C: 48 8D 7F 08              - lea rdi,[rdi+08]
 kuro2.exe+33650: 49 83 EE 01              - sub r14,01
 kuro2.exe+33654: 75 EA                    - jne kuro2.exe+33640
-kuro2.exe+33656: 48 8B 0D 23 83 A2 00     - mov rcx,[kuro2.exe+A5B980]
+kuro2.exe+33656: 48 8B 0D 23 93 A2 00     - mov rcx,[kuro2.exe+A5C980]
 kuro2.exe+3365D: 48 8D 54 24 20           - lea rdx,[rsp+20]
 // ---------- INJECTING HERE ----------
-kuro2.exe+33662: E8 A9 A0 25 00           - call kuro2.exe+28D710
+kuro2.exe+33662: E8 C9 A1 25 00           - call kuro2.exe+28D830
 // ---------- DONE INJECTING  ----------
-kuro2.exe+33667: 48 8B 05 12 83 A2 00     - mov rax,[kuro2.exe+A5B980]
+kuro2.exe+33667: 48 8B 05 12 93 A2 00     - mov rax,[kuro2.exe+A5C980]
 kuro2.exe+3366E: 32 C9                    - xor cl,cl
 kuro2.exe+33670: 0F 28 B4 24 80 00 00 00  - movaps xmm6,[rsp+00000080]
 kuro2.exe+33678: 4C 8B B4 24 90 00 00 00  - mov r14,[rsp+00000090]
