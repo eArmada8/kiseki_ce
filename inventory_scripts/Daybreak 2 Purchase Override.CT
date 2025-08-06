@@ -1825,7 +1825,7 @@ newmem:
   mov edx,[item_num]
 code:
   //mov edx,[rdx]
-  call kuro2.exe+42DF70
+  call kuro2.exe+42E0F0
   jmp return
 
 item_num:
@@ -1847,31 +1847,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+4B4449
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+4B45C9
 
-kuro2.exe+4B4415: 3D 3F 01 00 00           - cmp eax,0000013F
-kuro2.exe+4B441A: 75 08                    - jne kuro2.exe+4B4424
-kuro2.exe+4B441C: 8B 81 EC 0C 27 00        - mov eax,[rcx+00270CEC]
-kuro2.exe+4B4422: EB 08                    - jmp kuro2.exe+4B442C
-kuro2.exe+4B4424: 0F B7 84 81 E8 6A 19 00  - movzx eax,word ptr [rcx+rax*4+00196AE8]
-kuro2.exe+4B442C: 48 8B 93 90 00 00 00     - mov rdx,[rbx+00000090]
-kuro2.exe+4B4433: 44 8B 83 8C 00 00 00     - mov r8d,[rbx+0000008C]
-kuro2.exe+4B443A: 41 03 C0                 - add eax,r8d
-kuro2.exe+4B443D: 3B 82 C8 00 00 00        - cmp eax,[rdx+000000C8]
-kuro2.exe+4B4443: 0F 87 9D 00 00 00        - ja kuro2.exe+4B44E6
+kuro2.exe+4B4595: 3D 3F 01 00 00           - cmp eax,0000013F
+kuro2.exe+4B459A: 75 08                    - jne kuro2.exe+4B45A4
+kuro2.exe+4B459C: 8B 81 EC 0C 27 00        - mov eax,[rcx+00270CEC]
+kuro2.exe+4B45A2: EB 08                    - jmp kuro2.exe+4B45AC
+kuro2.exe+4B45A4: 0F B7 84 81 E8 6A 19 00  - movzx eax,word ptr [rcx+rax*4+00196AE8]
+kuro2.exe+4B45AC: 48 8B 93 90 00 00 00     - mov rdx,[rbx+00000090]
+kuro2.exe+4B45B3: 44 8B 83 8C 00 00 00     - mov r8d,[rbx+0000008C]
+kuro2.exe+4B45BA: 41 03 C0                 - add eax,r8d
+kuro2.exe+4B45BD: 3B 82 C8 00 00 00        - cmp eax,[rdx+000000C8]
+kuro2.exe+4B45C3: 0F 87 9D 00 00 00        - ja kuro2.exe+4B4666
 // ---------- INJECTING HERE ----------
-kuro2.exe+4B4449: 8B 12                    - mov edx,[rdx]
+kuro2.exe+4B45C9: 8B 12                    - mov edx,[rdx]
 // ---------- DONE INJECTING  ----------
-kuro2.exe+4B444B: E8 20 9B F7 FF           - call kuro2.exe+42DF70
-kuro2.exe+4B4450: 4C 8B 15 01 A0 5C 00     - mov r10,[kuro2.exe+A7E458]
-kuro2.exe+4B4457: 8B D6                    - mov edx,esi
-kuro2.exe+4B4459: 49 8B CA                 - mov rcx,r10
-kuro2.exe+4B445C: E8 9F AF F7 FF           - call kuro2.exe+42F400
-kuro2.exe+4B4461: 48 8B 93 90 00 00 00     - mov rdx,[rbx+00000090]
-kuro2.exe+4B4468: 8B 02                    - mov eax,[rdx]
-kuro2.exe+4B446A: 3D 88 13 00 00           - cmp eax,00001388
-kuro2.exe+4B446F: 72 29                    - jb kuro2.exe+4B449A
-kuro2.exe+4B4471: 89 44 24 28              - mov [rsp+28],eax
+kuro2.exe+4B45CB: E8 20 9B F7 FF           - call kuro2.exe+42E0F0
+kuro2.exe+4B45D0: 4C 8B 15 81 9E 5C 00     - mov r10,[kuro2.exe+A7E458]
+kuro2.exe+4B45D7: 8B D6                    - mov edx,esi
+kuro2.exe+4B45D9: 49 8B CA                 - mov rcx,r10
+kuro2.exe+4B45DC: E8 9F AF F7 FF           - call kuro2.exe+42F580
+kuro2.exe+4B45E1: 48 8B 93 90 00 00 00     - mov rdx,[rbx+00000090]
+kuro2.exe+4B45E8: 8B 02                    - mov eax,[rdx]
+kuro2.exe+4B45EA: 3D 88 13 00 00           - cmp eax,00001388
+kuro2.exe+4B45EF: 72 29                    - jb kuro2.exe+4B461A
+kuro2.exe+4B45F1: 89 44 24 28              - mov [rsp+28],eax
 }
 </AssemblerScript>
       <CheatEntries>
