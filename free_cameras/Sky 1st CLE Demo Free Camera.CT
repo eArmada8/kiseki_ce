@@ -18,7 +18,7 @@ mouseSensitivity:
 dd (float)8
 
 aobscanmodule(cameracoordinates_aob,sora_1st.exe,48 8B 8F 90 06 00 00 41 8B 86 C8) // should be unique
-aobscanmodule(moveplayer_aob,sora_1st.exe,F3 0F 11 41 08 48 83 C4) // should be unique
+aobscanmodule(moveplayer_aob,sora_1st.exe,E8 8E CB 00 00) // should be unique
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 registersymbol(cameracoordinates_aob)
@@ -247,7 +247,7 @@ cameracoordinates_aob+E:
   db 89 41 08 41 8B 86 CC 01 00 00 89 41 0C 41 8B 86 D0 01 00 00 89 41 10 48 8B 8F 90 06 00 00 41 8B 86 04 02 00 00 89 41 18 41 8B 86 08 02 00 00 89 41 1C 41 8B 86 0C 02 00 00 89 41 20 48 8B 8F 90 06 00 00 41 8B 86 40 02 00 00 89 41 28 41 8B 86 44 02 00 00 89 41 2C 41 8B 86 48 02 00 00 89 41 30
 
 moveplayer_aob:
-  db F3 0F 11 41 08
+  db E8 8E CB 00 00
 
 unregistersymbol(cameracoordinates_aob)
 unregistersymbol(moveplayer_aob)
@@ -304,31 +304,31 @@ sora_1st.exe+10657F: 83 B8 40 45 1F 00 03        - cmp dword ptr [rax+001F4540],
 sora_1st.exe+106586: 74 6E                       - je sora_1st.exe+1065F6
 sora_1st.exe+106588: 48 8B 05 39 FE 7D 00        - mov rax,[sora_1st.exe+8E63C8]
 
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3494D - Lock Player Movement
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+26459D - Lock Player Movement
 
-sora_1st.exe+3492E: C3              - ret 
-sora_1st.exe+3492F: CC              - int 3 
-sora_1st.exe+34930: 40 53           - push rbx
-sora_1st.exe+34932: 48 83 EC 30     - sub rsp,30
-sora_1st.exe+34936: F3 0F 10 51 0C  - movss xmm2,[rcx+0C]
-sora_1st.exe+3493B: 48 8B D9        - mov rbx,rcx
-sora_1st.exe+3493E: F3 0F 10 41 10  - movss xmm0,[rcx+10]
-sora_1st.exe+34943: 0F 2F C2        - comiss xmm0,xmm2
-sora_1st.exe+34946: 72 10           - jb sora_1st.exe+34958
-sora_1st.exe+34948: F3 0F 10 41 04  - movss xmm0,[rcx+04]
+sora_1st.exe+264567: 4C 8D 0D AA 26 58 00     - lea r9,[sora_1st.exe+7E6C18]
+sora_1st.exe+26456E: 48 89 74 24 20           - mov [rsp+20],rsi
+sora_1st.exe+264573: 41 B8 A6 01 00 00        - mov r8d,000001A6
+sora_1st.exe+264579: 48 8D 15 60 2B 58 00     - lea rdx,[sora_1st.exe+7E70E0]
+sora_1st.exe+264580: B9 03 00 00 00           - mov ecx,00000003
+sora_1st.exe+264585: E8 26 20 1E 00           - call sora_1st.exe+4465B0
+sora_1st.exe+26458A: 48 8B CB                 - mov rcx,rbx
+sora_1st.exe+26458D: E8 DE 26 00 00           - call sora_1st.exe+266C70
+sora_1st.exe+264592: 48 8D 8B F0 00 00 00     - lea rcx,[rbx+000000F0]
+sora_1st.exe+264599: 41 0F 28 C9              - movaps xmm1,xmm9
 // ---------- INJECTING HERE ----------
-sora_1st.exe+3494D: F3 0F 11 41 08  - movss [rcx+08],xmm0
+sora_1st.exe+26459D: E8 8E CB 00 00           - call sora_1st.exe+271130
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+34952: 48 83 C4 30     - add rsp,30
-sora_1st.exe+34956: 5B              - pop rbx
-sora_1st.exe+34957: C3              - ret 
-sora_1st.exe+34958: 0F 29 74 24 20  - movaps [rsp+20],xmm6
-sora_1st.exe+3495D: F3 0F 58 C1     - addss xmm0,xmm1
-sora_1st.exe+34961: 0F 28 F2        - movaps xmm6,xmm2
-sora_1st.exe+34964: F3 0F 5D F0     - minss xmm6,xmm0
-sora_1st.exe+34968: F3 0F 11 71 10  - movss [rcx+10],xmm6
-sora_1st.exe+3496D: 8B 49 14        - mov ecx,[rcx+14]
-sora_1st.exe+34970: F3 0F 5E F2     - divss xmm6,xmm2
+sora_1st.exe+2645A2: 48 8B 03                 - mov rax,[rbx]
+sora_1st.exe+2645A5: 41 0F 28 C1              - movaps xmm0,xmm9
+sora_1st.exe+2645A9: F3 0F 58 83 88 02 00 00  - addss xmm0,[rbx+00000288]
+sora_1st.exe+2645B1: 48 8B CB                 - mov rcx,rbx
+sora_1st.exe+2645B4: F3 0F 11 83 88 02 00 00  - movss [rbx+00000288],xmm0
+sora_1st.exe+2645BC: FF 50 18                 - call qword ptr [rax+18]
+sora_1st.exe+2645BF: 44 0F 28 74 24 70        - movaps xmm14,[rsp+70]
+sora_1st.exe+2645C5: 0F 28 B4 24 F0 00 00 00  - movaps xmm6,[rsp+000000F0]
+sora_1st.exe+2645CD: 4C 8B B4 24 08 01 00 00  - mov r14,[rsp+00000108]
+sora_1st.exe+2645D5: 48 8B BC 24 10 01 00 00  - mov rdi,[rsp+00000110]
 }
 </AssemblerScript>
       <Hotkeys>
