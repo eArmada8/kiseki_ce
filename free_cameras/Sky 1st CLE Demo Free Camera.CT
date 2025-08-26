@@ -810,6 +810,171 @@ sora_1st.exe+1BB1E8: F3 0F 10 80 A0 02 00 00        - movss xmm0,[rax+000002A0]
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
+      <ID>5</ID>
+      <Description>"Force Pause Action (Enable first, F5 pause / F6 unpause)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(freezemonitorinjectionpoint_aob,sora_1st.exe,89 43 5C 48 8D 3C 40 44 8B 44 BB 28 48 8D 34 BB 45) // should be unique
+aobscanmodule(freezeaction_aob1,sora_1st.exe,E8 47 FB 1F 00) // should be unique
+alloc(newmem,$1000,freezeaction_aob1)
+registersymbol(freezemonitorinjectionpoint_aob)
+registersymbol(freezeaction_aob1)
+registersymbol(freeze)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(code1)
+label(freeze)
+label(return)
+label(return1)
+
+newmem:
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,74 //VK_F5
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  mov [freeze],#1
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,75 //VK_F6
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  mov [freeze],#0
+
+code:
+  mov [rbx+5C],eax
+  lea rdi,[rax+rax*2]
+  jmp return
+
+code1:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  jmp return1
+@@:
+  popf
+  call sora_1st.exe+22F1B0
+  jmp return1
+
+freeze:
+  dd #0
+
+freezemonitorinjectionpoint_aob:
+  jmp newmem
+  nop 2
+return:
+
+freezeaction_aob1:
+  jmp code1
+return1:
+
+[DISABLE]
+
+freezemonitorinjectionpoint_aob:
+  db 89 43 5C 48 8D 3C 40
+
+freezeaction_aob1:
+  db E8 47 FB 1F 00
+
+unregistersymbol(freezemonitorinjectionpoint_aob)
+unregistersymbol(freezeaction_aob1)
+unregistersymbol(freeze)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F51B - Safe injection point to check keypresses
+
+sora_1st.exe+2F4EE: 44 0F 29 44 24 40     - movaps [rsp+40],xmm8
+sora_1st.exe+2F4F4: 44 0F 29 4C 24 30     - movaps [rsp+30],xmm9
+sora_1st.exe+2F4FA: 0F 28 F1              - movaps xmm6,xmm1
+sora_1st.exe+2F4FD: 4C 8B F9              - mov r15,rcx
+sora_1st.exe+2F500: 44 0F 28 C9           - movaps xmm9,xmm1
+sora_1st.exe+2F504: 48 8B 99 C8 01 00 00  - mov rbx,[rcx+000001C8]
+sora_1st.exe+2F50B: 48 8B CB              - mov rcx,rbx
+sora_1st.exe+2F50E: E8 9D 70 28 00        - call sora_1st.exe+2B65B0
+sora_1st.exe+2F513: F3 0F 59 F0           - mulss xmm6,xmm0
+sora_1st.exe+2F517: 48 63 43 58           - movsxd  rax,dword ptr [rbx+58]
+// ---------- INJECTING HERE ----------
+sora_1st.exe+2F51B: 89 43 5C              - mov [rbx+5C],eax
+// ---------- DONE INJECTING  ----------
+sora_1st.exe+2F51E: 48 8D 3C 40           - lea rdi,[rax+rax*2]
+sora_1st.exe+2F522: 44 8B 44 BB 28        - mov r8d,[rbx+rdi*4+28]
+sora_1st.exe+2F527: 48 8D 34 BB           - lea rsi,[rbx+rdi*4]
+sora_1st.exe+2F52B: 45 33 ED              - xor r13d,r13d
+sora_1st.exe+2F52E: 44 39 44 BB 2C        - cmp [rbx+rdi*4+2C],r8d
+sora_1st.exe+2F533: 74 12                 - je sora_1st.exe+2F547
+sora_1st.exe+2F535: 44 89 6B 70           - mov [rbx+70],r13d
+sora_1st.exe+2F539: 44 89 6E 30           - mov [rsi+30],r13d
+sora_1st.exe+2F53D: 44 8B 44 BB 2C        - mov r8d,[rbx+rdi*4+2C]
+sora_1st.exe+2F542: 44 89 44 BB 28        - mov [rbx+rdi*4+28],r8d
+
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F664 - Freeze action 1
+
+sora_1st.exe+2F639: 0F 1F 80 00 00 00 00        - nop dword ptr [rax+00000000]
+sora_1st.exe+2F640: 48 8B 0B                    - mov rcx,[rbx]
+sora_1st.exe+2F643: 48 8B 01                    - mov rax,[rcx]
+sora_1st.exe+2F646: 0F 28 CF                    - movaps xmm1,xmm7
+sora_1st.exe+2F649: FF 50 18                    - call qword ptr [rax+18]
+sora_1st.exe+2F64C: 48 8D 5B 08                 - lea rbx,[rbx+08]
+sora_1st.exe+2F650: 48 83 EF 01                 - sub rdi,01
+sora_1st.exe+2F654: 75 EA                       - jne sora_1st.exe+2F640
+sora_1st.exe+2F656: 49 8D 97 28 02 00 00        - lea rdx,[r15+00000228]
+sora_1st.exe+2F65D: 48 8B 0D 14 6D 8B 00        - mov rcx,[sora_1st.exe+8E6378]
+// ---------- INJECTING HERE ----------
+sora_1st.exe+2F664: E8 47 FB 1F 00              - call sora_1st.exe+22F1B0
+// ---------- DONE INJECTING  ----------
+sora_1st.exe+2F669: 41 F6 87 2C 03 00 00 20     - test byte ptr [r15+0000032C],20
+sora_1st.exe+2F671: 75 4C                       - jne sora_1st.exe+2F6BF
+sora_1st.exe+2F673: 48 8B 05 FE 6C 8B 00        - mov rax,[sora_1st.exe+8E6378]
+sora_1st.exe+2F67A: 44 39 A8 A0 1B 00 00        - cmp [rax+00001BA0],r13d
+sora_1st.exe+2F681: 75 3C                       - jne sora_1st.exe+2F6BF
+sora_1st.exe+2F683: F3 41 0F 10 87 18 03 00 00  - movss xmm0,[r15+00000318]
+sora_1st.exe+2F68C: F3 41 0F 10 8F E8 02 00 00  - movss xmm1,[r15+000002E8]
+sora_1st.exe+2F695: F3 0F 59 CE                 - mulss xmm1,xmm6
+sora_1st.exe+2F699: 48 8B 0D 70 39 8B 00        - mov rcx,[sora_1st.exe+8E3010]
+sora_1st.exe+2F6A0: 41 0F 2F C0                 - comiss xmm0,xmm8
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
       <ID>6</ID>
       <Description>"Hide HUD / Dialogue / Interface (F7 Toggle)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
