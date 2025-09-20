@@ -20,21 +20,21 @@ local ItemList = {
 "4102:Action 3",
 "4151:Action 3+",
 "2659:Agate - Alt. Color Outfit",
-"3633:Agate - Banner",
+"3633:Agate Banner",
 "3325:Agate - Blue Hair",
-"3608:Agate - Char. Stand",
+"3608:Agate Char. Stand",
 "4469:Agate - Chibi Cover",
-"3641:Agate - Classic Banner",
+"3641:Agate Classic Banner",
 "3082:Agate - Fine Red Diner Outfit",
 "2651:Agate - Hot Spring",
 "4461:Agate - Orbment Cover",
 "3084:Agate - Original Diner Outfit",
-"3600:Agate - Pom Pom Pal",
+"3600:Agate Pom Pom Pal",
 "3406:Agate - Smoky Pink Hair",
 "3405:Agate - Two-Tone Hair",
 "231:Alve Elixir",
 "257:Ancient Sea Chart",
-"3649:Anelace &amp; Carna - Banner",
+"3649:Anelace &amp; Carna Banner",
 "21:Antidote",
 "259:Anton's Wallet",
 "2301:Apple Compote",
@@ -61,7 +61,7 @@ local ItemList = {
 "3902:Attack 3",
 "3951:Attack 3+",
 "2015:Azalea Fruit",
-"2126:Azelia Rosè",
+"2126:Azelia Rosé",
 "222:Back Room Key",
 "558:Baselards",
 "559:Baselards+",
@@ -129,7 +129,7 @@ local ItemList = {
 "348:Carnelia Vol. 7",
 "349:Carnelia Vol. 8",
 "350:Carnelia Vol. 9",
-"3644:Cassius - Banner",
+"3644:Cassius Banner",
 "3588:Cassius Mascot Head",
 "4110:Cast 1",
 "4111:Cast 2",
@@ -161,7 +161,7 @@ local ItemList = {
 "802:Craft Cannon+",
 "1114:Craft Shoes",
 "1115:Craft Shoes+",
-"3612:Creepy Sheep - Char. Stand",
+"3612:Creepy Sheep Char. Stand",
 "1808:Crest Charm",
 "1809:Crest Charm+",
 "1812:Crimson Eye",
@@ -238,12 +238,12 @@ local ItemList = {
 "2250:Espresso Jelly",
 "2509:Estelle - Alt. Color Outfit",
 "2505:Estelle - Apron",
-"3628:Estelle - Banner",
+"3628:Estelle Banner",
 "3381:Estelle - Blond Hair",
 "2500:Estelle - Casual Outfit",
-"3603:Estelle - Char. Stand",
+"3603:Estelle Char. Stand",
 "4464:Estelle - Chibi Cover",
-"3636:Estelle - Classic Banner",
+"3636:Estelle Classic Banner",
 "2982:Estelle - Classic Style",
 "2503:Estelle - Crimson Knight",
 "3300:Estelle - Dark Hair",
@@ -255,7 +255,7 @@ local ItemList = {
 "4456:Estelle - Orbment Cover",
 "2994:Estelle - Original Diner Outfit",
 "2504:Estelle - Pajamas",
-"3595:Estelle - Pom Pom Pal",
+"3595:Estelle Pom Pom Pal",
 "2981:Estelle - Resort Style",
 "2991:Estelle - Royal Academy Uniform",
 "2990:Estelle - Summer Vacation",
@@ -299,7 +299,7 @@ local ItemList = {
 "2113:Fresh-Squeezed Juice",
 "2012:Freshly-Milled Flour",
 "2101:Fried Potatoes",
-"2306:Fried Samona with Tartar Sauce",
+"2306:Fried Samona",
 "552:Fruit Knives",
 "553:Fruit Knives+",
 "2140:Fruit Milk",
@@ -371,15 +371,15 @@ local ItemList = {
 "245:Invitation",
 "2137:Jenis Lunch",
 "214:Jeweled Ring",
-"3645:Josette - Banner",
+"3645:Josette Banner",
 "2539:Joshua - Alt. Color Outfit",
 "2535:Joshua - Apron",
-"3629:Joshua - Banner",
+"3629:Joshua Banner",
 "3305:Joshua - Brown Hair",
 "2530:Joshua - Casual Outfit",
-"3604:Joshua - Char. Stand",
+"3604:Joshua Char. Stand",
 "4465:Joshua - Chibi Cover",
-"3637:Joshua - Classic Banner",
+"3637:Joshua Classic Banner",
 "3002:Joshua - Classic Style",
 "3012:Joshua - Fine Red Diner Outfit",
 "2531:Joshua - Hot Spring",
@@ -387,7 +387,7 @@ local ItemList = {
 "3587:Joshua Mascot Head",
 "4457:Joshua - Orbment Cover",
 "3014:Joshua - Original Diner Outfit",
-"3596:Joshua - Pom Pom Pal",
+"3596:Joshua Pom Pom Pal",
 "3306:Joshua - Red Hair",
 "3001:Joshua - Resort Style",
 "3011:Joshua - Royal Academy Uniform",
@@ -401,23 +401,23 @@ local ItemList = {
 "557:Katars+",
 "2629:Kloe - Alt. Color Outfit",
 "2623:Kloe - Azure Knight  ",
-"3632:Kloe - Banner",
-"3607:Kloe - Char. Stand",
+"3632:Kloe Banner",
+"3607:Kloe Char. Stand",
 "4468:Kloe - Chibi Cover",
-"3640:Kloe - Classic Banner",
+"3640:Kloe Classic Banner",
 "3062:Kloe - Fine Red Diner Outfit",
 "2621:Kloe - Hot Spring",
 "3320:Kloe - Light Brown Hair　",
 "3401:Kloe - Lime Green Hair",
 "4460:Kloe - Orbment Cover",
 "3064:Kloe - Original Diner Outfit",
-"3599:Kloe - Pom Pom Pal",
+"3599:Kloe Pom Pom Pal",
 "2622:Kloe - Princess",
 "3400:Kloe - Two-Tone Hair",
 "562:Kukris",
 "563:Kukris+",
 "551:Kunai",
-"3650:Kurt &amp; Grant - Banner",
+"3650:Kurt &amp; Grant Banner",
 "1103:Laced Boots",
 "503:Laundry Pole",
 "504:Laundry Pole+",
@@ -449,7 +449,7 @@ local ItemList = {
 "1616:Lily Necklace",
 "1617:Lily Necklace+",
 "4250:Lone Blade",
-"3647:Lt. Lorence - Banner",
+"3647:Lorence Banner",
 "341:Luke's Diary",
 "659:Magester",
 "660:Magester+",
@@ -503,7 +503,7 @@ local ItemList = {
 "2980:NEO Bracer Outfit",
 "650:Needler",
 "651:Needler+",
-"3648:Nial &amp; Dorothy - Banner",
+"3648:Nial &amp; Dorothy Banner",
 "605:Nine Tails",
 "606:Nine Tails+",
 "511:Octagonal Staff",
@@ -511,17 +511,17 @@ local ItemList = {
 "2218:Oily Soup",
 "2017:Olive Oil",
 "2599:Olivier - Alt. Color Outfit",
-"3631:Olivier - Banner",
-"3606:Olivier - Char. Stand",
+"3631:Olivier Banner",
+"3606:Olivier Char. Stand",
 "4467:Olivier - Chibi Cover",
-"3639:Olivier - Classic Banner",
+"3639:Olivier Classic Banner",
 "3315:Olivier - Dark Blue Hair",
 "3042:Olivier - Fine Red Diner Outfit",
 "3396:Olivier - Gray Hair",
 "2591:Olivier - Hot Spring",
 "4459:Olivier - Orbment Cover",
 "3044:Olivier - Original Diner Outfit",
-"3598:Olivier - Pom Pom Pal",
+"3598:Olivier Pom Pom Pal",
 "3395:Olivier - Two-Tone Hair",
 "2231:Orange Extract",
 "2131:Orange Ice Cream",
@@ -538,7 +538,7 @@ local ItemList = {
 "258:Pink Creepy Sheep's Wool",
 "3592:Pink Pengu Head",
 "3720:Poison Blade",
-"3611:Pom - Char. Stand",
+"3611:Pom Char. Stand",
 "4450:Pom Cover",
 "2146:Portable Bouillabaisse",
 "3614:Portable Bunny",
@@ -547,7 +547,7 @@ local ItemList = {
 "2237:Power Lunch",
 "2204:Power Sandwich",
 "209:Priest's Letter",
-"3646:Professor Alba - Banner",
+"3646:Professor Alba Banner",
 "217:Progressive Rod",
 "653:Prototype Zero",
 "1805:Proxy Puppet L",
@@ -579,7 +579,7 @@ local ItemList = {
 "22:Relaxant Gel",
 "751:Rhomphaia",
 "3581:Rich Gold Sunglasses",
-"3651:Richard &amp; Kanone - Banner",
+"3651:Richard &amp; Kanone Banner",
 "2013:Ripe Apple",
 "2200:Rock-Hard Cookies",
 "242:Room 202 Key",
@@ -605,16 +605,16 @@ local ItemList = {
 "2117:Samona Meunière",
 "3830:Sapphire Shield",
 "2569:Scherazard - Alt. Color Outfit",
-"3630:Scherazard - Banner",
-"3605:Scherazard - Char. Stand",
+"3630:Scherazard Banner",
+"3605:Scherazard Char. Stand",
 "4466:Scherazard - Chibi Cover",
-"3638:Scherazard - Classic Banner",
+"3638:Scherazard Classic Banner",
 "3022:Scherazard - Fine Red Diner Outfit",
 "3310:Scherazard - Gold Hair",
 "2561:Scherazard - Hot Spring",
 "4458:Scherazard - Orbment Cover",
 "3024:Scherazard - Original Diner Outfit",
-"3597:Scherazard - Pom Pom Pal",
+"3597:Scherazard Pom Pom Pal",
 "3391:Scherazard - Purple Hair",
 "3390:Scherazard - Two-Tone Hair",
 "566:Schneiders",
@@ -673,7 +673,7 @@ local ItemList = {
 "3461:Square Frame - Black",
 "3460:Square Frame - Silver",
 "2217:Squishy Meunière",
-"2127:Steamed Fish Roe in Sake",
+"2127:Steamed Roe in Sake",
 "3582:Steampunk Glasses",
 "654:Stinger",
 "3585:Stranger Spectacles",
@@ -718,17 +718,17 @@ local ItemList = {
 "1811:Tiger Heart+",
 "314:Time Sepith",
 "2689:Tita - Alt. Color Outfit",
-"3634:Tita - Banner",
-"3609:Tita - Char. Stand",
+"3634:Tita Banner",
+"3609:Tita Char. Stand",
 "4470:Tita - Chibi Cover",
-"3642:Tita - Classic Banner",
+"3642:Tita Classic Banner",
 "3102:Tita - Fine Red Diner Outfit",
 "2681:Tita - Hot Spring",
 "3411:Tita - Light Blue Hair",
 "4462:Tita - Orbment Cover",
 "3104:Tita - Original Diner Outfit",
 "3330:Tita - Pink Hair",
-"3601:Tita - Pom Pom Pal",
+"3601:Tita Pom Pom Pal",
 "3101:Tita - Royal Academy Uniform",
 "3410:Tita - Two-Tone Hair",
 "335:Tomorrow's Cooking",
@@ -778,17 +778,17 @@ local ItemList = {
 "16:Zeram Capsule",
 "15:Zeram Powder",
 "2719:Zin - Alt. Color Outfit",
-"3635:Zin - Banner",
-"3610:Zin - Char. Stand",
+"3635:Zin Banner",
+"3610:Zin Char. Stand",
 "4471:Zin - Chibi Cover",
-"3643:Zin - Classic Banner",
+"3643:Zin Classic Banner",
 "3335:Zin - Dark Green Hair",
 "3122:Zin - Fine Red Diner Outfit",
 "2711:Zin - Hot Spring",
 "3416:Zin - Orange Hair",
 "4463:Zin - Orbment Cover",
 "3124:Zin - Original Diner Outfit",
-"3602:Zin - Pom Pom Pal",
+"3602:Zin Pom Pom Pal",
 "3415:Zin - Two-Tone Hair",
 "756:Zweihander"
 }
@@ -806,7 +806,7 @@ al[mr2.Index].DisplayAsDropDownListItem = true
 
 {$asm}
 
-aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 83) // should be unique
+aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 F3) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -839,31 +839,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3EC030
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3F6120
 
-sora_1st.exe+3EC007: 48 85 FF              - test rdi,rdi
-sora_1st.exe+3EC00A: 74 06                 - je sora_1st.exe+3EC012
-sora_1st.exe+3EC00C: 48 8B 7F 10           - mov rdi,[rdi+10]
-sora_1st.exe+3EC010: EB 03                 - jmp sora_1st.exe+3EC015
-sora_1st.exe+3EC012: 49 8B FE              - mov rdi,r14
-sora_1st.exe+3EC015: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
-sora_1st.exe+3EC01C: 48 8B 35 45 76 4F 00  - mov rsi,[sora_1st.exe+8E3668]
-sora_1st.exe+3EC023: 8B 68 10              - mov ebp,[rax+10]
-sora_1st.exe+3EC026: 41 83 F8 01           - cmp r8d,01
-sora_1st.exe+3EC02A: 0F 85 D9 00 00 00     - jne sora_1st.exe+3EC109
+sora_1st.exe+3F60F7: 48 85 FF              - test rdi,rdi
+sora_1st.exe+3F60FA: 74 06                 - je sora_1st.exe+3F6102
+sora_1st.exe+3F60FC: 48 8B 7F 10           - mov rdi,[rdi+10]
+sora_1st.exe+3F6100: EB 03                 - jmp sora_1st.exe+3F6105
+sora_1st.exe+3F6102: 49 8B FE              - mov rdi,r14
+sora_1st.exe+3F6105: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
+sora_1st.exe+3F610C: 48 8B 35 AD 8E 50 00  - mov rsi,[sora_1st.exe+8FEFC0]
+sora_1st.exe+3F6113: 8B 68 10              - mov ebp,[rax+10]
+sora_1st.exe+3F6116: 41 83 F8 01           - cmp r8d,01
+sora_1st.exe+3F611A: 0F 85 D9 00 00 00     - jne sora_1st.exe+3F61F9
 // ---------- INJECTING HERE ----------
-sora_1st.exe+3EC030: 8B 17                 - mov edx,[rdi]
+sora_1st.exe+3F6120: 8B 17                 - mov edx,[rdi]
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+3EC032: 44 8B C5              - mov r8d,ebp
-sora_1st.exe+3EC035: 48 8B CE              - mov rcx,rsi
-sora_1st.exe+3EC038: E8 83 77 F6 FF        - call sora_1st.exe+3537C0
-sora_1st.exe+3EC03D: 84 C0                 - test al,al
-sora_1st.exe+3EC03F: 0F 84 81 03 00 00     - je sora_1st.exe+3EC3C6
-sora_1st.exe+3EC045: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
-sora_1st.exe+3EC04C: 0F 57 C0              - xorps xmm0,xmm0
-sora_1st.exe+3EC04F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
-sora_1st.exe+3EC053: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
-sora_1st.exe+3EC05A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax160
+sora_1st.exe+3F6122: 44 8B C5              - mov r8d,ebp
+sora_1st.exe+3F6125: 48 8B CE              - mov rcx,rsi
+sora_1st.exe+3F6128: E8 F3 74 F6 FF        - call sora_1st.exe+35D620
+sora_1st.exe+3F612D: 84 C0                 - test al,al
+sora_1st.exe+3F612F: 0F 84 81 03 00 00     - je sora_1st.exe+3F64B6
+sora_1st.exe+3F6135: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
+sora_1st.exe+3F613C: 0F 57 C0              - xorps xmm0,xmm0
+sora_1st.exe+3F613F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
+sora_1st.exe+3F6143: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
+sora_1st.exe+3F614A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
 }
 </AssemblerScript>
       <CheatEntries>
@@ -881,7 +881,7 @@ sora_1st.exe+3EC05A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax160
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_1st.exe+8E3668</Address>
+      <Address>sora_1st.exe+8FEFC0</Address>
       <Offsets>
         <Offset>001F3900</Offset>
       </Offsets>
