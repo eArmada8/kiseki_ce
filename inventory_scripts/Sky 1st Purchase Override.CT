@@ -881,7 +881,7 @@ sora_1st.exe+3F67AA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_1st.exe+903190</Address>
+      <Address>sora_1st.exe+904180</Address>
       <Offsets>
         <Offset>001F3900</Offset>
       </Offsets>
