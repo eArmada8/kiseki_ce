@@ -601,6 +601,7 @@ local ItemList = {
 "1121:Safety Work Boots+",
 "2104:Salad Sandwich",
 "2128:Salt-Crusted Small Fish",
+"2022:Salty Anchovies",
 "2053:Samona",
 "2117:Samona Meunière",
 "3830:Sapphire Shield",
@@ -663,7 +664,6 @@ local ItemList = {
 "2152:Special Ice Cream",
 "237:Spectator Ticket",
 "2210:Speedy Castella",
-"2022:Spicy Anchovies",
 "2225:Spicy Tea",
 "2248:Spicy Wild Veggie Hot Pot",
 "509:Spike Rod",
@@ -806,7 +806,7 @@ al[mr2.Index].DisplayAsDropDownListItem = true
 
 {$asm}
 
-aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 73) // should be unique
+aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 D3) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -839,31 +839,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3F6780
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3F8FE0
 
-sora_1st.exe+3F6757: 48 85 FF              - test rdi,rdi
-sora_1st.exe+3F675A: 74 06                 - je sora_1st.exe+3F6762
-sora_1st.exe+3F675C: 48 8B 7F 10           - mov rdi,[rdi+10]
-sora_1st.exe+3F6760: EB 03                 - jmp sora_1st.exe+3F6765
-sora_1st.exe+3F6762: 49 8B FE              - mov rdi,r14
-sora_1st.exe+3F6765: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
-sora_1st.exe+3F676C: 48 8B 35 1D CA 50 00  - mov rsi,[sora_1st.exe+903190]
-sora_1st.exe+3F6773: 8B 68 10              - mov ebp,[rax+10]
-sora_1st.exe+3F6776: 41 83 F8 01           - cmp r8d,01
-sora_1st.exe+3F677A: 0F 85 D9 00 00 00     - jne sora_1st.exe+3F6859
+sora_1st.exe+3F8FB7: 48 85 FF              - test rdi,rdi
+sora_1st.exe+3F8FBA: 74 06                 - je sora_1st.exe+3F8FC2
+sora_1st.exe+3F8FBC: 48 8B 7F 10           - mov rdi,[rdi+10]
+sora_1st.exe+3F8FC0: EB 03                 - jmp sora_1st.exe+3F8FC5
+sora_1st.exe+3F8FC2: 49 8B FE              - mov rdi,r14
+sora_1st.exe+3F8FC5: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
+sora_1st.exe+3F8FCC: 48 8B 35 3D DE 50 00  - mov rsi,[sora_1st.exe+906E10]
+sora_1st.exe+3F8FD3: 8B 68 10              - mov ebp,[rax+10]
+sora_1st.exe+3F8FD6: 41 83 F8 01           - cmp r8d,01
+sora_1st.exe+3F8FDA: 0F 85 D9 00 00 00     - jne sora_1st.exe+3F90B9
 // ---------- INJECTING HERE ----------
-sora_1st.exe+3F6780: 8B 17                 - mov edx,[rdi]
+sora_1st.exe+3F8FE0: 8B 17                 - mov edx,[rdi]
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+3F6782: 44 8B C5              - mov r8d,ebp
-sora_1st.exe+3F6785: 48 8B CE              - mov rcx,rsi
-sora_1st.exe+3F6788: E8 73 70 F6 FF        - call sora_1st.exe+35D800
-sora_1st.exe+3F678D: 84 C0                 - test al,al
-sora_1st.exe+3F678F: 0F 84 81 03 00 00     - je sora_1st.exe+3F6B16
-sora_1st.exe+3F6795: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
-sora_1st.exe+3F679C: 0F 57 C0              - xorps xmm0,xmm0
-sora_1st.exe+3F679F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
-sora_1st.exe+3F67A3: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
-sora_1st.exe+3F67AA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
+sora_1st.exe+3F8FE2: 44 8B C5              - mov r8d,ebp
+sora_1st.exe+3F8FE5: 48 8B CE              - mov rcx,rsi
+sora_1st.exe+3F8FE8: E8 D3 6E F6 FF        - call sora_1st.exe+35FEC0
+sora_1st.exe+3F8FED: 84 C0                 - test al,al
+sora_1st.exe+3F8FEF: 0F 84 81 03 00 00     - je sora_1st.exe+3F9376
+sora_1st.exe+3F8FF5: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
+sora_1st.exe+3F8FFC: 0F 57 C0              - xorps xmm0,xmm0
+sora_1st.exe+3F8FFF: 0F B7 40 22           - movzx eax,word ptr [rax+22]
+sora_1st.exe+3F9003: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
+sora_1st.exe+3F900A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
 }
 </AssemblerScript>
       <CheatEntries>
@@ -881,7 +881,7 @@ sora_1st.exe+3F67AA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_1st.exe+904180</Address>
+      <Address>sora_1st.exe+906E10</Address>
       <Offsets>
         <Offset>001F3900</Offset>
       </Offsets>
