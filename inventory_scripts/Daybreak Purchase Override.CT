@@ -1134,31 +1134,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro.exe+2EBC21
+// ORIGINAL CODE - INJECTION POINT: kuro.exe+2EF315
 
-kuro.exe+2EBBF0: 48 89 5C 24 08           - mov [rsp+08],rbx
-kuro.exe+2EBBF5: 48 89 74 24 10           - mov [rsp+10],rsi
-kuro.exe+2EBBFA: 48 89 7C 24 18           - mov [rsp+18],rdi
-kuro.exe+2EBBFF: 4C 89 74 24 20           - mov [rsp+20],r14
-kuro.exe+2EBC04: 55                       - push rbp
-kuro.exe+2EBC05: 48 8D AC 24 E0 FC FF FF  - lea rbp,[rsp-00000320]
-kuro.exe+2EBC0D: 48 81 EC 20 04 00 00     - sub rsp,00000420
-kuro.exe+2EBC14: 48 8B 05 8D 18 62 00     - mov rax,[kuro.exe+90D4A8]
-kuro.exe+2EBC1B: 48 8B F1                 - mov rsi,rcx
-kuro.exe+2EBC1E: 45 8B F0                 - mov r14d,r8d
+kuro.exe+2EF2EE: CC                    - int 3 
+kuro.exe+2EF2EF: CC                    - int 3 
+kuro.exe+2EF2F0: 48 89 5C 24 08        - mov [rsp+08],rbx
+kuro.exe+2EF2F5: 48 89 74 24 10        - mov [rsp+10],rsi
+kuro.exe+2EF2FA: 48 89 7C 24 18        - mov [rsp+18],rdi
+kuro.exe+2EF2FF: 41 56                 - push r14
+kuro.exe+2EF301: 48 81 EC 20 04 00 00  - sub rsp,00000420
+kuro.exe+2EF308: 48 8B 05 D9 EB 5A 00  - mov rax,[kuro.exe+89DEE8]
+kuro.exe+2EF30F: 48 8B F1              - mov rsi,rcx
+kuro.exe+2EF312: 45 8B F0              - mov r14d,r8d
 // ---------- INJECTING HERE ----------
-kuro.exe+2EBC21: 8B FA                    - mov edi,edx
+kuro.exe+2EF315: 8B FA                 - mov edi,edx
 // ---------- DONE INJECTING  ----------
-kuro.exe+2EBC23: 48 8B 48 38              - mov rcx,[rax+38]
-kuro.exe+2EBC27: 48 8B 49 08              - mov rcx,[rcx+08]
-kuro.exe+2EBC2B: E8 C0 20 EE FF           - call kuro.exe+1CDCF0
-kuro.exe+2EBC30: 48 8B D8                 - mov rbx,rax
-kuro.exe+2EBC33: 48 85 C0                 - test rax,rax
-kuro.exe+2EBC36: 75 35                    - jne kuro.exe+2EBC6D
-kuro.exe+2EBC38: 48 8D 05 01 88 4E 00     - lea rax,[kuro.exe+7D4440]
-kuro.exe+2EBC3F: 89 7C 24 28              - mov [rsp+28],edi
-kuro.exe+2EBC43: 41 B9 5D 04 00 00        - mov r9d,0000045D
-kuro.exe+2EBC49: 48 89 44 24 20           - mov [rsp+20],rax
+kuro.exe+2EF317: 48 8B 48 38           - mov rcx,[rax+38]
+kuro.exe+2EF31B: 48 8B 49 08           - mov rcx,[rcx+08]
+kuro.exe+2EF31F: E8 1C 06 EE FF        - call kuro.exe+1CF940
+kuro.exe+2EF324: 48 8B D8              - mov rbx,rax
+kuro.exe+2EF327: 48 85 C0              - test rax,rax
+kuro.exe+2EF32A: 75 35                 - jne kuro.exe+2EF361
+kuro.exe+2EF32C: 48 8D 05 5D E9 48 00  - lea rax,[kuro.exe+77DC90]
+kuro.exe+2EF333: 89 7C 24 28           - mov [rsp+28],edi
+kuro.exe+2EF337: 41 B9 5D 04 00 00     - mov r9d,0000045D
+kuro.exe+2EF33D: 48 89 44 24 20        - mov [rsp+20],rax
 }
 </AssemblerScript>
       <CheatEntries>
@@ -1176,7 +1176,7 @@ kuro.exe+2EBC49: 48 89 44 24 20           - mov [rsp+20],rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>kuro.exe+914A90</Address>
+      <Address>kuro.exe+89DF50</Address>
       <Offsets>
         <Offset>001901A8</Offset>
       </Offsets>
