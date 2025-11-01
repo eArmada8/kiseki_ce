@@ -815,7 +815,7 @@ sora_1st.exe+1BADBD: F3 0F 10 68 10                 - movss xmm5,[rax+10]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,sora_1st.exe,0F 28 C6 F3 41 0F 11 B7 D8 02 00 00) // should be unique
-aobscanmodule(freezeaction_aob1,sora_1st.exe,E8 87 95 20 00) // should be unique
+aobscanmodule(freezeaction_aob1,sora_1st.exe,E8 B7 96 20 00) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -891,7 +891,7 @@ code1:
   jmp return1
 @@:
   popf
-  call sora_1st.exe+238B50
+  call sora_1st.exe+238D50
   jmp return1
 
 freeze:
@@ -912,7 +912,7 @@ freezemonitorinjectionpoint_aob:
   db 0F 28 C6 F3 41 0F 11 B7 D8 02 00 00
 
 freezeaction_aob1:
-  db E8 87 95 20 00
+  db E8 B7 96 20 00
 
 unregistersymbol(freezemonitorinjectionpoint_aob)
 unregistersymbol(freezeaction_aob1)
@@ -920,57 +920,57 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F4EF - Safe injection point to check keypresses
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F5BF - Safe injection point to check keypresses
 
-sora_1st.exe+2F4CF: 48 8B 54 C3 10              - mov rdx,[rbx+rax*8+10]
-sora_1st.exe+2F4D4: 0F 28 CE                    - movaps xmm1,xmm6
-sora_1st.exe+2F4D7: 48 8B 4B 08                 - mov rcx,[rbx+08]
-sora_1st.exe+2F4DB: FF D2                       - call rdx
-sora_1st.exe+2F4DD: 8B 46 30                    - mov eax,[rsi+30]
-sora_1st.exe+2F4E0: FF C0                       - inc eax
-sora_1st.exe+2F4E2: B9 F8 FF FF 7F              - mov ecx,7FFFFFF8
-sora_1st.exe+2F4E7: 3B C1                       - cmp eax,ecx
-sora_1st.exe+2F4E9: 0F 4F C1                    - cmovg eax,ecx
-sora_1st.exe+2F4EC: 89 46 30                    - mov [rsi+30],eax
+sora_1st.exe+2F59F: 48 8B 54 C3 10              - mov rdx,[rbx+rax*8+10]
+sora_1st.exe+2F5A4: 0F 28 CE                    - movaps xmm1,xmm6
+sora_1st.exe+2F5A7: 48 8B 4B 08                 - mov rcx,[rbx+08]
+sora_1st.exe+2F5AB: FF D2                       - call rdx
+sora_1st.exe+2F5AD: 8B 46 30                    - mov eax,[rsi+30]
+sora_1st.exe+2F5B0: FF C0                       - inc eax
+sora_1st.exe+2F5B2: B9 F8 FF FF 7F              - mov ecx,7FFFFFF8
+sora_1st.exe+2F5B7: 3B C1                       - cmp eax,ecx
+sora_1st.exe+2F5B9: 0F 4F C1                    - cmovg eax,ecx
+sora_1st.exe+2F5BC: 89 46 30                    - mov [rsi+30],eax
 // ---------- INJECTING HERE ----------
-sora_1st.exe+2F4EF: 0F 28 C6                    - movaps xmm0,xmm6
+sora_1st.exe+2F5BF: 0F 28 C6                    - movaps xmm0,xmm6
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+2F4F2: F3 41 0F 11 B7 D8 02 00 00  - movss [r15+000002D8],xmm6
-sora_1st.exe+2F4FB: F3 41 0F 10 8F 18 03 00 00  - movss xmm1,[r15+00000318]
-sora_1st.exe+2F504: 45 0F 57 C0                 - xorps xmm8,xmm8
-sora_1st.exe+2F508: 41 0F 2F C8                 - comiss xmm1,xmm8
-sora_1st.exe+2F50C: 76 07                       - jna sora_1st.exe+2F515
-sora_1st.exe+2F50E: 0F 28 C1                    - movaps xmm0,xmm1
-sora_1st.exe+2F511: F3 0F 59 C6                 - mulss xmm0,xmm6
-sora_1st.exe+2F515: F3 41 0F 11 B7 28 02 00 00  - movss [r15+00000228],xmm6
-sora_1st.exe+2F51E: F3 45 0F 11 8F 2C 02 00 00  - movss [r15+0000022C],xmm9
-sora_1st.exe+2F527: 41 8B 87 2C 03 00 00        - mov eax,[r15+0000032C]
+sora_1st.exe+2F5C2: F3 41 0F 11 B7 D8 02 00 00  - movss [r15+000002D8],xmm6
+sora_1st.exe+2F5CB: F3 41 0F 10 8F 18 03 00 00  - movss xmm1,[r15+00000318]
+sora_1st.exe+2F5D4: 45 0F 57 C0                 - xorps xmm8,xmm8
+sora_1st.exe+2F5D8: 41 0F 2F C8                 - comiss xmm1,xmm8
+sora_1st.exe+2F5DC: 76 07                       - jna sora_1st.exe+2F5E5
+sora_1st.exe+2F5DE: 0F 28 C1                    - movaps xmm0,xmm1
+sora_1st.exe+2F5E1: F3 0F 59 C6                 - mulss xmm0,xmm6
+sora_1st.exe+2F5E5: F3 41 0F 11 B7 28 02 00 00  - movss [r15+00000228],xmm6
+sora_1st.exe+2F5EE: F3 45 0F 11 8F 2C 02 00 00  - movss [r15+0000022C],xmm9
+sora_1st.exe+2F5F7: 41 8B 87 2C 03 00 00        - mov eax,[r15+0000032C]
 
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F5C4 - Freeze action 1
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2F694 - Freeze action 1
 
-sora_1st.exe+2F599: 0F 1F 80 00 00 00 00        - nop dword ptr [rax+00000000]
-sora_1st.exe+2F5A0: 48 8B 0B                    - mov rcx,[rbx]
-sora_1st.exe+2F5A3: 48 8B 01                    - mov rax,[rcx]
-sora_1st.exe+2F5A6: 0F 28 CF                    - movaps xmm1,xmm7
-sora_1st.exe+2F5A9: FF 50 18                    - call qword ptr [rax+18]
-sora_1st.exe+2F5AC: 48 8D 5B 08                 - lea rbx,[rbx+08]
-sora_1st.exe+2F5B0: 48 83 EF 01                 - sub rdi,01
-sora_1st.exe+2F5B4: 75 EA                       - jne sora_1st.exe+2F5A0
-sora_1st.exe+2F5B6: 49 8D 97 28 02 00 00        - lea rdx,[r15+00000228]
-sora_1st.exe+2F5BD: 48 8B 0D 04 78 8D 00        - mov rcx,[sora_1st.exe+906DC8]
+sora_1st.exe+2F669: 0F 1F 80 00 00 00 00        - nop dword ptr [rax+00000000]
+sora_1st.exe+2F670: 48 8B 0B                    - mov rcx,[rbx]
+sora_1st.exe+2F673: 48 8B 01                    - mov rax,[rcx]
+sora_1st.exe+2F676: 0F 28 CF                    - movaps xmm1,xmm7
+sora_1st.exe+2F679: FF 50 18                    - call qword ptr [rax+18]
+sora_1st.exe+2F67C: 48 8D 5B 08                 - lea rbx,[rbx+08]
+sora_1st.exe+2F680: 48 83 EF 01                 - sub rdi,01
+sora_1st.exe+2F684: 75 EA                       - jne sora_1st.exe+2F670
+sora_1st.exe+2F686: 49 8D 97 28 02 00 00        - lea rdx,[r15+00000228]
+sora_1st.exe+2F68D: 48 8B 0D 44 87 8D 00        - mov rcx,[sora_1st.exe+907DD8]
 // ---------- INJECTING HERE ----------
-sora_1st.exe+2F5C4: E8 87 95 20 00              - call sora_1st.exe+238B50
+sora_1st.exe+2F694: E8 B7 96 20 00              - call sora_1st.exe+238D50
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+2F5C9: 41 F6 87 2C 03 00 00 20     - test byte ptr [r15+0000032C],20
-sora_1st.exe+2F5D1: 75 4F                       - jne sora_1st.exe+2F622
-sora_1st.exe+2F5D3: 48 8B 05 EE 77 8D 00        - mov rax,[sora_1st.exe+906DC8]
-sora_1st.exe+2F5DA: 44 39 A8 A0 1B 00 00        - cmp [rax+00001BA0],r13d
-sora_1st.exe+2F5E1: 75 3F                       - jne sora_1st.exe+2F622
-sora_1st.exe+2F5E3: F3 41 0F 10 87 18 03 00 00  - movss xmm0,[r15+00000318]
-sora_1st.exe+2F5EC: F3 41 0F 10 97 E8 02 00 00  - movss xmm2,[r15+000002E8]
-sora_1st.exe+2F5F5: 0F 28 CE                    - movaps xmm1,xmm6
-sora_1st.exe+2F5F8: 48 8B 0D 51 42 8D 00        - mov rcx,[sora_1st.exe+903850]
-sora_1st.exe+2F5FF: F3 0F 59 CA                 - mulss xmm1,xmm2
+sora_1st.exe+2F699: 41 F6 87 2C 03 00 00 20     - test byte ptr [r15+0000032C],20
+sora_1st.exe+2F6A1: 75 4F                       - jne sora_1st.exe+2F6F2
+sora_1st.exe+2F6A3: 48 8B 05 2E 87 8D 00        - mov rax,[sora_1st.exe+907DD8]
+sora_1st.exe+2F6AA: 44 39 A8 A0 1B 00 00        - cmp [rax+00001BA0],r13d
+sora_1st.exe+2F6B1: 75 3F                       - jne sora_1st.exe+2F6F2
+sora_1st.exe+2F6B3: F3 41 0F 10 87 18 03 00 00  - movss xmm0,[r15+00000318]
+sora_1st.exe+2F6BC: F3 41 0F 10 97 E8 02 00 00  - movss xmm2,[r15+000002E8]
+sora_1st.exe+2F6C5: 0F 28 CE                    - movaps xmm1,xmm6
+sora_1st.exe+2F6C8: 48 8B 0D 91 51 8D 00        - mov rcx,[sora_1st.exe+904860]
+sora_1st.exe+2F6CF: F3 0F 59 CA                 - mulss xmm1,xmm2
 }
 </AssemblerScript>
     </CheatEntry>
