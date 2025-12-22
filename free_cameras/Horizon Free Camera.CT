@@ -18,15 +18,21 @@ mouseSensitivity:
 dd (float)8
 
 aobscanmodule(cameracoordinates_aob,kai.exe,48 8B 8F 90 06 00 00 48 8D 96 C8) // should be unique
+aobscanmodule(cutscene_cameracoordinates_aob,kai.exe,48 8B CB E8 81 D8 FC FF) // should be unique
+aobscanmodule(cutscene_camera_target_aob,kai.exe,E8 6B D8 FC FF) // should be unique
 aobscanmodule(moveplayer_aob,kai.exe,74 26 4C 8B 44 C3 08) // should be unique
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 registersymbol(cameracoordinates_aob)
+registersymbol(cutscene_cameracoordinates_aob)
+registersymbol(cutscene_camera_target_aob)
 registersymbol(moveplayer_aob)
 registersymbol(cameracoordinates)
 
 label(code)
 label(return)
+label(code1)
+label(return1)
 
 newmem:
 
@@ -35,10 +41,23 @@ code:
   mov [cameracoordinates],rcx
   jmp return
 
+code1:
+  mov rcx,rbx
+  mov [cameracoordinates],rcx
+  jmp return1
+
 cameracoordinates_aob:
-  jmp newmem
+  jmp code
   nop 2
 return:
+
+cutscene_cameracoordinates_aob:
+  jmp code1
+  nop 3
+return1:
+
+cutscene_camera_target_aob:
+  db 90 90 90 90 90
 
 cameracoordinates_aob+E:
   db 90 90 90 90 90 48 8B 8F 90 06 00 00 48 8D 96 04 02 00 00 90 90 90 90 90 48 8B 8F 90 06 00 00 48 8D 96 40 02 00 00 90 90 90 90 90
@@ -243,6 +262,12 @@ timer_setEnabled(t, false)
 cameracoordinates_aob:
   db 48 8B 8F 90 06 00 00
 
+cutscene_cameracoordinates_aob:
+  db 48 8B CB E8 81 D8 FC FF
+
+cutscene_camera_target_aob:
+  db E8 6B D8 FC FF
+
 cameracoordinates_aob+E:
   db E8 92 98 53 00 48 8B 8F 90 06 00 00 48 8D 96 04 02 00 00 E8 AF 98 53 00 48 8B 8F 90 06 00 00 48 8D 96 40 02 00 00 E8 EC 98 53 00
 
@@ -250,6 +275,8 @@ moveplayer_aob:
   db 74 26
 
 unregistersymbol(cameracoordinates_aob)
+unregistersymbol(cutscene_cameracoordinates_aob)
+unregistersymbol(cutscene_camera_target_aob)
 unregistersymbol(moveplayer_aob)
 unregistersymbol(cameracoordinates)
 dealloc(cameracoordinates)
@@ -282,6 +309,49 @@ kai.exe+17122F: E8 EC 98 53 00           - call kai.exe+6AAB20
 // ---------- DONE INJECTING  ----------
 kai.exe+171234: 83 BF 30 07 00 00 00     - cmp dword ptr [rdi+00000730],00
 kai.exe+17123B: 0F 10 86 28 03 00 00     - movups xmm0,[rsi+00000328]
+
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6DD217 - Cutscene Camera Coordinates and Control
+
+kai.exe+6DD1E7: 48 85 C9              - test rcx,rcx
+kai.exe+6DD1EA: 74 33                 - je kai.exe+6DD21F
+kai.exe+6DD1EC: E8 EF C5 FD FF        - call kai.exe+6B97E0
+kai.exe+6DD1F1: F3 0F 10 50 38        - movss xmm2,[rax+38]
+kai.exe+6DD1F6: F3 0F 10 48 34        - movss xmm1,[rax+34]
+kai.exe+6DD1FB: F3 0F 10 40 30        - movss xmm0,[rax+30]
+kai.exe+6DD200: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
+kai.exe+6DD206: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
+kai.exe+6DD20C: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
+kai.exe+6DD212: 48 8D 54 24 30        - lea rdx,[rsp+30]
+// ---------- INJECTING HERE ----------
+kai.exe+6DD217: 48 8B CB              - mov rcx,rbx
+kai.exe+6DD21A: E8 81 D8 FC FF        - call kai.exe+6AAAA0
+// ---------- DONE INJECTING  ----------
+kai.exe+6DD21F: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
+kai.exe+6DD226: 48 85 C9              - test rcx,rcx
+kai.exe+6DD229: 74 3A                 - je kai.exe+6DD265
+kai.exe+6DD22B: 48 8B 9E 48 01 00 00  - mov rbx,[rsi+00000148]
+kai.exe+6DD232: E8 A9 C5 FD FF        - call kai.exe+6B97E0
+kai.exe+6DD237: F3 0F 10 50 38        - movss xmm2,[rax+38]
+kai.exe+6DD23C: F3 0F 10 48 34        - movss xmm1,[rax+34]
+kai.exe+6DD241: F3 0F 10 40 30        - movss xmm0,[rax+30]
+kai.exe+6DD246: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
+kai.exe+6DD24C: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
+kai.exe+6DD252: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
+kai.exe+6DD258: 48 8D 54 24 30        - lea rdx,[rsp+30]
+kai.exe+6DD25D: 48 8B CB              - mov rcx,rbx
+// ---------- INJECTING HERE ----------
+kai.exe+6DD260: E8 6B D8 FC FF        - call kai.exe+6AAAD0
+// ---------- DONE INJECTING  ----------
+kai.exe+6DD265: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
+kai.exe+6DD26C: 48 85 C9              - test rcx,rcx
+kai.exe+6DD26F: 74 24                 - je kai.exe+6DD295
+kai.exe+6DD271: E8 2A C5 FD FF        - call kai.exe+6B97A0
+kai.exe+6DD276: 48 8D 54 24 30        - lea rdx,[rsp+30]
+kai.exe+6DD27B: 48 8B C8              - mov rcx,rax
+kai.exe+6DD27E: E8 0D CC FB FF        - call kai.exe+699E90
+kai.exe+6DD283: F3 0F 10 4C 24 38     - movss xmm1,[rsp+38]
+kai.exe+6DD289: 48 8B 8E 48 01 00 00  - mov rcx,[rsi+00000148]
+kai.exe+6DD290: E8 7B D8 FC FF        - call kai.exe+6AAB10
 
 // ORIGINAL CODE - INJECTION POINT: kai.exe+3379B3 - Lock Player Movement
 
@@ -826,6 +896,171 @@ kai.exe+2A1FCB: F3 41 0F 5D F9                 - minss xmm7,xmm9
 kai.exe+2A1FD0: F3 0F 11 BB 5C 1F 00 00        - movss [rbx+00001F5C],xmm7
 kai.exe+2A1FD8: 48 8D 8B 48 1B 00 00           - lea rcx,[rbx+00001B48]
 kai.exe+2A1FDF: E8 2C 9B 00 00                 - call kai.exe+2ABB10
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"Force Pause Action (Enable first, F5 pause / F6 unpause)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(freezemonitorinjectionpoint_aob,kai.exe,48 8B 94 C7 58 01 00 00) // should be unique
+aobscanmodule(freezeaction_aob1,kai.exe,E8 8A 95 38 00) // should be unique
+alloc(newmem,$1000,freezeaction_aob1)
+registersymbol(freezemonitorinjectionpoint_aob)
+registersymbol(freezeaction_aob1)
+registersymbol(freeze)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(code1)
+label(freeze)
+label(return)
+label(return1)
+
+newmem:
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,74 //VK_F5
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  mov [freeze],#1
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,75 //VK_F6
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  mov [freeze],#0
+
+code:
+  mov rdx,[rdi+rax*8+00000158]
+  jmp return
+
+code1:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  jmp return1
+@@:
+  popf
+  call kai.exe+3F43C0
+  jmp return1
+
+freeze:
+  dd #0
+
+freezemonitorinjectionpoint_aob:
+  jmp newmem
+  nop 3
+return:
+
+freezeaction_aob1:
+  jmp code1
+return1:
+
+[DISABLE]
+
+freezemonitorinjectionpoint_aob:
+  db 48 8B 94 C7 58 01 00 00
+
+freezeaction_aob1:
+  db E8 8A 95 38 00
+
+unregistersymbol(freezemonitorinjectionpoint_aob)
+unregistersymbol(freezeaction_aob1)
+unregistersymbol(freeze)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6B6A5 - Safe injection point to check keypresses
+// call rdx is where the jump is made to the camera / game update function
+
+kai.exe+6B676: 48 8B 87 C0 01 00 00     - mov rax,[rdi+000001C0]
+kai.exe+6B67D: 48 85 C0                 - test rax,rax
+kai.exe+6B680: 74 09                    - je kai.exe+6B68B
+kai.exe+6B682: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
+kai.exe+6B689: FF D0                    - call rax
+kai.exe+6B68B: 8B 84 B7 88 01 00 00     - mov eax,[rdi+rsi*4+00000188]
+kai.exe+6B692: 89 87 D4 01 00 00        - mov [rdi+000001D4],eax
+kai.exe+6B698: 48 63 84 B7 88 01 00 00  - movsxd  rax,dword ptr [rdi+rsi*4+00000188]
+kai.exe+6B6A0: 83 F8 FF                 - cmp eax,-01
+kai.exe+6B6A3: 74 2E                    - je kai.exe+6B6D3
+// ---------- INJECTING HERE ----------
+kai.exe+6B6A5: 48 8B 94 C7 58 01 00 00  - mov rdx,[rdi+rax*8+00000158]
+// ---------- DONE INJECTING  ----------
+kai.exe+6B6AD: 0F 28 CE                 - movaps xmm1,xmm6
+kai.exe+6B6B0: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
+kai.exe+6B6B7: FF D2                    - call rdx
+kai.exe+6B6B9: 41 8B 86 90 01 00 00     - mov eax,[r14+00000190]
+kai.exe+6B6C0: FF C0                    - inc eax
+kai.exe+6B6C2: B9 F8 FF FF 7F           - mov ecx,7FFFFFF8
+kai.exe+6B6C7: 3B C1                    - cmp eax,ecx
+kai.exe+6B6C9: 0F 4F C1                 - cmovg eax,ecx
+kai.exe+6B6CC: 41 89 86 90 01 00 00     - mov [r14+00000190],eax
+kai.exe+6B6D3: 0F 28 CE                 - movaps xmm1,xmm6
+
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6AE31 - Freeze action 1
+
+kai.exe+6AE03: 0F 29 78 D8                 - movaps [rax-28],xmm7
+kai.exe+6AE07: 44 0F 29 48 B8              - movaps [rax-48],xmm9
+kai.exe+6AE0C: 44 0F 29 50 A8              - movaps [rax-58],xmm10
+kai.exe+6AE11: 48 8B 05 68 38 CC 00        - mov rax,[kai.exe+D2E680]
+kai.exe+6AE18: 48 33 C4                    - xor rax,rsp
+kai.exe+6AE1B: 48 89 44 24 38              - mov [rsp+38],rax
+kai.exe+6AE20: 48 8B F9                    - mov rdi,rcx
+kai.exe+6AE23: 44 0F 28 C9                 - movaps xmm9,xmm1
+kai.exe+6AE27: 48 8B 89 E0 01 00 00        - mov rcx,[rcx+000001E0]
+kai.exe+6AE2E: 0F 28 F9                    - movaps xmm7,xmm1
+// ---------- INJECTING HERE ----------
+kai.exe+6AE31: E8 8A 95 38 00              - call kai.exe+3F43C0
+// ---------- DONE INJECTING  ----------
+kai.exe+6AE36: 48 8B 8F E0 01 00 00        - mov rcx,[rdi+000001E0]
+kai.exe+6AE3D: F3 44 0F 59 C8              - mulss xmm9,xmm0
+kai.exe+6AE42: 41 0F 28 C9                 - movaps xmm1,xmm9
+kai.exe+6AE46: E8 F5 98 38 00              - call kai.exe+3F4740
+kai.exe+6AE4B: F3 0F 10 87 98 03 00 00     - movss xmm0,[rdi+00000398]
+kai.exe+6AE53: 45 0F 57 D2                 - xorps xmm10,xmm10
+kai.exe+6AE57: 41 0F 2F C2                 - comiss xmm0,xmm10
+kai.exe+6AE5B: F3 44 0F 11 8F 44 03 00 00  - movss [rdi+00000344],xmm9
+kai.exe+6AE64: 41 0F 28 F1                 - movaps xmm6,xmm9
+kai.exe+6AE68: 76 08                       - jna kai.exe+6AE72
 }
 </AssemblerScript>
     </CheatEntry>
