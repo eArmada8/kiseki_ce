@@ -839,31 +839,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3FA8B0
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+3FDAF0
 
-sora_1st.exe+3FA887: 48 85 FF              - test rdi,rdi
-sora_1st.exe+3FA88A: 74 06                 - je sora_1st.exe+3FA892
-sora_1st.exe+3FA88C: 48 8B 7F 10           - mov rdi,[rdi+10]
-sora_1st.exe+3FA890: EB 03                 - jmp sora_1st.exe+3FA895
-sora_1st.exe+3FA892: 49 8B FE              - mov rdi,r14
-sora_1st.exe+3FA895: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
-sora_1st.exe+3FA89C: 48 8B 35 5D E5 50 00  - mov rsi,[sora_1st.exe+908E00]
-sora_1st.exe+3FA8A3: 8B 68 10              - mov ebp,[rax+10]
-sora_1st.exe+3FA8A6: 41 83 F8 01           - cmp r8d,01
-sora_1st.exe+3FA8AA: 0F 85 D9 00 00 00     - jne sora_1st.exe+3FA989
+sora_1st.exe+3FDAC7: 48 85 FF              - test rdi,rdi
+sora_1st.exe+3FDACA: 74 06                 - je sora_1st.exe+3FDAD2
+sora_1st.exe+3FDACC: 48 8B 7F 10           - mov rdi,[rdi+10]
+sora_1st.exe+3FDAD0: EB 03                 - jmp sora_1st.exe+3FDAD5
+sora_1st.exe+3FDAD2: 49 8B FE              - mov rdi,r14
+sora_1st.exe+3FDAD5: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
+sora_1st.exe+3FDADC: 48 8B 35 7D 56 6D 00  - mov rsi,[sora_1st.exe+AD3160]
+sora_1st.exe+3FDAE3: 8B 68 10              - mov ebp,[rax+10]
+sora_1st.exe+3FDAE6: 41 83 F8 01           - cmp r8d,01
+sora_1st.exe+3FDAEA: 0F 85 D9 00 00 00     - jne sora_1st.exe+3FDBC9
 // ---------- INJECTING HERE ----------
-sora_1st.exe+3FA8B0: 8B 17                 - mov edx,[rdi]
+sora_1st.exe+3FDAF0: 8B 17                 - mov edx,[rdi]
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+3FA8B2: 44 8B C5              - mov r8d,ebp
-sora_1st.exe+3FA8B5: 48 8B CE              - mov rcx,rsi
-sora_1st.exe+3FA8B8: E8 A3 63 F6 FF        - call sora_1st.exe+360C60
-sora_1st.exe+3FA8BD: 84 C0                 - test al,al
-sora_1st.exe+3FA8BF: 0F 84 81 03 00 00     - je sora_1st.exe+3FAC46
-sora_1st.exe+3FA8C5: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
-sora_1st.exe+3FA8CC: 0F 57 C0              - xorps xmm0,xmm0
-sora_1st.exe+3FA8CF: 0F B7 40 22           - movzx eax,word ptr [rax+22]
-sora_1st.exe+3FA8D3: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
-sora_1st.exe+3FA8DA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
+sora_1st.exe+3FDAF2: 44 8B C5              - mov r8d,ebp
+sora_1st.exe+3FDAF5: 48 8B CE              - mov rcx,rsi
+sora_1st.exe+3FDAF8: E8 A3 63 F6 FF        - call sora_1st.exe+363EA0
+sora_1st.exe+3FDAFD: 84 C0                 - test al,al
+sora_1st.exe+3FDAFF: 0F 84 81 03 00 00     - je sora_1st.exe+3FDE86
+sora_1st.exe+3FDB05: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
+sora_1st.exe+3FDB0C: 0F 57 C0              - xorps xmm0,xmm0
+sora_1st.exe+3FDB0F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
+sora_1st.exe+3FDB13: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
+sora_1st.exe+3FDB1A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
 }
 </AssemblerScript>
       <CheatEntries>
@@ -881,7 +881,7 @@ sora_1st.exe+3FA8DA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_1st.exe+908E00</Address>
+      <Address>sora_1st.exe+AD3160</Address>
       <Offsets>
         <Offset>001F3900</Offset>
       </Offsets>
