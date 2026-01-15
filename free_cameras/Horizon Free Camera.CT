@@ -269,7 +269,7 @@ cutscene_camera_target_aob:
   db E8 6B D8 FC FF
 
 cameracoordinates_aob+E:
-  db E8 92 98 53 00 48 8B 8F 90 06 00 00 48 8D 96 04 02 00 00 E8 AF 98 53 00 48 8B 8F 90 06 00 00 48 8D 96 40 02 00 00 E8 EC 98 53 00
+  db E8 D2 9D 53 00 48 8B 8F 90 06 00 00 48 8D 96 04 02 00 00 E8 EF 9D 53 00 48 8B 8F 90 06 00 00 48 8D 96 40 02 00 00 E8 2C 9E 53 00
 
 moveplayer_aob:
   db 74 26
@@ -283,101 +283,110 @@ dealloc(cameracoordinates)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+1711FB - Camera Coordinates and Control
+// ORIGINAL CODE - INJECTION POINT: kai.exe+1712CB - Camera Coordinates and Control
 
-kai.exe+1711CA: F3 44 0F 58 F2           - addss xmm14,xmm2
-kai.exe+1711CF: F3 44 0F 58 F9           - addss xmm15,xmm1
-kai.exe+1711D4: F3 0F 58 F8              - addss xmm7,xmm0
-kai.exe+1711D8: 48 83 C3 40              - add rbx,40
-kai.exe+1711DC: 49 3B DE                 - cmp rbx,r14
-kai.exe+1711DF: 75 96                    - jne kai.exe+171177
-kai.exe+1711E1: F3 0F 11 7D 70           - movss [rbp+70],xmm7
-kai.exe+1711E6: F6 87 34 07 00 00 02     - test byte ptr [rdi+00000734],02
-kai.exe+1711ED: 4C 8B B4 24 48 01 00 00  - mov r14,[rsp+00000148]
-kai.exe+1711F5: 0F 85 BA 00 00 00        - jne kai.exe+1712B5
+kai.exe+17129A: F3 44 0F 58 F2           - addss xmm14,xmm2
+kai.exe+17129F: F3 44 0F 58 F9           - addss xmm15,xmm1
+kai.exe+1712A4: F3 0F 58 F8              - addss xmm7,xmm0
+kai.exe+1712A8: 48 83 C3 40              - add rbx,40
+kai.exe+1712AC: 49 3B DE                 - cmp rbx,r14
+kai.exe+1712AF: 75 96                    - jne kai.exe+171247
+kai.exe+1712B1: F3 0F 11 7D 70           - movss [rbp+70],xmm7
+kai.exe+1712B6: F6 87 34 07 00 00 02     - test byte ptr [rdi+00000734],02
+kai.exe+1712BD: 4C 8B B4 24 48 01 00 00  - mov r14,[rsp+00000148]
+kai.exe+1712C5: 0F 85 BA 00 00 00        - jne kai.exe+171385
 // ---------- INJECTING HERE ----------
-kai.exe+1711FB: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kai.exe+1712CB: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
 // ---------- DONE INJECTING  ----------
-kai.exe+171202: 48 8D 96 C8 01 00 00     - lea rdx,[rsi+000001C8]
-kai.exe+171209: E8 92 98 53 00           - call kai.exe+6AAAA0
-kai.exe+17120E: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kai.exe+171215: 48 8D 96 04 02 00 00     - lea rdx,[rsi+00000204]
-kai.exe+17121C: E8 AF 98 53 00           - call kai.exe+6AAAD0
-kai.exe+171221: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kai.exe+171228: 48 8D 96 40 02 00 00     - lea rdx,[rsi+00000240]
-kai.exe+17122F: E8 EC 98 53 00           - call kai.exe+6AAB20
-// ---------- DONE INJECTING  ----------
-kai.exe+171234: 83 BF 30 07 00 00 00     - cmp dword ptr [rdi+00000730],00
-kai.exe+17123B: 0F 10 86 28 03 00 00     - movups xmm0,[rsi+00000328]
-
-// ORIGINAL CODE - INJECTION POINT: kai.exe+6DD217 - Cutscene Camera Coordinates and Control
-
-kai.exe+6DD1E7: 48 85 C9              - test rcx,rcx
-kai.exe+6DD1EA: 74 33                 - je kai.exe+6DD21F
-kai.exe+6DD1EC: E8 EF C5 FD FF        - call kai.exe+6B97E0
-kai.exe+6DD1F1: F3 0F 10 50 38        - movss xmm2,[rax+38]
-kai.exe+6DD1F6: F3 0F 10 48 34        - movss xmm1,[rax+34]
-kai.exe+6DD1FB: F3 0F 10 40 30        - movss xmm0,[rax+30]
-kai.exe+6DD200: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
-kai.exe+6DD206: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
-kai.exe+6DD20C: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
-kai.exe+6DD212: 48 8D 54 24 30        - lea rdx,[rsp+30]
+kai.exe+1712D2: 48 8D 96 C8 01 00 00     - lea rdx,[rsi+000001C8]
 // ---------- INJECTING HERE ----------
-kai.exe+6DD217: 48 8B CB              - mov rcx,rbx
-kai.exe+6DD21A: E8 81 D8 FC FF        - call kai.exe+6AAAA0
+kai.exe+1712D9: E8 D2 9D 53 00           - call kai.exe+6AB0B0
+kai.exe+1712DE: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kai.exe+1712E5: 48 8D 96 04 02 00 00     - lea rdx,[rsi+00000204]
+kai.exe+1712EC: E8 EF 9D 53 00           - call kai.exe+6AB0E0
+kai.exe+1712F1: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kai.exe+1712F8: 48 8D 96 40 02 00 00     - lea rdx,[rsi+00000240]
+kai.exe+1712FF: E8 2C 9E 53 00           - call kai.exe+6AB130
 // ---------- DONE INJECTING  ----------
-kai.exe+6DD21F: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
-kai.exe+6DD226: 48 85 C9              - test rcx,rcx
-kai.exe+6DD229: 74 3A                 - je kai.exe+6DD265
-kai.exe+6DD22B: 48 8B 9E 48 01 00 00  - mov rbx,[rsi+00000148]
-kai.exe+6DD232: E8 A9 C5 FD FF        - call kai.exe+6B97E0
-kai.exe+6DD237: F3 0F 10 50 38        - movss xmm2,[rax+38]
-kai.exe+6DD23C: F3 0F 10 48 34        - movss xmm1,[rax+34]
-kai.exe+6DD241: F3 0F 10 40 30        - movss xmm0,[rax+30]
-kai.exe+6DD246: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
-kai.exe+6DD24C: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
-kai.exe+6DD252: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
-kai.exe+6DD258: 48 8D 54 24 30        - lea rdx,[rsp+30]
-kai.exe+6DD25D: 48 8B CB              - mov rcx,rbx
-// ---------- INJECTING HERE ----------
-kai.exe+6DD260: E8 6B D8 FC FF        - call kai.exe+6AAAD0
-// ---------- DONE INJECTING  ----------
-kai.exe+6DD265: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
-kai.exe+6DD26C: 48 85 C9              - test rcx,rcx
-kai.exe+6DD26F: 74 24                 - je kai.exe+6DD295
-kai.exe+6DD271: E8 2A C5 FD FF        - call kai.exe+6B97A0
-kai.exe+6DD276: 48 8D 54 24 30        - lea rdx,[rsp+30]
-kai.exe+6DD27B: 48 8B C8              - mov rcx,rax
-kai.exe+6DD27E: E8 0D CC FB FF        - call kai.exe+699E90
-kai.exe+6DD283: F3 0F 10 4C 24 38     - movss xmm1,[rsp+38]
-kai.exe+6DD289: 48 8B 8E 48 01 00 00  - mov rcx,[rsi+00000148]
-kai.exe+6DD290: E8 7B D8 FC FF        - call kai.exe+6AAB10
+kai.exe+171304: 83 BF 30 07 00 00 00     - cmp dword ptr [rdi+00000730],00
+kai.exe+17130B: 0F 10 86 28 03 00 00     - movups xmm0,[rsi+00000328]
+kai.exe+171312: F2 0F 10 8E 38 03 00 00  - movsd xmm1,[rsi+00000338]
+kai.exe+17131A: 0F 11 45 80              - movups [rbp-80],xmm0
+kai.exe+17131E: F2 0F 11 4D 90           - movsd [rbp-70],xmm1
+kai.exe+171323: 75 1C                    - jne kai.exe+171341
+kai.exe+171325: E8 46 6A 6C 00           - call kai.exe+837D70
+kai.exe+17132A: F3 0F 10 88 EC 03 00 00  - movss xmm1,[rax+000003EC]
+kai.exe+171332: F3 0F 5E 88 E8 03 00 00  - divss xmm1,[rax+000003E8]
+kai.exe+17133A: F3 0F 59 4D 84           - mulss xmm1,[rbp-7C]
 
-// ORIGINAL CODE - INJECTION POINT: kai.exe+3379B3 - Lock Player Movement
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6DD827 - Cutscene Camera Coordinates and Control
 
-kai.exe+337988: 74 11                    - je kai.exe+33799B
-kai.exe+33798A: 48 8B 81 20 01 00 00     - mov rax,[rcx+00000120]
-kai.exe+337991: 48 85 C0                 - test rax,rax
-kai.exe+337994: 74 05                    - je kai.exe+33799B
-kai.exe+337996: 48 8B 09                 - mov rcx,[rcx]
-kai.exe+337999: FF D0                    - call rax
-kai.exe+33799B: 8B 84 BB E8 00 00 00     - mov eax,[rbx+rdi*4+000000E8]
-kai.exe+3379A2: 89 83 34 01 00 00        - mov [rbx+00000134],eax
-kai.exe+3379A8: 48 63 84 BB E8 00 00 00  - movsxd  rax,dword ptr [rbx+rdi*4+000000E8]
-kai.exe+3379B0: 83 F8 FF                 - cmp eax,-01
+kai.exe+6DD7F7: 48 85 C9              - test rcx,rcx
+kai.exe+6DD7FA: 74 33                 - je kai.exe+6DD82F
+kai.exe+6DD7FC: E8 EF C5 FD FF        - call kai.exe+6B9DF0
+kai.exe+6DD801: F3 0F 10 50 38        - movss xmm2,[rax+38]
+kai.exe+6DD806: F3 0F 10 48 34        - movss xmm1,[rax+34]
+kai.exe+6DD80B: F3 0F 10 40 30        - movss xmm0,[rax+30]
+kai.exe+6DD810: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
+kai.exe+6DD816: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
+kai.exe+6DD81C: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
+kai.exe+6DD822: 48 8D 54 24 30        - lea rdx,[rsp+30]
 // ---------- INJECTING HERE ----------
-kai.exe+3379B3: 74 26                    - je kai.exe+3379DB
+kai.exe+6DD827: 48 8B CB              - mov rcx,rbx
+kai.exe+6DD82A: E8 81 D8 FC FF        - call kai.exe+6AB0B0
 // ---------- DONE INJECTING  ----------
-kai.exe+3379B5: 4C 8B 44 C3 08           - mov r8,[rbx+rax*8+08]
-kai.exe+3379BA: 48 8B D5                 - mov rdx,rbp
-kai.exe+3379BD: 48 8B 0B                 - mov rcx,[rbx]
-kai.exe+3379C0: 41 FF D0                 - call r8
-kai.exe+3379C3: 8B 86 F0 00 00 00        - mov eax,[rsi+000000F0]
-kai.exe+3379C9: B9 F8 FF FF 7F           - mov ecx,7FFFFFF8
-kai.exe+3379CE: FF C0                    - inc eax
-kai.exe+3379D0: 3B C1                    - cmp eax,ecx
-kai.exe+3379D2: 0F 4F C1                 - cmovg eax,ecx
-kai.exe+3379D5: 89 86 F0 00 00 00        - mov [rsi+000000F0],eax
+kai.exe+6DD82F: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
+kai.exe+6DD836: 48 85 C9              - test rcx,rcx
+kai.exe+6DD839: 74 3A                 - je kai.exe+6DD875
+kai.exe+6DD83B: 48 8B 9E 48 01 00 00  - mov rbx,[rsi+00000148]
+kai.exe+6DD842: E8 A9 C5 FD FF        - call kai.exe+6B9DF0
+kai.exe+6DD847: F3 0F 10 50 38        - movss xmm2,[rax+38]
+kai.exe+6DD84C: F3 0F 10 48 34        - movss xmm1,[rax+34]
+kai.exe+6DD851: F3 0F 10 40 30        - movss xmm0,[rax+30]
+kai.exe+6DD856: F3 0F 11 44 24 30     - movss [rsp+30],xmm0
+kai.exe+6DD85C: F3 0F 11 4C 24 34     - movss [rsp+34],xmm1
+kai.exe+6DD862: F3 0F 11 54 24 38     - movss [rsp+38],xmm2
+kai.exe+6DD868: 48 8D 54 24 30        - lea rdx,[rsp+30]
+kai.exe+6DD86D: 48 8B CB              - mov rcx,rbx
+// ---------- INJECTING HERE ----------
+kai.exe+6DD870: E8 6B D8 FC FF        - call kai.exe+6AB0E0
+// ---------- DONE INJECTING  ----------
+kai.exe+6DD875: 48 8B 8E 38 01 00 00  - mov rcx,[rsi+00000138]
+kai.exe+6DD87C: 48 85 C9              - test rcx,rcx
+kai.exe+6DD87F: 74 24                 - je kai.exe+6DD8A5
+kai.exe+6DD881: E8 2A C5 FD FF        - call kai.exe+6B9DB0
+kai.exe+6DD886: 48 8D 54 24 30        - lea rdx,[rsp+30]
+kai.exe+6DD88B: 48 8B C8              - mov rcx,rax
+kai.exe+6DD88E: E8 0D CC FB FF        - call kai.exe+69A4A0
+kai.exe+6DD893: F3 0F 10 4C 24 38     - movss xmm1,[rsp+38]
+kai.exe+6DD899: 48 8B 8E 48 01 00 00  - mov rcx,[rsi+00000148]
+kai.exe+6DD8A0: E8 7B D8 FC FF        - call kai.exe+6AB120
+
+// ORIGINAL CODE - INJECTION POINT: kai.exe+337C53 - Lock Player Movement
+
+kai.exe+337C28: 74 11                    - je kai.exe+337C3B
+kai.exe+337C2A: 48 8B 81 20 01 00 00     - mov rax,[rcx+00000120]
+kai.exe+337C31: 48 85 C0                 - test rax,rax
+kai.exe+337C34: 74 05                    - je kai.exe+337C3B
+kai.exe+337C36: 48 8B 09                 - mov rcx,[rcx]
+kai.exe+337C39: FF D0                    - call rax
+kai.exe+337C3B: 8B 84 BB E8 00 00 00     - mov eax,[rbx+rdi*4+000000E8]
+kai.exe+337C42: 89 83 34 01 00 00        - mov [rbx+00000134],eax
+kai.exe+337C48: 48 63 84 BB E8 00 00 00  - movsxd  rax,dword ptr [rbx+rdi*4+000000E8]
+kai.exe+337C50: 83 F8 FF                 - cmp eax,-01
+// ---------- INJECTING HERE ----------
+kai.exe+337C53: 74 26                    - je kai.exe+337C7B
+// ---------- DONE INJECTING  ----------
+kai.exe+337C55: 4C 8B 44 C3 08           - mov r8,[rbx+rax*8+08]
+kai.exe+337C5A: 48 8B D5                 - mov rdx,rbp
+kai.exe+337C5D: 48 8B 0B                 - mov rcx,[rbx]
+kai.exe+337C60: 41 FF D0                 - call r8
+kai.exe+337C63: 8B 86 F0 00 00 00        - mov eax,[rsi+000000F0]
+kai.exe+337C69: B9 F8 FF FF 7F           - mov ecx,7FFFFFF8
+kai.exe+337C6E: FF C0                    - inc eax
+kai.exe+337C70: 3B C1                    - cmp eax,ecx
+kai.exe+337C72: 0F 4F C1                 - cmovg eax,ecx
+kai.exe+337C75: 89 86 F0 00 00 00        - mov [rsi+000000F0],eax
 }
 </AssemblerScript>
       <Hotkeys>
@@ -626,109 +635,109 @@ dealloc(fov)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+30B8A1 - Read FOV
+// ORIGINAL CODE - INJECTION POINT: kai.exe+30BB41 - Read FOV
 
-kai.exe+30B877: 74 09                    - je kai.exe+30B882
-kai.exe+30B879: 83 BE D8 04 00 00 00     - cmp dword ptr [rsi+000004D8],00
-kai.exe+30B880: 75 77                    - jne kai.exe+30B8F9
-kai.exe+30B882: 83 BE 4C 05 00 00 00     - cmp dword ptr [rsi+0000054C],00
-kai.exe+30B889: 48 8B 5E 08              - mov rbx,[rsi+08]
-kai.exe+30B88D: 75 40                    - jne kai.exe+30B8CF
-kai.exe+30B88F: F3 45 0F 59 DF           - mulss xmm11,xmm15
-kai.exe+30B894: 41 0F 28 C5              - movaps xmm0,xmm13
-kai.exe+30B898: 41 0F 28 CB              - movaps xmm1,xmm11
-kai.exe+30B89C: E8 13 0F 7C 00           - call kai.exe+ACC7B4
+kai.exe+30BB17: 74 09                    - je kai.exe+30BB22
+kai.exe+30BB19: 83 BE D8 04 00 00 00     - cmp dword ptr [rsi+000004D8],00
+kai.exe+30BB20: 75 77                    - jne kai.exe+30BB99
+kai.exe+30BB22: 83 BE 4C 05 00 00 00     - cmp dword ptr [rsi+0000054C],00
+kai.exe+30BB29: 48 8B 5E 08              - mov rbx,[rsi+08]
+kai.exe+30BB2D: 75 40                    - jne kai.exe+30BB6F
+kai.exe+30BB2F: F3 45 0F 59 DF           - mulss xmm11,xmm15
+kai.exe+30BB34: 41 0F 28 C5              - movaps xmm0,xmm13
+kai.exe+30BB38: 41 0F 28 CB              - movaps xmm1,xmm11
+kai.exe+30BB3C: E8 53 14 7C 00           - call kai.exe+ACCF94
 // ---------- INJECTING HERE ----------
-kai.exe+30B8A1: F3 0F 10 8B 70 01 00 00  - movss xmm1,[rbx+00000170]
+kai.exe+30BB41: F3 0F 10 8B 70 01 00 00  - movss xmm1,[rbx+00000170]
 // ---------- DONE INJECTING  ----------
-kai.exe+30B8A9: F3 0F 5C CE              - subss xmm1,xmm6
-kai.exe+30B8AD: F3 0F 59 C1              - mulss xmm0,xmm1
-kai.exe+30B8B1: F3 0F 58 C6              - addss xmm0,xmm6
-kai.exe+30B8B5: F3 0F 11 83 68 01 00 00  - movss [rbx+00000168],xmm0
-kai.exe+30B8BD: F3 0F 11 83 6C 01 00 00  - movss [rbx+0000016C],xmm0
-kai.exe+30B8C5: F3 0F 11 83 70 01 00 00  - movss [rbx+00000170],xmm0
-kai.exe+30B8CD: EB 18                    - jmp kai.exe+30B8E7
-kai.exe+30B8CF: F3 0F 11 B3 68 01 00 00  - movss [rbx+00000168],xmm6
-kai.exe+30B8D7: F3 0F 11 B3 6C 01 00 00  - movss [rbx+0000016C],xmm6
-kai.exe+30B8DF: F3 0F 11 B3 70 01 00 00  - movss [rbx+00000170],xmm6
+kai.exe+30BB49: F3 0F 5C CE              - subss xmm1,xmm6
+kai.exe+30BB4D: F3 0F 59 C1              - mulss xmm0,xmm1
+kai.exe+30BB51: F3 0F 58 C6              - addss xmm0,xmm6
+kai.exe+30BB55: F3 0F 11 83 68 01 00 00  - movss [rbx+00000168],xmm0
+kai.exe+30BB5D: F3 0F 11 83 6C 01 00 00  - movss [rbx+0000016C],xmm0
+kai.exe+30BB65: F3 0F 11 83 70 01 00 00  - movss [rbx+00000170],xmm0
+kai.exe+30BB6D: EB 18                    - jmp kai.exe+30BB87
+kai.exe+30BB6F: F3 0F 11 B3 68 01 00 00  - movss [rbx+00000168],xmm6
+kai.exe+30BB77: F3 0F 11 B3 6C 01 00 00  - movss [rbx+0000016C],xmm6
+kai.exe+30BB7F: F3 0F 11 B3 70 01 00 00  - movss [rbx+00000170],xmm6
 
-// ORIGINAL CODE - INJECTION POINT: kai.exe+30B8C5 - Unlock FOV1
+// ORIGINAL CODE - INJECTION POINT: kai.exe+30BB65 - Unlock FOV1
 
-kai.exe+30B88F: F3 45 0F 59 DF                    - mulss xmm11,xmm15
-kai.exe+30B894: 41 0F 28 C5                       - movaps xmm0,xmm13
-kai.exe+30B898: 41 0F 28 CB                       - movaps xmm1,xmm11
-kai.exe+30B89C: E8 13 0F 7C 00                    - call kai.exe+ACC7B4
-kai.exe+30B8A1: F3 0F 10 8B 70 01 00 00           - movss xmm1,[rbx+00000170]
-kai.exe+30B8A9: F3 0F 5C CE                       - subss xmm1,xmm6
-kai.exe+30B8AD: F3 0F 59 C1                       - mulss xmm0,xmm1
-kai.exe+30B8B1: F3 0F 58 C6                       - addss xmm0,xmm6
-kai.exe+30B8B5: F3 0F 11 83 68 01 00 00           - movss [rbx+00000168],xmm0
-kai.exe+30B8BD: F3 0F 11 83 6C 01 00 00           - movss [rbx+0000016C],xmm0
+kai.exe+30BB2F: F3 45 0F 59 DF                    - mulss xmm11,xmm15
+kai.exe+30BB34: 41 0F 28 C5                       - movaps xmm0,xmm13
+kai.exe+30BB38: 41 0F 28 CB                       - movaps xmm1,xmm11
+kai.exe+30BB3C: E8 53 14 7C 00                    - call kai.exe+ACCF94
+kai.exe+30BB41: F3 0F 10 8B 70 01 00 00           - movss xmm1,[rbx+00000170]
+kai.exe+30BB49: F3 0F 5C CE                       - subss xmm1,xmm6
+kai.exe+30BB4D: F3 0F 59 C1                       - mulss xmm0,xmm1
+kai.exe+30BB51: F3 0F 58 C6                       - addss xmm0,xmm6
+kai.exe+30BB55: F3 0F 11 83 68 01 00 00           - movss [rbx+00000168],xmm0
+kai.exe+30BB5D: F3 0F 11 83 6C 01 00 00           - movss [rbx+0000016C],xmm0
 // ---------- INJECTING HERE ----------
-kai.exe+30B8C5: F3 0F 11 83 70 01 00 00           - movss [rbx+00000170],xmm0
+kai.exe+30BB65: F3 0F 11 83 70 01 00 00           - movss [rbx+00000170],xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+30B8CD: EB 18                             - jmp kai.exe+30B8E7
-kai.exe+30B8CF: F3 0F 11 B3 68 01 00 00           - movss [rbx+00000168],xmm6
-kai.exe+30B8D7: F3 0F 11 B3 6C 01 00 00           - movss [rbx+0000016C],xmm6
-kai.exe+30B8DF: F3 0F 11 B3 70 01 00 00           - movss [rbx+00000170],xmm6
-kai.exe+30B8E7: 48 C7 83 74 01 00 00 00 00 00 00  - mov qword ptr [rbx+00000174],00000000
-kai.exe+30B8F2: 44 89 AB 7C 01 00 00              - mov [rbx+0000017C],r13d
-kai.exe+30B8F9: 48 8B 46 08                       - mov rax,[rsi+08]
-kai.exe+30B8FD: 45 84 E4                          - test r12l,r12l
-kai.exe+30B900: 4C 8B A4 24 F8 01 00 00           - mov r12,[rsp+000001F8]
-kai.exe+30B908: 0F 84 3E 03 00 00                 - je kai.exe+30BC4C
+kai.exe+30BB6D: EB 18                             - jmp kai.exe+30BB87
+kai.exe+30BB6F: F3 0F 11 B3 68 01 00 00           - movss [rbx+00000168],xmm6
+kai.exe+30BB77: F3 0F 11 B3 6C 01 00 00           - movss [rbx+0000016C],xmm6
+kai.exe+30BB7F: F3 0F 11 B3 70 01 00 00           - movss [rbx+00000170],xmm6
+kai.exe+30BB87: 48 C7 83 74 01 00 00 00 00 00 00  - mov qword ptr [rbx+00000174],00000000
+kai.exe+30BB92: 44 89 AB 7C 01 00 00              - mov [rbx+0000017C],r13d
+kai.exe+30BB99: 48 8B 46 08                       - mov rax,[rsi+08]
+kai.exe+30BB9D: 45 84 E4                          - test r12l,r12l
+kai.exe+30BBA0: 4C 8B A4 24 F8 01 00 00           - mov r12,[rsp+000001F8]
+kai.exe+30BBA8: 0F 84 3E 03 00 00                 - je kai.exe+30BEEC
 
-// ORIGINAL CODE - INJECTION POINT: kai.exe+12434D - Unlock FOV2
+// ORIGINAL CODE - INJECTION POINT: kai.exe+12441D - Unlock FOV2
 
-kai.exe+12432E: CC              - int 3 
-kai.exe+12432F: CC              - int 3 
-kai.exe+124330: 40 53           - push rbx
-kai.exe+124332: 48 83 EC 30     - sub rsp,30
-kai.exe+124336: F3 0F 10 51 0C  - movss xmm2,[rcx+0C]
-kai.exe+12433B: 48 8B D9        - mov rbx,rcx
-kai.exe+12433E: F3 0F 10 41 10  - movss xmm0,[rcx+10]
-kai.exe+124343: 0F 2F C2        - comiss xmm0,xmm2
-kai.exe+124346: 72 10           - jb kai.exe+124358
-kai.exe+124348: F3 0F 10 41 04  - movss xmm0,[rcx+04]
+kai.exe+1243FE: CC              - int 3 
+kai.exe+1243FF: CC              - int 3 
+kai.exe+124400: 40 53           - push rbx
+kai.exe+124402: 48 83 EC 30     - sub rsp,30
+kai.exe+124406: F3 0F 10 51 0C  - movss xmm2,[rcx+0C]
+kai.exe+12440B: 48 8B D9        - mov rbx,rcx
+kai.exe+12440E: F3 0F 10 41 10  - movss xmm0,[rcx+10]
+kai.exe+124413: 0F 2F C2        - comiss xmm0,xmm2
+kai.exe+124416: 72 10           - jb kai.exe+124428
+kai.exe+124418: F3 0F 10 41 04  - movss xmm0,[rcx+04]
 // ---------- INJECTING HERE ----------
-kai.exe+12434D: F3 0F 11 41 08  - movss [rcx+08],xmm0
+kai.exe+12441D: F3 0F 11 41 08  - movss [rcx+08],xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+124352: 48 83 C4 30     - add rsp,30
-kai.exe+124356: 5B              - pop rbx
-kai.exe+124357: C3              - ret 
-kai.exe+124358: 0F 29 74 24 20  - movaps [rsp+20],xmm6
-kai.exe+12435D: F3 0F 58 C1     - addss xmm0,xmm1
-kai.exe+124361: 0F 28 F2        - movaps xmm6,xmm2
-kai.exe+124364: F3 0F 5D F0     - minss xmm6,xmm0
-kai.exe+124368: F3 0F 11 71 10  - movss [rcx+10],xmm6
-kai.exe+12436D: 8B 49 14        - mov ecx,[rcx+14]
-kai.exe+124370: F3 0F 5E F2     - divss xmm6,xmm2
+kai.exe+124422: 48 83 C4 30     - add rsp,30
+kai.exe+124426: 5B              - pop rbx
+kai.exe+124427: C3              - ret 
+kai.exe+124428: 0F 29 74 24 20  - movaps [rsp+20],xmm6
+kai.exe+12442D: F3 0F 58 C1     - addss xmm0,xmm1
+kai.exe+124431: 0F 28 F2        - movaps xmm6,xmm2
+kai.exe+124434: F3 0F 5D F0     - minss xmm6,xmm0
+kai.exe+124438: F3 0F 11 71 10  - movss [rcx+10],xmm6
+kai.exe+12443D: 8B 49 14        - mov ecx,[rcx+14]
+kai.exe+124440: F3 0F 5E F2     - divss xmm6,xmm2
 
-// ORIGINAL CODE - INJECTION POINT: kai.exe+30BCEA - Prevent Dialogue FOV change
+// ORIGINAL CODE - INJECTION POINT: kai.exe+30BF8A - Prevent Dialogue FOV change
 
-kai.exe+30BCBC: BA 13 00 00 00           - mov edx,00000013
-kai.exe+30BCC1: E8 AA AE 24 00           - call kai.exe+556B70
-kai.exe+30BCC6: 84 C0                    - test al,al
-kai.exe+30BCC8: 74 36                    - je kai.exe+30BD00
-kai.exe+30BCCA: 41 0F 28 CB              - movaps xmm1,xmm11
-kai.exe+30BCCE: 48 8B CE                 - mov rcx,rsi
-kai.exe+30BCD1: E8 4A 99 FF FF           - call kai.exe+305620
-kai.exe+30BCD6: 48 8B 46 08              - mov rax,[rsi+08]
-kai.exe+30BCDA: F3 0F 11 80 68 01 00 00  - movss [rax+00000168],xmm0
-kai.exe+30BCE2: F3 0F 11 80 6C 01 00 00  - movss [rax+0000016C],xmm0
+kai.exe+30BF5C: BA 13 00 00 00           - mov edx,00000013
+kai.exe+30BF61: E8 7A B2 24 00           - call kai.exe+5571E0
+kai.exe+30BF66: 84 C0                    - test al,al
+kai.exe+30BF68: 74 36                    - je kai.exe+30BFA0
+kai.exe+30BF6A: 41 0F 28 CB              - movaps xmm1,xmm11
+kai.exe+30BF6E: 48 8B CE                 - mov rcx,rsi
+kai.exe+30BF71: E8 4A 99 FF FF           - call kai.exe+3058C0
+kai.exe+30BF76: 48 8B 46 08              - mov rax,[rsi+08]
+kai.exe+30BF7A: F3 0F 11 80 68 01 00 00  - movss [rax+00000168],xmm0
+kai.exe+30BF82: F3 0F 11 80 6C 01 00 00  - movss [rax+0000016C],xmm0
 // ---------- INJECTING HERE ----------
-kai.exe+30BCEA: F3 0F 11 80 70 01 00 00  - movss [rax+00000170],xmm0
+kai.exe+30BF8A: F3 0F 11 80 70 01 00 00  - movss [rax+00000170],xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+30BCF2: 4C 89 A8 74 01 00 00     - mov [rax+00000174],r13
-kai.exe+30BCF9: 44 89 A8 7C 01 00 00     - mov [rax+0000017C],r13d
-kai.exe+30BD00: 4C 89 AE D4 01 00 00     - mov [rsi+000001D4],r13
-kai.exe+30BD07: 48 8D 9E 4C 05 00 00     - lea rbx,[rsi+0000054C]
-kai.exe+30BD0E: 4C 89 AE DC 01 00 00     - mov [rsi+000001DC],r13
-kai.exe+30BD15: 4C 89 AE E4 01 00 00     - mov [rsi+000001E4],r13
-kai.exe+30BD1C: 44 39 2B                 - cmp [rbx],r13d
-kai.exe+30BD1F: 0F 84 B8 02 00 00        - je kai.exe+30BFDD
-kai.exe+30BD25: 0F 10 96 10 01 00 00     - movups xmm2,[rsi+00000110]
-kai.exe+30BD2C: 48 8B 46 08              - mov rax,[rsi+08]
+kai.exe+30BF92: 4C 89 A8 74 01 00 00     - mov [rax+00000174],r13
+kai.exe+30BF99: 44 89 A8 7C 01 00 00     - mov [rax+0000017C],r13d
+kai.exe+30BFA0: 4C 89 AE D4 01 00 00     - mov [rsi+000001D4],r13
+kai.exe+30BFA7: 48 8D 9E 4C 05 00 00     - lea rbx,[rsi+0000054C]
+kai.exe+30BFAE: 4C 89 AE DC 01 00 00     - mov [rsi+000001DC],r13
+kai.exe+30BFB5: 4C 89 AE E4 01 00 00     - mov [rsi+000001E4],r13
+kai.exe+30BFBC: 44 39 2B                 - cmp [rbx],r13d
+kai.exe+30BFBF: 0F 84 B8 02 00 00        - je kai.exe+30C27D
+kai.exe+30BFC5: 0F 10 96 10 01 00 00     - movups xmm2,[rsi+00000110]
+kai.exe+30BFCC: 48 8B 46 08              - mov rax,[rsi+08]
 }
 </AssemblerScript>
       <Hotkeys>
@@ -807,31 +816,31 @@ unregistersymbol(cameradistance_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+30B8B5
+// ORIGINAL CODE - INJECTION POINT: kai.exe+30BB55
 
-kai.exe+30B889: 48 8B 5E 08                       - mov rbx,[rsi+08]
-kai.exe+30B88D: 75 40                             - jne kai.exe+30B8CF
-kai.exe+30B88F: F3 45 0F 59 DF                    - mulss xmm11,xmm15
-kai.exe+30B894: 41 0F 28 C5                       - movaps xmm0,xmm13
-kai.exe+30B898: 41 0F 28 CB                       - movaps xmm1,xmm11
-kai.exe+30B89C: E8 13 0F 7C 00                    - call kai.exe+ACC7B4
-kai.exe+30B8A1: F3 0F 10 8B 70 01 00 00           - movss xmm1,[rbx+00000170]
-kai.exe+30B8A9: F3 0F 5C CE                       - subss xmm1,xmm6
-kai.exe+30B8AD: F3 0F 59 C1                       - mulss xmm0,xmm1
-kai.exe+30B8B1: F3 0F 58 C6                       - addss xmm0,xmm6
+kai.exe+30BB29: 48 8B 5E 08                       - mov rbx,[rsi+08]
+kai.exe+30BB2D: 75 40                             - jne kai.exe+30BB6F
+kai.exe+30BB2F: F3 45 0F 59 DF                    - mulss xmm11,xmm15
+kai.exe+30BB34: 41 0F 28 C5                       - movaps xmm0,xmm13
+kai.exe+30BB38: 41 0F 28 CB                       - movaps xmm1,xmm11
+kai.exe+30BB3C: E8 53 14 7C 00                    - call kai.exe+ACCF94
+kai.exe+30BB41: F3 0F 10 8B 70 01 00 00           - movss xmm1,[rbx+00000170]
+kai.exe+30BB49: F3 0F 5C CE                       - subss xmm1,xmm6
+kai.exe+30BB4D: F3 0F 59 C1                       - mulss xmm0,xmm1
+kai.exe+30BB51: F3 0F 58 C6                       - addss xmm0,xmm6
 // ---------- INJECTING HERE ----------
-kai.exe+30B8B5: F3 0F 11 83 68 01 00 00           - movss [rbx+00000168],xmm0
+kai.exe+30BB55: F3 0F 11 83 68 01 00 00           - movss [rbx+00000168],xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+30B8BD: F3 0F 11 83 6C 01 00 00           - movss [rbx+0000016C],xmm0
-kai.exe+30B8C5: F3 0F 11 83 70 01 00 00           - movss [rbx+00000170],xmm0
-kai.exe+30B8CD: EB 18                             - jmp kai.exe+30B8E7
-kai.exe+30B8CF: F3 0F 11 B3 68 01 00 00           - movss [rbx+00000168],xmm6
-kai.exe+30B8D7: F3 0F 11 B3 6C 01 00 00           - movss [rbx+0000016C],xmm6
-kai.exe+30B8DF: F3 0F 11 B3 70 01 00 00           - movss [rbx+00000170],xmm6
-kai.exe+30B8E7: 48 C7 83 74 01 00 00 00 00 00 00  - mov qword ptr [rbx+00000174],00000000
-kai.exe+30B8F2: 44 89 AB 7C 01 00 00              - mov [rbx+0000017C],r13d
-kai.exe+30B8F9: 48 8B 46 08                       - mov rax,[rsi+08]
-kai.exe+30B8FD: 45 84 E4                          - test r12l,r12l
+kai.exe+30BB5D: F3 0F 11 83 6C 01 00 00           - movss [rbx+0000016C],xmm0
+kai.exe+30BB65: F3 0F 11 83 70 01 00 00           - movss [rbx+00000170],xmm0
+kai.exe+30BB6D: EB 18                             - jmp kai.exe+30BB87
+kai.exe+30BB6F: F3 0F 11 B3 68 01 00 00           - movss [rbx+00000168],xmm6
+kai.exe+30BB77: F3 0F 11 B3 6C 01 00 00           - movss [rbx+0000016C],xmm6
+kai.exe+30BB7F: F3 0F 11 B3 70 01 00 00           - movss [rbx+00000170],xmm6
+kai.exe+30BB87: 48 C7 83 74 01 00 00 00 00 00 00  - mov qword ptr [rbx+00000174],00000000
+kai.exe+30BB92: 44 89 AB 7C 01 00 00              - mov [rbx+0000017C],r13d
+kai.exe+30BB99: 48 8B 46 08                       - mov rax,[rsi+08]
+kai.exe+30BB9D: 45 84 E4                          - test r12l,r12l
 }
 </AssemblerScript>
     </CheatEntry>
@@ -865,37 +874,37 @@ unregistersymbol(noclip_aob1)
 unregistersymbol(noclip_aob2)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+2A1F97
+// ORIGINAL CODE - INJECTION POINT: kai.exe+2A2227
 
-kai.exe+2A1F69: 72 48                          - jb kai.exe+2A1FB3
-kai.exe+2A1F6B: 84 C0                          - test al,al
-kai.exe+2A1F6D: 74 0C                          - je kai.exe+2A1F7B
-kai.exe+2A1F6F: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
-kai.exe+2A1F79: EB 5D                          - jmp kai.exe+2A1FD8
-kai.exe+2A1F7B: F3 0F 10 8B 68 1F 00 00        - movss xmm1,[rbx+00001F68]
-kai.exe+2A1F83: 44 0F 2F C1                    - comiss xmm8,xmm1
-kai.exe+2A1F87: F3 0F 10 83 5C 1F 00 00        - movss xmm0,[rbx+00001F5C]
-kai.exe+2A1F8F: F3 0F 5C C7                    - subss xmm0,xmm7
-kai.exe+2A1F93: F3 0F 5F C1                    - maxss xmm0,xmm1
+kai.exe+2A21F9: 72 48                          - jb kai.exe+2A2243
+kai.exe+2A21FB: 84 C0                          - test al,al
+kai.exe+2A21FD: 74 0C                          - je kai.exe+2A220B
+kai.exe+2A21FF: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
+kai.exe+2A2209: EB 5D                          - jmp kai.exe+2A2268
+kai.exe+2A220B: F3 0F 10 8B 68 1F 00 00        - movss xmm1,[rbx+00001F68]
+kai.exe+2A2213: 44 0F 2F C1                    - comiss xmm8,xmm1
+kai.exe+2A2217: F3 0F 10 83 5C 1F 00 00        - movss xmm0,[rbx+00001F5C]
+kai.exe+2A221F: F3 0F 5C C7                    - subss xmm0,xmm7
+kai.exe+2A2223: F3 0F 5F C1                    - maxss xmm0,xmm1
 // ---------- INJECTING HERE ----------
-kai.exe+2A1F97: F3 0F 11 83 5C 1F 00 00        - movss [rbx+00001F5C],xmm0
+kai.exe+2A2227: F3 0F 11 83 5C 1F 00 00        - movss [rbx+00001F5C],xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+2A1F9F: 72 37                          - jb kai.exe+2A1FD8
-kai.exe+2A1FA1: 45 0F 2F DA                    - comiss xmm11,xmm10
-kai.exe+2A1FA5: 72 31                          - jb kai.exe+2A1FD8
+kai.exe+2A222F: 72 37                          - jb kai.exe+2A2268
+kai.exe+2A2231: 45 0F 2F DA                    - comiss xmm11,xmm10
+kai.exe+2A2235: 72 31                          - jb kai.exe+2A2268
 // ---------- INJECTING HERE ----------
-kai.exe+2A1FA7: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
+kai.exe+2A2237: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
 // ---------- DONE INJECTING  ----------
-kai.exe+2A1FB1: EB 25                          - jmp kai.exe+2A1FD8
-kai.exe+2A1FB3: 84 C0                          - test al,al
-kai.exe+2A1FB5: 74 0C                          - je kai.exe+2A1FC3
-kai.exe+2A1FB7: C7 83 5C 1F 00 00 00 00 80 3F  - mov [rbx+00001F5C],3F800000
-kai.exe+2A1FC1: EB 15                          - jmp kai.exe+2A1FD8
-kai.exe+2A1FC3: F3 0F 58 BB 5C 1F 00 00        - addss xmm7,[rbx+00001F5C]
-kai.exe+2A1FCB: F3 41 0F 5D F9                 - minss xmm7,xmm9
-kai.exe+2A1FD0: F3 0F 11 BB 5C 1F 00 00        - movss [rbx+00001F5C],xmm7
-kai.exe+2A1FD8: 48 8D 8B 48 1B 00 00           - lea rcx,[rbx+00001B48]
-kai.exe+2A1FDF: E8 2C 9B 00 00                 - call kai.exe+2ABB10
+kai.exe+2A2241: EB 25                          - jmp kai.exe+2A2268
+kai.exe+2A2243: 84 C0                          - test al,al
+kai.exe+2A2245: 74 0C                          - je kai.exe+2A2253
+kai.exe+2A2247: C7 83 5C 1F 00 00 00 00 80 3F  - mov [rbx+00001F5C],3F800000
+kai.exe+2A2251: EB 15                          - jmp kai.exe+2A2268
+kai.exe+2A2253: F3 0F 58 BB 5C 1F 00 00        - addss xmm7,[rbx+00001F5C]
+kai.exe+2A225B: F3 41 0F 5D F9                 - minss xmm7,xmm9
+kai.exe+2A2260: F3 0F 11 BB 5C 1F 00 00        - movss [rbx+00001F5C],xmm7
+kai.exe+2A2268: 48 8D 8B 48 1B 00 00           - lea rcx,[rbx+00001B48]
+kai.exe+2A226F: E8 2C 9B 00 00                 - call kai.exe+2ABDA0
 }
 </AssemblerScript>
     </CheatEntry>
@@ -905,7 +914,7 @@ kai.exe+2A1FDF: E8 2C 9B 00 00                 - call kai.exe+2ABB10
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,kai.exe,48 8B 94 C7 58 01 00 00) // should be unique
-aobscanmodule(freezeaction_aob1,kai.exe,E8 8A 95 38 00) // should be unique
+aobscanmodule(freezeaction_aob1,kai.exe,E8 6A 99 38 00) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -980,7 +989,7 @@ code1:
   jmp return1
 @@:
   popf
-  call kai.exe+3F43C0
+  call kai.exe+3F4870
   jmp return1
 
 freeze:
@@ -1001,7 +1010,7 @@ freezemonitorinjectionpoint_aob:
   db 48 8B 94 C7 58 01 00 00
 
 freezeaction_aob1:
-  db E8 8A 95 38 00
+  db E8 6A 99 38 00
 
 unregistersymbol(freezemonitorinjectionpoint_aob)
 unregistersymbol(freezeaction_aob1)
@@ -1009,58 +1018,58 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+6B6A5 - Safe injection point to check keypresses
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6B775 - Safe injection point to check keypresses
 // call rdx is where the jump is made to the camera / game update function
 
-kai.exe+6B676: 48 8B 87 C0 01 00 00     - mov rax,[rdi+000001C0]
-kai.exe+6B67D: 48 85 C0                 - test rax,rax
-kai.exe+6B680: 74 09                    - je kai.exe+6B68B
-kai.exe+6B682: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
-kai.exe+6B689: FF D0                    - call rax
-kai.exe+6B68B: 8B 84 B7 88 01 00 00     - mov eax,[rdi+rsi*4+00000188]
-kai.exe+6B692: 89 87 D4 01 00 00        - mov [rdi+000001D4],eax
-kai.exe+6B698: 48 63 84 B7 88 01 00 00  - movsxd  rax,dword ptr [rdi+rsi*4+00000188]
-kai.exe+6B6A0: 83 F8 FF                 - cmp eax,-01
-kai.exe+6B6A3: 74 2E                    - je kai.exe+6B6D3
+kai.exe+6B746: 48 8B 87 C0 01 00 00     - mov rax,[rdi+000001C0]
+kai.exe+6B74D: 48 85 C0                 - test rax,rax
+kai.exe+6B750: 74 09                    - je kai.exe+6B75B
+kai.exe+6B752: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
+kai.exe+6B759: FF D0                    - call rax
+kai.exe+6B75B: 8B 84 B7 88 01 00 00     - mov eax,[rdi+rsi*4+00000188]
+kai.exe+6B762: 89 87 D4 01 00 00        - mov [rdi+000001D4],eax
+kai.exe+6B768: 48 63 84 B7 88 01 00 00  - movsxd  rax,dword ptr [rdi+rsi*4+00000188]
+kai.exe+6B770: 83 F8 FF                 - cmp eax,-01
+kai.exe+6B773: 74 2E                    - je kai.exe+6B7A3
 // ---------- INJECTING HERE ----------
-kai.exe+6B6A5: 48 8B 94 C7 58 01 00 00  - mov rdx,[rdi+rax*8+00000158]
+kai.exe+6B775: 48 8B 94 C7 58 01 00 00  - mov rdx,[rdi+rax*8+00000158]
 // ---------- DONE INJECTING  ----------
-kai.exe+6B6AD: 0F 28 CE                 - movaps xmm1,xmm6
-kai.exe+6B6B0: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
-kai.exe+6B6B7: FF D2                    - call rdx
-kai.exe+6B6B9: 41 8B 86 90 01 00 00     - mov eax,[r14+00000190]
-kai.exe+6B6C0: FF C0                    - inc eax
-kai.exe+6B6C2: B9 F8 FF FF 7F           - mov ecx,7FFFFFF8
-kai.exe+6B6C7: 3B C1                    - cmp eax,ecx
-kai.exe+6B6C9: 0F 4F C1                 - cmovg eax,ecx
-kai.exe+6B6CC: 41 89 86 90 01 00 00     - mov [r14+00000190],eax
-kai.exe+6B6D3: 0F 28 CE                 - movaps xmm1,xmm6
+kai.exe+6B77D: 0F 28 CE                 - movaps xmm1,xmm6
+kai.exe+6B780: 48 8B 8F 50 01 00 00     - mov rcx,[rdi+00000150]
+kai.exe+6B787: FF D2                    - call rdx
+kai.exe+6B789: 41 8B 86 90 01 00 00     - mov eax,[r14+00000190]
+kai.exe+6B790: FF C0                    - inc eax
+kai.exe+6B792: B9 F8 FF FF 7F           - mov ecx,7FFFFFF8
+kai.exe+6B797: 3B C1                    - cmp eax,ecx
+kai.exe+6B799: 0F 4F C1                 - cmovg eax,ecx
+kai.exe+6B79C: 41 89 86 90 01 00 00     - mov [r14+00000190],eax
+kai.exe+6B7A3: 0F 28 CE                 - movaps xmm1,xmm6
 
-// ORIGINAL CODE - INJECTION POINT: kai.exe+6AE31 - Freeze action 1
+// ORIGINAL CODE - INJECTION POINT: kai.exe+6AF01 - Freeze action 1
 
-kai.exe+6AE03: 0F 29 78 D8                 - movaps [rax-28],xmm7
-kai.exe+6AE07: 44 0F 29 48 B8              - movaps [rax-48],xmm9
-kai.exe+6AE0C: 44 0F 29 50 A8              - movaps [rax-58],xmm10
-kai.exe+6AE11: 48 8B 05 68 38 CC 00        - mov rax,[kai.exe+D2E680]
-kai.exe+6AE18: 48 33 C4                    - xor rax,rsp
-kai.exe+6AE1B: 48 89 44 24 38              - mov [rsp+38],rax
-kai.exe+6AE20: 48 8B F9                    - mov rdi,rcx
-kai.exe+6AE23: 44 0F 28 C9                 - movaps xmm9,xmm1
-kai.exe+6AE27: 48 8B 89 E0 01 00 00        - mov rcx,[rcx+000001E0]
-kai.exe+6AE2E: 0F 28 F9                    - movaps xmm7,xmm1
+kai.exe+6AED3: 0F 29 78 D8                 - movaps [rax-28],xmm7
+kai.exe+6AED7: 44 0F 29 48 B8              - movaps [rax-48],xmm9
+kai.exe+6AEDC: 44 0F 29 50 A8              - movaps [rax-58],xmm10
+kai.exe+6AEE1: 48 8B 05 98 37 CC 00        - mov rax,[kai.exe+D2E680]
+kai.exe+6AEE8: 48 33 C4                    - xor rax,rsp
+kai.exe+6AEEB: 48 89 44 24 38              - mov [rsp+38],rax
+kai.exe+6AEF0: 48 8B F9                    - mov rdi,rcx
+kai.exe+6AEF3: 44 0F 28 C9                 - movaps xmm9,xmm1
+kai.exe+6AEF7: 48 8B 89 E0 01 00 00        - mov rcx,[rcx+000001E0]
+kai.exe+6AEFE: 0F 28 F9                    - movaps xmm7,xmm1
 // ---------- INJECTING HERE ----------
-kai.exe+6AE31: E8 8A 95 38 00              - call kai.exe+3F43C0
+kai.exe+6AF01: E8 6A 99 38 00              - call kai.exe+3F4870
 // ---------- DONE INJECTING  ----------
-kai.exe+6AE36: 48 8B 8F E0 01 00 00        - mov rcx,[rdi+000001E0]
-kai.exe+6AE3D: F3 44 0F 59 C8              - mulss xmm9,xmm0
-kai.exe+6AE42: 41 0F 28 C9                 - movaps xmm1,xmm9
-kai.exe+6AE46: E8 F5 98 38 00              - call kai.exe+3F4740
-kai.exe+6AE4B: F3 0F 10 87 98 03 00 00     - movss xmm0,[rdi+00000398]
-kai.exe+6AE53: 45 0F 57 D2                 - xorps xmm10,xmm10
-kai.exe+6AE57: 41 0F 2F C2                 - comiss xmm0,xmm10
-kai.exe+6AE5B: F3 44 0F 11 8F 44 03 00 00  - movss [rdi+00000344],xmm9
-kai.exe+6AE64: 41 0F 28 F1                 - movaps xmm6,xmm9
-kai.exe+6AE68: 76 08                       - jna kai.exe+6AE72
+kai.exe+6AF06: 48 8B 8F E0 01 00 00        - mov rcx,[rdi+000001E0]
+kai.exe+6AF0D: F3 44 0F 59 C8              - mulss xmm9,xmm0
+kai.exe+6AF12: 41 0F 28 C9                 - movaps xmm1,xmm9
+kai.exe+6AF16: E8 D5 9C 38 00              - call kai.exe+3F4BF0
+kai.exe+6AF1B: F3 0F 10 87 98 03 00 00     - movss xmm0,[rdi+00000398]
+kai.exe+6AF23: 45 0F 57 D2                 - xorps xmm10,xmm10
+kai.exe+6AF27: 41 0F 2F C2                 - comiss xmm0,xmm10
+kai.exe+6AF2B: F3 44 0F 11 8F 44 03 00 00  - movss [rdi+00000344],xmm9
+kai.exe+6AF34: 41 0F 28 F1                 - movaps xmm6,xmm9
+kai.exe+6AF38: 76 08                       - jna kai.exe+6AF42
 }
 </AssemblerScript>
     </CheatEntry>
@@ -1097,31 +1106,31 @@ unregistersymbol(showinterface_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+63D5D4
+// ORIGINAL CODE - INJECTION POINT: kai.exe+63DDB4
 
-kai.exe+63D5A1: 0F 85 03 03 00 00              - jne kai.exe+63D8AA
-kai.exe+63D5A7: 85 85 B4 16 00 00              - test [rbp+000016B4],eax
-kai.exe+63D5AD: 0F 85 F7 02 00 00              - jne kai.exe+63D8AA
-kai.exe+63D5B3: 41 85 C7                       - test r15d,eax
-kai.exe+63D5B6: 74 0C                          - je kai.exe+63D5C4
-kai.exe+63D5B8: 44 89 AF D4 00 00 00           - mov [rdi+000000D4],r13d
-kai.exe+63D5BF: E9 E6 02 00 00                 - jmp kai.exe+63D8AA
-kai.exe+63D5C4: C7 87 D4 00 00 00 00 00 80 3F  - mov [rdi+000000D4],3F800000
-kai.exe+63D5CE: 41 0F 28 C1                    - movaps xmm0,xmm9
-kai.exe+63D5D2: 84 C3                          - test bl,al
+kai.exe+63DD81: 0F 85 03 03 00 00              - jne kai.exe+63E08A
+kai.exe+63DD87: 85 85 B4 16 00 00              - test [rbp+000016B4],eax
+kai.exe+63DD8D: 0F 85 F7 02 00 00              - jne kai.exe+63E08A
+kai.exe+63DD93: 41 85 C7                       - test r15d,eax
+kai.exe+63DD96: 74 0C                          - je kai.exe+63DDA4
+kai.exe+63DD98: 44 89 AF D4 00 00 00           - mov [rdi+000000D4],r13d
+kai.exe+63DD9F: E9 E6 02 00 00                 - jmp kai.exe+63E08A
+kai.exe+63DDA4: C7 87 D4 00 00 00 00 00 80 3F  - mov [rdi+000000D4],3F800000
+kai.exe+63DDAE: 41 0F 28 C1                    - movaps xmm0,xmm9
+kai.exe+63DDB2: 84 C3                          - test bl,al
 // ---------- INJECTING HERE ----------
-kai.exe+63D5D4: 74 10                          - je kai.exe+63D5E6
+kai.exe+63DDB4: 74 10                          - je kai.exe+63DDC6
 // ---------- DONE INJECTING  ----------
-kai.exe+63D5D6: F3 0F 10 85 C0 16 00 00        - movss xmm0,[rbp+000016C0]
-kai.exe+63D5DE: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
-kai.exe+63D5E6: A8 02                          - test al,02
-kai.exe+63D5E8: 74 10                          - je kai.exe+63D5FA
-kai.exe+63D5EA: F3 0F 59 85 D8 16 00 00        - mulss xmm0,[rbp+000016D8]
-kai.exe+63D5F2: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
-kai.exe+63D5FA: A8 04                          - test al,04
-kai.exe+63D5FC: 74 10                          - je kai.exe+63D60E
-kai.exe+63D5FE: F3 0F 59 85 F0 16 00 00        - mulss xmm0,[rbp+000016F0]
-kai.exe+63D606: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
+kai.exe+63DDB6: F3 0F 10 85 C0 16 00 00        - movss xmm0,[rbp+000016C0]
+kai.exe+63DDBE: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
+kai.exe+63DDC6: A8 02                          - test al,02
+kai.exe+63DDC8: 74 10                          - je kai.exe+63DDDA
+kai.exe+63DDCA: F3 0F 59 85 D8 16 00 00        - mulss xmm0,[rbp+000016D8]
+kai.exe+63DDD2: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
+kai.exe+63DDDA: A8 04                          - test al,04
+kai.exe+63DDDC: 74 10                          - je kai.exe+63DDEE
+kai.exe+63DDDE: F3 0F 59 85 F0 16 00 00        - mulss xmm0,[rbp+000016F0]
+kai.exe+63DDE6: F3 0F 11 87 D4 00 00 00        - movss [rdi+000000D4],xmm0
 }
 </AssemblerScript>
       <Hotkeys>
