@@ -54,13 +54,13 @@ local ItemList = {
 "2351:Agnès - A. Color Hair",
 "2617:Agnès' A. Color Outfit",
 "2845:Agnès - Dark Hair",
-"2510:Agnès' Daybreak II Outfit A",
-"2511:Agnès' Daybreak II Outfit B",
-"2516:Agnès' Daybreak I Outfit A",
-"2517:Agnès Daybreak I Outfit B",
 "2616:Agnès' Lapine Attire",
 "2816:Agnès' Lightweight Outfit",
 "420:Agnès Main Verification Slot",
+"2511:Agnès' Old Casual Wear",
+"2517:Agnès' Old Casual Wear 2",
+"2510:Agnès' Old Outfit",
+"2516:Agnès' Old Outfit 2",
 "2519:Agnès' Outfit",
 "2618:Agnès' Pink Lapine Attire",
 "3000:Agnès' Pit Girl Sun Visor",
@@ -2143,7 +2143,7 @@ al[mr2.Index].DisplayAsDropDownListItem = true
 
 {$asm}
 
-aobscanmodule(overridepurchaseitem_aob,kai.exe,8B 12 48 8B 0D 44 4C 80 00) // should be unique
+aobscanmodule(overridepurchaseitem_aob,kai.exe,8B 12 48 8B 0D D4 4B 80 00) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -2170,38 +2170,38 @@ registersymbol(overridepurchaseitem_aob)
 [DISABLE]
 
 overridepurchaseitem_aob:
-  db 8B 12 48 8B 0D 44 4C 80 00
+  db 8B 12 48 8B 0D D4 4B 80 00
 
 unregistersymbol(overridepurchaseitem_aob)
 unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+55B603
+// ORIGINAL CODE - INJECTION POINT: kai.exe+55B673
 
-kai.exe+55B5CF: 0F 87 A4 00 00 00        - ja kai.exe+55B679
-kai.exe+55B5D5: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
-kai.exe+55B5DC: 48 8B 0D 6D 4C 80 00     - mov rcx,[kai.exe+D60250]
-kai.exe+55B5E3: 8B 12                    - mov edx,[rdx]
-kai.exe+55B5E5: E8 66 10 F9 FF           - call kai.exe+4EC650
-kai.exe+55B5EA: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
-kai.exe+55B5F1: 44 8B 83 9C 00 00 00     - mov r8d,[rbx+0000009C]
-kai.exe+55B5F8: 41 03 C0                 - add eax,r8d
-kai.exe+55B5FB: 3B 82 C8 00 00 00        - cmp eax,[rdx+000000C8]
-kai.exe+55B601: 77 76                    - ja kai.exe+55B679
+kai.exe+55B63F: 0F 87 A4 00 00 00        - ja kai.exe+55B6E9
+kai.exe+55B645: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
+kai.exe+55B64C: 48 8B 0D FD 4B 80 00     - mov rcx,[kai.exe+D60250]
+kai.exe+55B653: 8B 12                    - mov edx,[rdx]
+kai.exe+55B655: E8 56 10 F9 FF           - call kai.exe+4EC6B0
+kai.exe+55B65A: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
+kai.exe+55B661: 44 8B 83 9C 00 00 00     - mov r8d,[rbx+0000009C]
+kai.exe+55B668: 41 03 C0                 - add eax,r8d
+kai.exe+55B66B: 3B 82 C8 00 00 00        - cmp eax,[rdx+000000C8]
+kai.exe+55B671: 77 76                    - ja kai.exe+55B6E9
 // ---------- INJECTING HERE ----------
-kai.exe+55B603: 8B 12                    - mov edx,[rdx]
+kai.exe+55B673: 8B 12                    - mov edx,[rdx]
 // ---------- DONE INJECTING  ----------
-kai.exe+55B605: 48 8B 0D 44 4C 80 00     - mov rcx,[kai.exe+D60250]
-kai.exe+55B60C: E8 3F 99 F8 FF           - call kai.exe+4E4F50
-kai.exe+55B611: 48 8B 0D 38 4C 80 00     - mov rcx,[kai.exe+D60250]
-kai.exe+55B618: 8B D7                    - mov edx,edi
-kai.exe+55B61A: E8 E1 48 F9 FF           - call kai.exe+4EFF00
-kai.exe+55B61F: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
-kai.exe+55B626: 48 8B 0D 23 4C 80 00     - mov rcx,[kai.exe+D60250]
-kai.exe+55B62D: 8B 12                    - mov edx,[rdx]
-kai.exe+55B62F: E8 9C 41 F9 FF           - call kai.exe+4EF7D0
-kai.exe+55B634: F3 0F 10 05 F4 D3 5B 00  - movss xmm0,[kai.exe+B18A30]
+kai.exe+55B675: 48 8B 0D D4 4B 80 00     - mov rcx,[kai.exe+D60250]
+kai.exe+55B67C: E8 2F 99 F8 FF           - call kai.exe+4E4FB0
+kai.exe+55B681: 48 8B 0D C8 4B 80 00     - mov rcx,[kai.exe+D60250]
+kai.exe+55B688: 8B D7                    - mov edx,edi
+kai.exe+55B68A: E8 D1 48 F9 FF           - call kai.exe+4EFF60
+kai.exe+55B68F: 48 8B 93 A0 00 00 00     - mov rdx,[rbx+000000A0]
+kai.exe+55B696: 48 8B 0D B3 4B 80 00     - mov rcx,[kai.exe+D60250]
+kai.exe+55B69D: 8B 12                    - mov edx,[rdx]
+kai.exe+55B69F: E8 8C 41 F9 FF           - call kai.exe+4EF830
+kai.exe+55B6A4: F3 0F 10 05 84 D3 5B 00  - movss xmm0,[kai.exe+B18A30]
 }
 </AssemblerScript>
       <CheatEntries>
