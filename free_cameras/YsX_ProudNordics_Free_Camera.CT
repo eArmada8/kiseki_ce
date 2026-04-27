@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Free Camera (Num 0 Toggle)"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+globalalloc(speedModifier,8)
+speedModifier:
+dd (float)3
+globalalloc(useMouse,8)
+useMouse:
+dd (float)1 // 1 to use mouse, 0 to not use mouse
+globalalloc(mouseSensitivity,8)
+mouseSensitivity:
+dd (float)8
+
+aobscanmodule(cameracoordinates_aob,ysx_pn.exe,F3 0F 10 79 1C F3) // should be unique
+aobscanmodule(camera_control_xyz_aob,ysx_pn.exe,F3 0F 11 4B 0C F3 0F 11 53 08 F3) // should be unique
+aobscanmodule(camera_control_target_xyz_aob,ysx_pn.exe,F3 0F 11 7B 20 F3 0F) // should be unique
+aobscanmodule(camera_control_rotation_xyz_aob,ysx_pn.exe,F3 44 0F 11 53 30 45) // should be unique
+aobscanmodule(moveplayer_aob,ysx_pn.exe,75 0F 48 8B 03) // should be unique
+alloc(newmem,$100,cameracoordinates_aob)
+alloc(cameracoordinates,$100,cameracoordinates_aob)
+registersymbol(cameracoordinates_aob)
+registersymbol(moveplayer_aob)
+registersymbol(cameracoordinates)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  movss xmm7,[rcx+1C]
+  mov [cameracoordinates],rcx
+  jmp return
+
+cameracoordinates_aob:
+  jmp newmem
+return:
+
+camera_control_xyz_aob:
+  db 90 90 90 90 90 90 90 90 90 90 F3 0F 59 9C 24 60 01 00 00 F3 0F 58 D8 0F 28 C7 F3 41 0F 5C C1 45 0F 28 4B C0 90 90 90 90 90
+
+camera_control_target_xyz_aob:
+  db 90 90 90 90 90 90 90 90 90 90 F3 0F 11 8B 2C 01 00 00 41 0F 28 CA F3 0F 11 83 30 01 00 00 41 0F 28 C2 F3 0F 11 93 28 01 00 00 90 90 90 90 90
+  
+camera_control_rotation_xyz_aob:
+  db 90 90 90 90 90 90 45 0F 28 53 B0 F3 0F 11 A3 38 01 00 00 F3 0F 11 AB 3C 01 00 00 F3 0F 11 9B C8 01 00 00 F3 41 0F 59 C5 45 0F 28 6B 80 F3 0F 59 CE 41 0F 28 73 F0 90 90 90 90 90 90 90 90 90 90
+
+moveplayer_aob:
+  db EB 0F
+
+{$lua}
+
+function checkKeys()
+  if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
+  if (getAddressSafe("[cameracoordinates]")) then
+    --Read and assign speed modifier value
+    local speed = readFloat("speedModifier")
+    local use_mouse = readFloat("useMouse")
+    local mouse_speed = readFloat("mouseSensitivity")
+
+    --Camera Coordinates
+    local camx = readFloat("[cameracoordinates]+08") -- Camera X
+    local camy = readFloat("[cameracoordinates]+10") -- Camera Y
+    local camz = readFloat("[cameracoordinates]+0C") -- Camera Z
+
+    --Target Coordinates
+    local targetx = readFloat("[cameracoordinates]+18") -- Camera X
+    local targety = readFloat("[cameracoordinates]+20") -- Camera Y
+    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Z
+
+    --Prevent endless error loop if camera status is not initiated
+    if (targetz == nil) or (targetz == camz and targetx == camx and targety == camy) then
+      speed = 0
+      camx = 0
+      camy = 0
+      camz = 0
+      targetx = 0
+      targety = 0
+      targetz = 0
+    else
+
+      local new_mouse_x,new_mouse_y = getMousePos()
+      local mouse_loaded = readInteger("cameracoordinates+38")
+
+      --Initialize mouse coordinates on first run (if using mouse)
+      if not (mouse_loaded == 1) and (use_mouse == 1) then
+        new_mouse_x = getScreenWidth() / 2
+        new_mouse_y = getScreenHeight() / 2
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+        writeInteger("cameracoordinates+38",1)
+      end
+
+      --Measure mouse movement from previous cycle
+      local mouse_move_x = new_mouse_x - getScreenWidth() / 2
+      local mouse_move_y = new_mouse_y - getScreenHeight() / 2
+
+      --Mouse Rotation in Radians
+      --Use math.rad() to convert from degrees if game values aren't in radians
+      local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
+      local tilt = math.atan2(camz - targetz, ((targetx - camx)^2 + (targety - camy)^2)^0.5)
+      local pan = math.atan2(targetx - camx, targety - camy) + math.rad(180) -- Horizontal (pan)
+
+      --Sine and Cosine of Rotation Values
+      local siny = math.sin(pan) -- Sine of Horizontal (pan)
+      local cosy = math.cos(pan) -- Cosine of Horizontal (pan)
+      local sinp = math.sin(tilt) -- Sine of Vertical (tilt)
+      local cosp = math.cos(tilt) -- Cosine of Vertical (tilt)
+
+      --Forward
+      if isKeyPressed(VK_W) then
+        camx = camx - (siny * speed * 0.03)
+        camy = camy - (cosy * speed * 0.03)
+        camz = camz - (sinp * speed * 0.03)
+      end
+      --Left
+      if isKeyPressed(VK_A) then
+        camx = camx + (math.sin(pan - math.rad(90)) * speed * 0.03)
+        camy = camy + (math.cos(pan - math.rad(90)) * speed * 0.03)
+      end
+      --Back
+      if isKeyPressed(VK_S) then
+        camx = camx + (siny * speed * 0.03)
+        camy = camy + (cosy * speed * 0.03)
+        camz = camz + (sinp * speed * 0.03)
+      end
+      --Right
+      if isKeyPressed(VK_D) then
+        camx = camx - (math.sin(pan - math.rad(90)) * speed * 0.03)
+        camy = camy - (math.cos(pan - math.rad(90)) * speed * 0.03)
+      end
+      --Forward/Right
+      if isKeyPressed(VK_W) and isKeyPressed(VK_D) then
+        camx = camx - (math.sin(pan - math.rad(45)) * speed * 0.03)
+        camy = camy - (math.cos(pan - math.rad(45)) * speed * 0.03)
+        camz = camz - (sinp * speed * 0.03)
+      end
+      --Forward/Left
+      if isKeyPressed(VK_W) and isKeyPressed(VK_A) then
+        camx = camx - (math.sin(pan + math.rad(45)) * speed * 0.03)
+        camy = camy - (math.cos(pan + math.rad(45)) * speed * 0.03)
+        camz = camz - (sinp * speed * 0.03)
+      end
+      --Back/Left
+      if isKeyPressed(VK_S) and isKeyPressed(VK_A) then
+        camx = camx + (math.sin(pan - math.rad(45)) * speed * 0.03)
+        camy = camy + (math.cos(pan - math.rad(45)) * speed * 0.03)
+        camz = camz + (sinp * speed * 0.03)
+      end
+      --Back/Right
+      if isKeyPressed(VK_S) and isKeyPressed(VK_D) then
+        camx = camx + (math.sin(pan + math.rad(45)) * speed * 0.03)
+        camy = camy + (math.cos(pan + math.rad(45)) * speed * 0.03)
+        camz = camz + (sinp * speed * 0.03)
+      end
+      --Up
+      if isKeyPressed(VK_T) then
+       camz = camz + (speed * 0.02)
+      end
+      --Down
+      if isKeyPressed(VK_G) then
+       camz = camz - (speed * 0.02)
+      end
+      --Pan right
+      if isKeyPressed(VK_L) then
+        pan = pan - speed * 0.01
+      end
+      --Pan left
+      if isKeyPressed(VK_J) then
+        pan = pan + speed * 0.01
+      end
+      --Tilt up
+      if isKeyPressed(VK_I) then
+        tilt = math.max(tilt - speed * 0.01, math.rad(-89.5))
+      end
+      --Tilt down
+      if isKeyPressed(VK_K) then
+        tilt = math.min(tilt + speed * 0.01, math.rad(89.5))
+      end
+
+      if (use_mouse == 1) then
+        --Tilt by mouse
+        if not(mouse_move_y == 0) then
+          tilt = math.min(math.max(tilt + mouse_move_y * mouse_speed * 0.0003, math.rad(-89.5)), math.rad(89.5))
+        end
+        --Tilt by mouse
+        if not(mouse_move_x == 0) then
+          pan = pan - mouse_move_x * mouse_speed * 0.0003
+        end
+
+        setMousePos(getScreenWidth() / 2, getScreenHeight() / 2)
+      end
+
+      --Create a copy of the entire memory block before alterations.  I do not know if +14, +24 or +34 are used, but this preserves them.
+      copyMemory("[cameracoordinates]+08",48,"cameracoordinates+08")
+
+      --Write new values into the temporary buffer
+      writeFloat("cameracoordinates+08", camx)
+      writeFloat("cameracoordinates+10", camy)
+      writeFloat("cameracoordinates+0C", camz)
+      writeFloat("cameracoordinates+18", camx - (camdist * math.cos(tilt) * math.sin(pan)))
+      writeFloat("cameracoordinates+20", camy - (camdist * math.cos(tilt) * math.cos(pan)))
+      writeFloat("cameracoordinates+1C", camz - (camdist * math.sin(tilt)))
+      writeFloat("cameracoordinates+28", 0) --Anti-vomit settings
+      writeFloat("cameracoordinates+2C", 1)
+      writeFloat("cameracoordinates+30", 0)
+
+      --Copy buffer back into memory read by game engine
+      copyMemory("cameracoordinates+08",48,"[cameracoordinates]+08")
+    end
+
+
+    --Speed Modifiers
+    if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
+      writeFloat("speedModifier", 12)
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
+      writeFloat("speedModifier", 6)
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
+      writeFloat("speedModifier", .5)
+    else --If nothing is pressed, speed is normal
+      writeFloat("speedModifier", 3)
+    end
+
+    --Mouse Support
+    if isKeyPressed(VK_PRIOR) then --If Page Up is pressed, enable mouse
+      writeFloat("useMouse", 1)
+    elseif isKeyPressed(VK_NEXT) then --If Page Down is pressed, disable mouse
+      writeFloat("useMouse", 0)
+    end
+  end
+end
+
+t=createTimer(nil)
+timer_setInterval(t, 10)
+timer_onTimer(t, checkKeys)
+timer_setEnabled(t, true)
+
+{$asm}
+
+[DISABLE]
+{$lua}
+
+timer_setEnabled(t, false)
+
+{$asm}
+cameracoordinates_aob:
+  db F3 0F 10 79 1C
+
+camera_control_xyz_aob:
+  db F3 0F 11 4B 0C F3 0F 11 53 08 F3 0F 59 9C 24 60 01 00 00 F3 0F 58 D8 0F 28 C7 F3 41 0F 5C C1 45 0F 28 4B C0 F3 0F 11 43 10
+
+camera_control_target_xyz_aob:
+  db F3 0F 11 7B 20 F3 0F 11 63 18 F3 0F 11 8B 2C 01 00 00 41 0F 28 CA F3 0F 11 83 30 01 00 00 41 0F 28 C2 F3 0F 11 93 28 01 00 00 F3 0F 11 6B 1C
+
+camera_control_rotation_xyz_aob:
+  db F3 44 0F 11 53 30 45 0F 28 53 B0 F3 0F 11 A3 38 01 00 00 F3 0F 11 AB 3C 01 00 00 F3 0F 11 9B C8 01 00 00 F3 41 0F 59 C5 45 0F 28 6B 80 F3 0F 59 CE 41 0F 28 73 F0 F3 0F 11 43 28 F3 0F 11 4B 2C
+
+moveplayer_aob:
+  db 75 0F
+
+unregistersymbol(cameracoordinates_aob)
+unregistersymbol(moveplayer_aob)
+unregistersymbol(cameracoordinates)
+dealloc(cameracoordinates)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+75ECAD - Camera Coordinates (in RCX)
+
+ysx_pn.exe+75EC7F: CC                       - int 3 
+ysx_pn.exe+75EC80: 40 53                    - push rbx
+ysx_pn.exe+75EC82: 48 83 EC 50              - sub rsp,50
+ysx_pn.exe+75EC86: 66 0F 6F 25 B2 1D 42 00  - movdqa xmm4,[ysx_pn.exe+B80A40]
+ysx_pn.exe+75EC8E: 48 8B DA                 - mov rbx,rdx
+ysx_pn.exe+75EC91: F3 0F 10 2D D7 FA 41 00  - movss xmm5,[ysx_pn.exe+B7E770]
+ysx_pn.exe+75EC99: 0F 29 74 24 40           - movaps [rsp+40],xmm6
+ysx_pn.exe+75EC9E: F3 0F 10 71 20           - movss xmm6,[rcx+20]
+ysx_pn.exe+75ECA3: F3 0F 5C 71 10           - subss xmm6,[rcx+10]
+ysx_pn.exe+75ECA8: 0F 29 7C 24 30           - movaps [rsp+30],xmm7
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+75ECAD: F3 0F 10 79 1C           - movss xmm7,[rcx+1C]
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+75ECB2: F3 0F 5C 79 0C           - subss xmm7,[rcx+0C]
+ysx_pn.exe+75ECB7: 44 0F 29 44 24 20        - movaps [rsp+20],xmm8
+ysx_pn.exe+75ECBD: F3 44 0F 10 41 18        - movss xmm8,[rcx+18]
+ysx_pn.exe+75ECC3: F3 44 0F 5C 41 08        - subss xmm8,[rcx+08]
+ysx_pn.exe+75ECC9: 41 0F 28 C0              - movaps xmm0,xmm8
+ysx_pn.exe+75ECCD: 0F 54 C4                 - andps xmm0,xmm4
+ysx_pn.exe+75ECD0: 0F 2F E8                 - comiss xmm5,xmm0
+ysx_pn.exe+75ECD3: 76 78                    - jna ysx_pn.exe+75ED4D
+ysx_pn.exe+75ECD5: 0F 28 C7                 - movaps xmm0,xmm7
+ysx_pn.exe+75ECD8: 0F 54 C4                 - andps xmm0,xmm4
+
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+2C7261 - Camera Movement (Coordinates/Target)
+
+ysx_pn.exe+2C722D: 45 0F 28 BB 60 FF FF FF     - movaps xmm15,[r11-000000A0]
+ysx_pn.exe+2C7235: F3 41 0F 5C CC              - subss xmm1,xmm12
+ysx_pn.exe+2C723A: 45 0F 28 63 90              - movaps xmm12,[r11-70]
+ysx_pn.exe+2C723F: 0F 28 D4                    - movaps xmm2,xmm4
+ysx_pn.exe+2C7242: F3 44 0F 5E D0              - divss xmm10,xmm0
+ysx_pn.exe+2C7247: F3 0F 10 86 C8 01 00 00     - movss xmm0,[rsi+000001C8]
+ysx_pn.exe+2C724F: F3 41 0F 5C D3              - subss xmm2,xmm11
+ysx_pn.exe+2C7254: 49 8B 73 20                 - mov rsi,[r11+20]
+ysx_pn.exe+2C7258: F3 0F 5C D8                 - subss xmm3,xmm0
+ysx_pn.exe+2C725C: 45 0F 28 5B A0              - movaps xmm11,[r11-60]
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+2C7261: F3 0F 11 4B 0C              - movss [rbx+0C],xmm1
+ysx_pn.exe+2C7266: F3 0F 11 53 08              - movss [rbx+08],xmm2
+ysx_pn.exe+2C726B: F3 0F 59 9C 24 60 01 00 00  - mulss xmm3,[rsp+00000160]
+ysx_pn.exe+2C7274: F3 0F 58 D8                 - addss xmm3,xmm0
+ysx_pn.exe+2C7278: 0F 28 C7                    - movaps xmm0,xmm7
+ysx_pn.exe+2C727B: F3 41 0F 5C C1              - subss xmm0,xmm9
+ysx_pn.exe+2C7280: 45 0F 28 4B C0              - movaps xmm9,[r11-40]
+ysx_pn.exe+2C7285: F3 0F 11 43 10              - movss [rbx+10],xmm0
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+2C728A: F3 0F 58 8B 4C 01 00 00     - addss xmm1,[rbx+0000014C]
+ysx_pn.exe+2C7292: F3 0F 58 83 50 01 00 00     - addss xmm0,[rbx+00000150]
+ysx_pn.exe+2C729A: F3 0F 58 93 48 01 00 00     - addss xmm2,[rbx+00000148]
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+2C72A2: F3 0F 11 7B 20              - movss [rbx+20],xmm7
+ysx_pn.exe+2C72A7: F3 0F 11 63 18              - movss [rbx+18],xmm4
+ysx_pn.exe+2C72AC: F3 0F 11 8B 2C 01 00 00     - movss [rbx+0000012C],xmm1
+ysx_pn.exe+2C72B4: 41 0F 28 CA                 - movaps xmm1,xmm10
+ysx_pn.exe+2C72B8: F3 0F 11 83 30 01 00 00     - movss [rbx+00000130],xmm0
+ysx_pn.exe+2C72C0: 41 0F 28 C2                 - movaps xmm0,xmm10
+ysx_pn.exe+2C72C4: F3 0F 11 93 28 01 00 00     - movss [rbx+00000128],xmm2
+ysx_pn.exe+2C72CC: F3 0F 11 6B 1C              - movss [rbx+1C],xmm5
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+2C72D1: F3 0F 58 BB 50 01 00 00     - addss xmm7,[rbx+00000150]
+ysx_pn.exe+2C72D9: F3 0F 58 AB 4C 01 00 00     - addss xmm5,[rbx+0000014C]
+ysx_pn.exe+2C72E1: F3 0F 58 A3 48 01 00 00  - addss xmm4,[rbx+00000148]
+ysx_pn.exe+2C72E9: F3 45 0F 59 D0           - mulss xmm10,xmm8
+ysx_pn.exe+2C72EE: 45 0F 28 43 D0           - movaps xmm8,[r11-30]
+ysx_pn.exe+2C72F3: F3 0F 11 BB 40 01 00 00  - movss [rbx+00000140],xmm7
+ysx_pn.exe+2C72FB: 41 0F 28 7B E0           - movaps xmm7,[r11-20]
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+2C7300: F3 44 0F 11 53 30        - movss [rbx+30],xmm10
+ysx_pn.exe+2C7306: 45 0F 28 53 B0           - movaps xmm10,[r11-50]
+ysx_pn.exe+2C730B: F3 0F 11 A3 38 01 00 00  - movss [rbx+00000138],xmm4
+ysx_pn.exe+2C7313: F3 0F 11 AB 3C 01 00 00  - movss [rbx+0000013C],xmm5
+ysx_pn.exe+2C731B: F3 0F 11 9B C8 01 00 00  - movss [rbx+000001C8],xmm3
+ysx_pn.exe+2C7323: F3 41 0F 59 C5           - mulss xmm0,xmm13
+ysx_pn.exe+2C7328: 45 0F 28 6B 80           - movaps xmm13,[r11-80]
+ysx_pn.exe+2C732D: F3 0F 59 CE              - mulss xmm1,xmm6
+ysx_pn.exe+2C7331: 41 0F 28 73 F0           - movaps xmm6,[r11-10]
+ysx_pn.exe+2C7336: F3 0F 11 43 28           - movss [rbx+28],xmm0
+ysx_pn.exe+2C733B: F3 0F 11 4B 2C           - movss [rbx+2C],xmm1
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+2C7340: 0F B6 87 9C 04 00 00     - movzx eax,byte ptr [rdi+0000049C]
+ysx_pn.exe+2C7347: 88 83 9C 04 00 00        - mov [rbx+0000049C],al
+ysx_pn.exe+2C734D: 8B 87 A0 04 00 00        - mov eax,[rdi+000004A0]
+ysx_pn.exe+2C7353: 89 83 A0 04 00 00        - mov [rbx+000004A0],eax
+ysx_pn.exe+2C7359: 49 8B 5B 10              - mov rbx,[r11+10]
+ysx_pn.exe+2C735D: 49 8B E3                 - mov rsp,r11
+ysx_pn.exe+2C7360: 5F                       - pop rdi
+ysx_pn.exe+2C7361: C3                       - ret 
+ysx_pn.exe+2C7362: CC                       - int 3 
+ysx_pn.exe+2C7363: CC                       - int 3 
+
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+22DEDC - Player Movement
+
+ysx_pn.exe+22DEAC: 0F 29 74 24 40        - movaps [rsp+40],xmm6
+ysx_pn.exe+22DEB1: 0F 29 7C 24 30        - movaps [rsp+30],xmm7
+ysx_pn.exe+22DEB6: 0F 28 FA              - movaps xmm7,xmm2
+ysx_pn.exe+22DEB9: 44 0F 29 44 24 20     - movaps [rsp+20],xmm8
+ysx_pn.exe+22DEBF: 44 0F 28 C1           - movaps xmm8,xmm1
+ysx_pn.exe+22DEC3: FF 90 58 02 00 00     - call qword ptr [rax+00000258]
+ysx_pn.exe+22DEC9: 84 C0                 - test al,al
+ysx_pn.exe+22DECB: 0F 85 0E 01 00 00     - jne ysx_pn.exe+22DFDF
+ysx_pn.exe+22DED1: 38 05 D1 C6 AF 00     - cmp [ysx_pn.exe+D2A5A8],al
+ysx_pn.exe+22DED7: 48 89 7C 24 60        - mov [rsp+60],rdi
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+22DEDC: 75 0F                 - jne ysx_pn.exe+22DEED
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+22DEDE: 48 8B 03              - mov rax,[rbx]
+ysx_pn.exe+22DEE1: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+22DEE4: 48 8B CB              - mov rcx,rbx
+ysx_pn.exe+22DEE7: FF 90 50 08 00 00     - call qword ptr [rax+00000850]
+ysx_pn.exe+22DEED: 48 8D 8B E0 16 00 00  - lea rcx,[rbx+000016E0]
+ysx_pn.exe+22DEF4: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+22DEF7: E8 34 D8 E0 FF        - call ysx_pn.exe+3B730
+ysx_pn.exe+22DEFC: 48 8D 8B 1C 17 00 00  - lea rcx,[rbx+0000171C]
+ysx_pn.exe+22DF03: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+22DF06: E8 95 D9 E0 FF        - call ysx_pn.exe+3B8A0
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>96</Key>
+          </Keys>
+          <ID>0</ID>
+          <ActivateSound>Activate</ActivateSound>
+          <DeactivateSound>Deactivate</DeactivateSound>
+        </Hotkey>
+      </Hotkeys>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>10</ID>
+          <Description>"Camera Coordinates"</Description>
+          <Options moHideChildren="1"/>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>11</ID>
+              <Description>"Camera X"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>08</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>12</ID>
+              <Description>"Camera Y"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>10</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>13</ID>
+              <Description>"Camera Z"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>0C</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>14</ID>
+              <Description>"Camera Target X"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>18</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>15</ID>
+              <Description>"Camera Target Y"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>20</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>16</ID>
+              <Description>"Camera Target Z"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>cameracoordinates</Address>
+              <Offsets>
+                <Offset>1C</Offset>
+              </Offsets>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"Force Pause Action (Enable first, F5 pause / F6 unpause)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(freeze_frame_aob,ysx_pn.exe,48 8B 86 88 04 00 00) // should be unique
+alloc(newmem,$1000,freeze_frame_aob)
+registersymbol(freeze_frame_aob)
+
+registersymbol(freeze)
+
+label(toggleon)
+label(toggleoff)
+label(code)
+label(freeze)
+label(return)
+
+newmem:
+
+toggleon:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,74 //VK_F5
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz toggleoff
+  mov [freeze],#1
+  jmp code
+
+toggleoff:
+  push rax
+  push rcx
+  push rdx
+  push r8
+  push r9
+  push r10
+  push r11
+  sub rsp,28
+  mov rcx,75 //VK_F6
+  call GetAsyncKeyState
+  add rsp,28
+  pop r11
+  pop r10
+  pop r9
+  pop r8
+  pop rdx
+  pop rcx
+  test ax,8001
+  pop rax
+  jz code
+  mov [freeze],#0
+
+code:
+  pushf
+  cmp [freeze],#0
+  je @f
+  popf
+  mov rax,[rsi+00000488]
+  jmp ysx_pn.exe+225F22
+@@:
+  popf
+  mov rax,[rsi+00000488]
+  jmp return
+
+freeze:
+  dd #0
+
+freeze_frame_aob:
+  jmp newmem
+  nop 2
+return:
+
+[DISABLE]
+
+freeze_frame_aob:
+  db 48 8B 86 88 04 00 00
+
+unregistersymbol(freeze_frame_aob)
+unregistersymbol(freeze)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+225EF3
+
+ysx_pn.exe+225EC9: 74 03                 - je ysx_pn.exe+225ECE
+ysx_pn.exe+225ECB: 0F 57 FF              - xorps xmm7,xmm7
+ysx_pn.exe+225ECE: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
+ysx_pn.exe+225ED5: E8 B6 21 0D 00        - call ysx_pn.exe+2F8090
+ysx_pn.exe+225EDA: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
+ysx_pn.exe+225EE1: 0F 28 F0              - movaps xmm6,xmm0
+ysx_pn.exe+225EE4: F3 0F 59 F7           - mulss xmm6,xmm7
+ysx_pn.exe+225EE8: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+225EEB: 0F 28 D6              - movaps xmm2,xmm6
+ysx_pn.exe+225EEE: E8 AD 71 0D 00        - call ysx_pn.exe+2FD0A0
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+225EF3: 48 8B 86 88 04 00 00  - mov rax,[rsi+00000488]
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+225EFA: 83 B8 60 B9 01 00 01  - cmp dword ptr [rax+0001B960],01
+ysx_pn.exe+225F01: 74 1F                 - je ysx_pn.exe+225F22
+ysx_pn.exe+225F03: 83 B8 50 22 00 00 00  - cmp dword ptr [rax+00002250],00
+ysx_pn.exe+225F0A: 75 16                 - jne ysx_pn.exe+225F22
+ysx_pn.exe+225F0C: 48 8B 8E 80 04 00 00  - mov rcx,[rsi+00000480]
+ysx_pn.exe+225F13: 0F 28 D6              - movaps xmm2,xmm6
+ysx_pn.exe+225F16: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+225F19: 48 8B 01              - mov rax,[rcx]
+ysx_pn.exe+225F1C: FF 90 00 01 00 00     - call qword ptr [rax+00000100]
+ysx_pn.exe+225F22: 0F 28 CF              - movaps xmm1,xmm7
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"Hide HUD / Dialogue / Interface (F7 Toggle)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+
+aobscanmodule(showinterface_aob,ysx_pn.exe,F3 0F 11 47 68 48 85 C9 0F) // should be unique
+alloc(newmem,$1000,showinterface_aob)
+
+label(code)
+label(return)
+
+newmem:
+  pxor xmm0,xmm0
+code:
+  movss [rdi+68],xmm0
+  jmp return
+
+showinterface_aob:
+  jmp newmem
+return:
+registersymbol(showinterface_aob)
+
+[DISABLE]
+
+showinterface_aob:
+  db F3 0F 11 47 68
+
+unregistersymbol(showinterface_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+77FD11
+
+ysx_pn.exe+77FCDC: 89 47 58                 - mov [rdi+58],eax
+ysx_pn.exe+77FCDF: 8B 87 10 02 00 00        - mov eax,[rdi+00000210]
+ysx_pn.exe+77FCE5: 89 47 5C                 - mov [rdi+5C],eax
+ysx_pn.exe+77FCE8: 8B 87 14 02 00 00        - mov eax,[rdi+00000214]
+ysx_pn.exe+77FCEE: 89 47 60                 - mov [rdi+60],eax
+ysx_pn.exe+77FCF1: F3 0F 10 86 D4 00 00 00  - movss xmm0,[rsi+000000D4]
+ysx_pn.exe+77FCF9: F3 0F 59 87 30 02 00 00  - mulss xmm0,[rdi+00000230]
+ysx_pn.exe+77FD01: 48 8B 4F 70              - mov rcx,[rdi+70]
+ysx_pn.exe+77FD05: 8B 87 DC 00 00 00        - mov eax,[rdi+000000DC]
+ysx_pn.exe+77FD0B: 89 87 E0 00 00 00        - mov [rdi+000000E0],eax
+// ---------- INJECTING HERE ----------
+ysx_pn.exe+77FD11: F3 0F 11 47 68           - movss [rdi+68],xmm0
+// ---------- DONE INJECTING  ----------
+ysx_pn.exe+77FD16: 48 85 C9                 - test rcx,rcx
+ysx_pn.exe+77FD19: 0F 84 79 03 00 00        - je ysx_pn.exe+780098
+ysx_pn.exe+77FD1F: 8B 87 BC 00 00 00        - mov eax,[rdi+000000BC]
+ysx_pn.exe+77FD25: 83 E0 0E                 - and eax,0E
+ysx_pn.exe+77FD28: 3C 0E                    - cmp al,0E
+ysx_pn.exe+77FD2A: 0F 85 D2 00 00 00        - jne ysx_pn.exe+77FE02
+ysx_pn.exe+77FD30: F3 0F 10 41 08           - movss xmm0,[rcx+08]
+ysx_pn.exe+77FD35: F3 0F 11 85 D0 00 00 00  - movss [rbp+000000D0],xmm0
+ysx_pn.exe+77FD3D: F3 0F 10 49 0C           - movss xmm1,[rcx+0C]
+ysx_pn.exe+77FD42: F3 0F 11 8D D4 00 00 00  - movss [rbp+000000D4],xmm1
+}
+</AssemblerScript>
+      <Hotkeys>
+        <Hotkey>
+          <Action>Toggle Activation</Action>
+          <Keys>
+            <Key>118</Key>
+          </Keys>
+          <ID>0</ID>
+        </Hotkey>
+      </Hotkeys>
+    </CheatEntry>
+  </CheatEntries>
+  <Comments>The movement algorithm is based on Cyber's CS4 script, adapted for Kuro's engine by me.  My eternal gratitude to Cyber!
+</Comments>
+</CheatTable>
