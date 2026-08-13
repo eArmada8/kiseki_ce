@@ -19,8 +19,8 @@ dd (float)8
 
 aobscanmodule(camera_struct_aob,kyoto_xanadu.exe,48 8B 4B 08 41 0F 28 C8 48 81 C1 68) // should be unique
 aobscanmodule(camera_control_aob,kyoto_xanadu.exe,F3 0F 11 7B 4C F3 0F) // should be unique
-aobscanmodule(camera_rot_q_aob,kyoto_xanadu.exe,0F 11 83 00 01 00 00 0F 11 A3) // should be unique
-aobscanmodule(move_player_aob,kyoto_xanadu.exe,74 08 49 8B D5 E8 CA) // should be unique
+aobscanmodule(camera_rot_q_aob,kyoto_xanadu.exe,0F 11 83 00 01 00 00 0F 11 B3) // should be unique
+aobscanmodule(move_player_aob,kyoto_xanadu.exe,74 08 49 8B D5 E8 3A) // should be unique
 alloc(newmem,$100,camera_struct_aob)
 alloc(cameracoordinates,$100,camera_struct_aob)
 registersymbol(camera_struct_aob)
@@ -355,109 +355,109 @@ dealloc(cameracoordinates)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+76C29 - Camera Struct
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+778E9 - Camera Struct
 
-kyoto_xanadu.exe+76BF5: 48 81 C1 B4 00 00 00     - add rcx,000000B4
-kyoto_xanadu.exe+76BFC: E8 6F 3E 00 00           - call kyoto_xanadu.exe+7AA70
-kyoto_xanadu.exe+76C01: 48 8B 4B 08              - mov rcx,[rbx+08]
-kyoto_xanadu.exe+76C05: 41 0F 28 C8              - movaps xmm1,xmm8
-kyoto_xanadu.exe+76C09: 48 81 C1 F0 00 00 00     - add rcx,000000F0
-kyoto_xanadu.exe+76C10: E8 5B 3E 00 00           - call kyoto_xanadu.exe+7AA70
-kyoto_xanadu.exe+76C15: 48 8B 4B 08              - mov rcx,[rbx+08]
-kyoto_xanadu.exe+76C19: 41 0F 28 C8              - movaps xmm1,xmm8
-kyoto_xanadu.exe+76C1D: 48 81 C1 2C 01 00 00     - add rcx,0000012C
-kyoto_xanadu.exe+76C24: E8 47 3E 00 00           - call kyoto_xanadu.exe+7AA70
+kyoto_xanadu.exe+778B5: 48 81 C1 B4 00 00 00     - add rcx,000000B4
+kyoto_xanadu.exe+778BC: E8 6F 3E 00 00           - call kyoto_xanadu.exe+7B730
+kyoto_xanadu.exe+778C1: 48 8B 4B 08              - mov rcx,[rbx+08]
+kyoto_xanadu.exe+778C5: 41 0F 28 C8              - movaps xmm1,xmm8
+kyoto_xanadu.exe+778C9: 48 81 C1 F0 00 00 00     - add rcx,000000F0
+kyoto_xanadu.exe+778D0: E8 5B 3E 00 00           - call kyoto_xanadu.exe+7B730
+kyoto_xanadu.exe+778D5: 48 8B 4B 08              - mov rcx,[rbx+08]
+kyoto_xanadu.exe+778D9: 41 0F 28 C8              - movaps xmm1,xmm8
+kyoto_xanadu.exe+778DD: 48 81 C1 2C 01 00 00     - add rcx,0000012C
+kyoto_xanadu.exe+778E4: E8 47 3E 00 00           - call kyoto_xanadu.exe+7B730
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+76C29: 48 8B 4B 08              - mov rcx,[rbx+08]
+kyoto_xanadu.exe+778E9: 48 8B 4B 08              - mov rcx,[rbx+08]
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+76C2D: 41 0F 28 C8              - movaps xmm1,xmm8
-kyoto_xanadu.exe+76C31: 48 81 C1 68 01 00 00     - add rcx,00000168
-kyoto_xanadu.exe+76C38: E8 73 2D FD FF           - call kyoto_xanadu.exe+499B0
-kyoto_xanadu.exe+76C3D: 48 8B 4B 08              - mov rcx,[rbx+08]
-kyoto_xanadu.exe+76C41: F3 0F 10 89 70 01 00 00  - movss xmm1,[rcx+00000170]
-kyoto_xanadu.exe+76C49: F2 0F 10 81 78 01 00 00  - movsd xmm0,[rcx+00000178]
-kyoto_xanadu.exe+76C51: 0F 2E C9                 - ucomiss xmm1,xmm1
-kyoto_xanadu.exe+76C54: F2 0F 11 45 C7           - movsd [rbp-39],xmm0
-kyoto_xanadu.exe+76C59: 0F 9A C0                 - setp al
-kyoto_xanadu.exe+76C5C: 3C 01                    - cmp al,01
+kyoto_xanadu.exe+778ED: 41 0F 28 C8              - movaps xmm1,xmm8
+kyoto_xanadu.exe+778F1: 48 81 C1 68 01 00 00     - add rcx,00000168
+kyoto_xanadu.exe+778F8: E8 23 22 FD FF           - call kyoto_xanadu.exe+49B20
+kyoto_xanadu.exe+778FD: 48 8B 4B 08              - mov rcx,[rbx+08]
+kyoto_xanadu.exe+77901: F3 0F 10 89 70 01 00 00  - movss xmm1,[rcx+00000170]
+kyoto_xanadu.exe+77909: F2 0F 10 81 78 01 00 00  - movsd xmm0,[rcx+00000178]
+kyoto_xanadu.exe+77911: 0F 2E C9                 - ucomiss xmm1,xmm1
+kyoto_xanadu.exe+77914: F2 0F 11 45 C7           - movsd [rbp-39],xmm0
+kyoto_xanadu.exe+77919: 0F 9A C0                 - setp al
+kyoto_xanadu.exe+7791C: 3C 01                    - cmp al,01
 
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+162FCC - Camera XYZ Control
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+1664BC - Camera XYZ Control
 
-kyoto_xanadu.exe+162F9C: F3 0F 59 C9           - mulss xmm1,xmm1
-kyoto_xanadu.exe+162FA0: F3 0F 59 C0           - mulss xmm0,xmm0
-kyoto_xanadu.exe+162FA4: F3 0F 58 D0           - addss xmm2,xmm0
-kyoto_xanadu.exe+162FA8: F3 0F 58 D1           - addss xmm2,xmm1
-kyoto_xanadu.exe+162FAC: 0F 2F 15 C5 AE 8E 00  - comiss xmm2,[kyoto_xanadu.exe+A4DE78]
-kyoto_xanadu.exe+162FB3: 76 07                 - jna kyoto_xanadu.exe+162FBC
-kyoto_xanadu.exe+162FB5: C6 86 59 03 00 00 01  - mov byte ptr [rsi+00000359],01
-kyoto_xanadu.exe+162FBC: F3 0F 11 7B 3C        - movss [rbx+3C],xmm7
-kyoto_xanadu.exe+162FC1: F3 0F 11 73 40        - movss [rbx+40],xmm6
-kyoto_xanadu.exe+162FC6: F3 44 0F 11 53 44     - movss [rbx+44],xmm10
+kyoto_xanadu.exe+16648C: F3 0F 59 C9           - mulss xmm1,xmm1
+kyoto_xanadu.exe+166490: F3 0F 59 C0           - mulss xmm0,xmm0
+kyoto_xanadu.exe+166494: F3 0F 58 D0           - addss xmm2,xmm0
+kyoto_xanadu.exe+166498: F3 0F 58 D1           - addss xmm2,xmm1
+kyoto_xanadu.exe+16649C: 0F 2F 15 3D 24 8F 00  - comiss xmm2,[kyoto_xanadu.exe+A588E0]
+kyoto_xanadu.exe+1664A3: 76 07                 - jna kyoto_xanadu.exe+1664AC
+kyoto_xanadu.exe+1664A5: C6 86 59 03 00 00 01  - mov byte ptr [rsi+00000359],01
+kyoto_xanadu.exe+1664AC: F3 0F 11 7B 3C        - movss [rbx+3C],xmm7
+kyoto_xanadu.exe+1664B1: F3 0F 11 73 40        - movss [rbx+40],xmm6
+kyoto_xanadu.exe+1664B6: F3 44 0F 11 53 44     - movss [rbx+44],xmm10
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+162FCC: F3 0F 11 7B 4C        - movss [rbx+4C],xmm7
-kyoto_xanadu.exe+162FD1: F3 0F 11 73 50        - movss [rbx+50],xmm6
-kyoto_xanadu.exe+162FD6: F3 44 0F 11 53 54     - movss [rbx+54],xmm10
+kyoto_xanadu.exe+1664BC: F3 0F 11 7B 4C        - movss [rbx+4C],xmm7
+kyoto_xanadu.exe+1664C1: F3 0F 11 73 50        - movss [rbx+50],xmm6
+kyoto_xanadu.exe+1664C6: F3 44 0F 11 53 54     - movss [rbx+54],xmm10
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+162FDC: F3 0F 11 7B 5C        - movss [rbx+5C],xmm7
-kyoto_xanadu.exe+162FE1: F3 0F 11 73 60        - movss [rbx+60],xmm6
-kyoto_xanadu.exe+162FE6: F3 44 0F 11 53 64     - movss [rbx+64],xmm10
-kyoto_xanadu.exe+162FEC: 4C 89 7B 6C           - mov [rbx+6C],r15
-kyoto_xanadu.exe+162FF0: 44 89 7B 74           - mov [rbx+74],r15d
-kyoto_xanadu.exe+162FF4: 48 8B 8E F8 00 00 00  - mov rcx,[rsi+000000F8]
-kyoto_xanadu.exe+162FFB: 48 8B 01              - mov rax,[rcx]
-kyoto_xanadu.exe+162FFE: FF 50 20              - call qword ptr [rax+20]
+kyoto_xanadu.exe+1664CC: F3 0F 11 7B 5C        - movss [rbx+5C],xmm7
+kyoto_xanadu.exe+1664D1: F3 0F 11 73 60        - movss [rbx+60],xmm6
+kyoto_xanadu.exe+1664D6: F3 44 0F 11 53 64     - movss [rbx+64],xmm10
+kyoto_xanadu.exe+1664DC: 4C 89 7B 6C           - mov [rbx+6C],r15
+kyoto_xanadu.exe+1664E0: 44 89 7B 74           - mov [rbx+74],r15d
+kyoto_xanadu.exe+1664E4: 48 8B 8E F8 00 00 00  - mov rcx,[rsi+000000F8]
+kyoto_xanadu.exe+1664EB: 48 8B 01              - mov rax,[rcx]
+kyoto_xanadu.exe+1664EE: FF 50 20              - call qword ptr [rax+20]
 
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+16457D - Camera Rotation Control
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+167A69 - Camera Rotation Control
 
-kyoto_xanadu.exe+164555: 0F C6 E4 C6              - shufps xmm4,xmm4,-3A
-kyoto_xanadu.exe+164559: 0F C6 C0 C6              - shufps xmm0,xmm0,-3A
-kyoto_xanadu.exe+16455D: F3 0F 10 E2              - movss xmm4,xmm2
-kyoto_xanadu.exe+164561: F3 0F 10 C2              - movss xmm0,xmm2
-kyoto_xanadu.exe+164565: 0F C6 E4 27              - shufps xmm4,xmm4,27
-kyoto_xanadu.exe+164569: 0F C6 C0 27              - shufps xmm0,xmm0,27
-kyoto_xanadu.exe+16456D: F3 0F 10 E3              - movss xmm4,xmm3
-kyoto_xanadu.exe+164571: F3 0F 10 C3              - movss xmm0,xmm3
-kyoto_xanadu.exe+164575: 0F C6 E4 39              - shufps xmm4,xmm4,39
-kyoto_xanadu.exe+164579: 0F C6 C0 39              - shufps xmm0,xmm0,39
+kyoto_xanadu.exe+167A3D: 0F C6 F6 C6              - shufps xmm6,xmm6,-3A
+kyoto_xanadu.exe+167A41: 0F C6 C0 C6              - shufps xmm0,xmm0,-3A
+kyoto_xanadu.exe+167A45: F3 41 0F 10 F1           - movss xmm6,xmm9
+kyoto_xanadu.exe+167A4A: F3 41 0F 10 C1           - movss xmm0,xmm9
+kyoto_xanadu.exe+167A4F: 0F C6 F6 27              - shufps xmm6,xmm6,27
+kyoto_xanadu.exe+167A53: 0F C6 C0 27              - shufps xmm0,xmm0,27
+kyoto_xanadu.exe+167A57: F3 41 0F 10 F2           - movss xmm6,xmm10
+kyoto_xanadu.exe+167A5C: F3 41 0F 10 C2           - movss xmm0,xmm10
+kyoto_xanadu.exe+167A61: 0F C6 F6 39              - shufps xmm6,xmm6,39
+kyoto_xanadu.exe+167A65: 0F C6 C0 39              - shufps xmm0,xmm0,39
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+16457D: 0F 11 83 00 01 00 00     - movups [rbx+00000100],xmm0
+kyoto_xanadu.exe+167A69: 0F 11 83 00 01 00 00     - movups [rbx+00000100],xmm0
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+164584: 0F 11 A3 10 01 00 00     - movups [rbx+00000110],xmm4
-kyoto_xanadu.exe+16458B: 48 8B 46 08              - mov rax,[rsi+08]
-kyoto_xanadu.exe+16458F: F3 0F 10 80 78 01 00 00  - movss xmm0,[rax+00000178]
-kyoto_xanadu.exe+164597: 0F 2F 80 74 01 00 00     - comiss xmm0,[rax+00000174]
-kyoto_xanadu.exe+16459E: 73 09                    - jae kyoto_xanadu.exe+1645A9
-kyoto_xanadu.exe+1645A0: 41 83 CE 04              - or r14d,04
-kyoto_xanadu.exe+1645A4: E9 A6 00 00 00           - jmp kyoto_xanadu.exe+16464F
-kyoto_xanadu.exe+1645A9: 41 0F 28 CC              - movaps xmm1,xmm12
-kyoto_xanadu.exe+1645AD: 48 8B CE                 - mov rcx,rsi
-kyoto_xanadu.exe+1645B0: E8 AB 12 00 00           - call kyoto_xanadu.exe+165860
+kyoto_xanadu.exe+167A70: 0F 11 B3 10 01 00 00     - movups [rbx+00000110],xmm6
+kyoto_xanadu.exe+167A77: 48 8B 46 08              - mov rax,[rsi+08]
+kyoto_xanadu.exe+167A7B: F3 0F 10 80 78 01 00 00  - movss xmm0,[rax+00000178]
+kyoto_xanadu.exe+167A83: 0F 2F 80 74 01 00 00     - comiss xmm0,[rax+00000174]
+kyoto_xanadu.exe+167A8A: 73 09                    - jae kyoto_xanadu.exe+167A95
+kyoto_xanadu.exe+167A8C: 41 83 CE 04              - or r14d,04
+kyoto_xanadu.exe+167A90: E9 A6 00 00 00           - jmp kyoto_xanadu.exe+167B3B
+kyoto_xanadu.exe+167A95: 41 0F 28 CC              - movaps xmm1,xmm12
+kyoto_xanadu.exe+167A99: 48 8B CE                 - mov rcx,rsi
+kyoto_xanadu.exe+167A9C: E8 AF 12 00 00           - call kyoto_xanadu.exe+168D50
 
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+1A671C - Lock Player Movement
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+1AA2CC
 
-kyoto_xanadu.exe+1A66E8: 0F 85 89 06 00 00     - jne kyoto_xanadu.exe+1A6D77
-kyoto_xanadu.exe+1A66EE: 48 63 85 80 01 00 00  - movsxd  rax,dword ptr [rbp+00000180]
-kyoto_xanadu.exe+1A66F5: 48 8D 0C 40           - lea rcx,[rax+rax*2]
-kyoto_xanadu.exe+1A66F9: 8B 84 8D C4 00 00 00  - mov eax,[rbp+rcx*4+000000C4]
-kyoto_xanadu.exe+1A6700: 83 F8 12              - cmp eax,12
-kyoto_xanadu.exe+1A6703: 0F 84 6E 06 00 00     - je kyoto_xanadu.exe+1A6D77
-kyoto_xanadu.exe+1A6709: 83 F8 0D              - cmp eax,0D
-kyoto_xanadu.exe+1A670C: 0F 84 65 06 00 00     - je kyoto_xanadu.exe+1A6D77
-kyoto_xanadu.exe+1A6712: 48 8B 8D 10 07 00 00  - mov rcx,[rbp+00000710]
-kyoto_xanadu.exe+1A6719: 48 85 C9              - test rcx,rcx
+kyoto_xanadu.exe+1AA298: 0F 85 89 06 00 00     - jne kyoto_xanadu.exe+1AA927
+kyoto_xanadu.exe+1AA29E: 48 63 85 80 01 00 00  - movsxd  rax,dword ptr [rbp+00000180]
+kyoto_xanadu.exe+1AA2A5: 48 8D 0C 40           - lea rcx,[rax+rax*2]
+kyoto_xanadu.exe+1AA2A9: 8B 84 8D C4 00 00 00  - mov eax,[rbp+rcx*4+000000C4]
+kyoto_xanadu.exe+1AA2B0: 83 F8 12              - cmp eax,12
+kyoto_xanadu.exe+1AA2B3: 0F 84 6E 06 00 00     - je kyoto_xanadu.exe+1AA927
+kyoto_xanadu.exe+1AA2B9: 83 F8 0D              - cmp eax,0D
+kyoto_xanadu.exe+1AA2BC: 0F 84 65 06 00 00     - je kyoto_xanadu.exe+1AA927
+kyoto_xanadu.exe+1AA2C2: 48 8B 8D 10 07 00 00  - mov rcx,[rbp+00000710]
+kyoto_xanadu.exe+1AA2C9: 48 85 C9              - test rcx,rcx
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+1A671C: 74 08                 - je kyoto_xanadu.exe+1A6726
+kyoto_xanadu.exe+1AA2CC: 74 08                 - je kyoto_xanadu.exe+1AA2D6
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+1A671E: 49 8B D5              - mov rdx,r13
-kyoto_xanadu.exe+1A6721: E8 CA 1C FE FF        - call kyoto_xanadu.exe+1883F0
-kyoto_xanadu.exe+1A6726: 48 8B B5 40 07 00 00  - mov rsi,[rbp+00000740]
-kyoto_xanadu.exe+1A672D: 8B 85 48 07 00 00     - mov eax,[rbp+00000748]
-kyoto_xanadu.exe+1A6733: 4C 8D 34 C6           - lea r14,[rsi+rax*8]
-kyoto_xanadu.exe+1A6737: 49 3B F6              - cmp rsi,r14
-kyoto_xanadu.exe+1A673A: 0F 84 05 01 00 00     - je kyoto_xanadu.exe+1A6845
-kyoto_xanadu.exe+1A6740: 48 8B 1E              - mov rbx,[rsi]
-kyoto_xanadu.exe+1A6743: 48 83 7B 08 00        - cmp qword ptr [rbx+08],00
-kyoto_xanadu.exe+1A6748: 0F 84 EA 00 00 00     - je kyoto_xanadu.exe+1A6838
+kyoto_xanadu.exe+1AA2CE: 49 8B D5              - mov rdx,r13
+kyoto_xanadu.exe+1AA2D1: E8 3A 16 FE FF        - call kyoto_xanadu.exe+18B910
+kyoto_xanadu.exe+1AA2D6: 48 8B B5 40 07 00 00  - mov rsi,[rbp+00000740]
+kyoto_xanadu.exe+1AA2DD: 8B 85 48 07 00 00     - mov eax,[rbp+00000748]
+kyoto_xanadu.exe+1AA2E3: 4C 8D 34 C6           - lea r14,[rsi+rax*8]
+kyoto_xanadu.exe+1AA2E7: 49 3B F6              - cmp rsi,r14
+kyoto_xanadu.exe+1AA2EA: 0F 84 05 01 00 00     - je kyoto_xanadu.exe+1AA3F5
+kyoto_xanadu.exe+1AA2F0: 48 8B 1E              - mov rbx,[rsi]
+kyoto_xanadu.exe+1AA2F3: 48 83 7B 08 00        - cmp qword ptr [rbx+08],00
+kyoto_xanadu.exe+1AA2F8: 0F 84 EA 00 00 00     - je kyoto_xanadu.exe+1AA3E8
 }
 </AssemblerScript>
       <Hotkeys>
@@ -977,7 +977,7 @@ kyoto_xanadu.exe+ED4C7: F3 0F 11 87 14 0D 00 00        - movss [rdi+00000D14],xm
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,kyoto_xanadu.exe,F3 41 0F 59 B7 20 03 00 00) // should be unique
-aobscanmodule(freezeaction_aob1,kyoto_xanadu.exe,E8 49 24 16 00) // should be unique
+aobscanmodule(freezeaction_aob1,kyoto_xanadu.exe,E8 E9 5F 16 00) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -1052,7 +1052,7 @@ code1:
   jmp return1
 @@:
   popf
-  call kyoto_xanadu.exe+1A5330
+  call kyoto_xanadu.exe+1A8EF0
   jmp return1
 
 freeze:
@@ -1073,7 +1073,7 @@ freezemonitorinjectionpoint_aob:
 db F3 41 0F 59 B7 20 03 00 00
 
 freezeaction_aob1:
-  db E8 49 24 16 00
+  db E8 E9 5F 16 00
 
 unregistersymbol(freezemonitorinjectionpoint_aob)
 unregistersymbol(freezeaction_aob1)
@@ -1081,57 +1081,57 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+42E68 - Safe injection point to check keypresses
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+42E88 - Safe injection point to check keypresses
 
-kyoto_xanadu.exe+42E3B: FF C0                       - inc eax
-kyoto_xanadu.exe+42E3D: B9 F8 FF FF 7F              - mov ecx,7FFFFFF8
-kyoto_xanadu.exe+42E42: 3B C1                       - cmp eax,ecx
-kyoto_xanadu.exe+42E44: 0F 4F C1                    - cmovg eax,ecx
-kyoto_xanadu.exe+42E47: 89 44 BB 50                 - mov [rbx+rdi*4+50],eax
-kyoto_xanadu.exe+42E4B: 0F 28 F7                    - movaps xmm6,xmm7
-kyoto_xanadu.exe+42E4E: F3 41 0F 59 B7 80 03 00 00  - mulss xmm6,[r15+00000380]
-kyoto_xanadu.exe+42E57: 49 8D B7 B8 03 00 00        - lea rsi,[r15+000003B8]
-kyoto_xanadu.exe+42E5E: F3 0F 11 3E                 - movss [rsi],xmm7
-kyoto_xanadu.exe+42E62: F3 44 0F 11 46 04           - movss [rsi+04],xmm8
+kyoto_xanadu.exe+42E5B: FF C0                       - inc eax
+kyoto_xanadu.exe+42E5D: B9 F8 FF FF 7F              - mov ecx,7FFFFFF8
+kyoto_xanadu.exe+42E62: 3B C1                       - cmp eax,ecx
+kyoto_xanadu.exe+42E64: 0F 4F C1                    - cmovg eax,ecx
+kyoto_xanadu.exe+42E67: 89 44 BB 50                 - mov [rbx+rdi*4+50],eax
+kyoto_xanadu.exe+42E6B: 0F 28 F7                    - movaps xmm6,xmm7
+kyoto_xanadu.exe+42E6E: F3 41 0F 59 B7 80 03 00 00  - mulss xmm6,[r15+00000380]
+kyoto_xanadu.exe+42E77: 49 8D B7 B8 03 00 00        - lea rsi,[r15+000003B8]
+kyoto_xanadu.exe+42E7E: F3 0F 11 3E                 - movss [rsi],xmm7
+kyoto_xanadu.exe+42E82: F3 44 0F 11 46 04           - movss [rsi+04],xmm8
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+42E68: F3 41 0F 59 B7 20 03 00 00  - mulss xmm6,[r15+00000320]
+kyoto_xanadu.exe+42E88: F3 41 0F 59 B7 20 03 00 00  - mulss xmm6,[r15+00000320]
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+42E71: F3 41 0F 59 B7 68 03 00 00  - mulss xmm6,[r15+00000368]
-kyoto_xanadu.exe+42E7A: F3 41 0F 59 B7 50 03 00 00  - mulss xmm6,[r15+00000350]
-kyoto_xanadu.exe+42E83: F3 0F 11 76 08              - movss [rsi+08],xmm6
-kyoto_xanadu.exe+42E88: 45 38 AF A4 03 00 00        - cmp [r15+000003A4],r13l
-kyoto_xanadu.exe+42E8F: 75 2B                       - jne kyoto_xanadu.exe+42EBC
-kyoto_xanadu.exe+42E91: 48 8B 1D 70 AE B2 00        - mov rbx,[kyoto_xanadu.exe+B6DD08]
-kyoto_xanadu.exe+42E98: 48 81 C3 E8 16 00 00        - add rbx,000016E8
-kyoto_xanadu.exe+42E9F: BF 0B 00 00 00              - mov edi,0000000B
-kyoto_xanadu.exe+42EA4: 48 8B 0B                    - mov rcx,[rbx]
-kyoto_xanadu.exe+42EA7: 48 8B 01                    - mov rax,[rcx]
+kyoto_xanadu.exe+42E91: F3 41 0F 59 B7 68 03 00 00  - mulss xmm6,[r15+00000368]
+kyoto_xanadu.exe+42E9A: F3 41 0F 59 B7 50 03 00 00  - mulss xmm6,[r15+00000350]
+kyoto_xanadu.exe+42EA3: F3 0F 11 76 08              - movss [rsi+08],xmm6
+kyoto_xanadu.exe+42EA8: 45 38 AF A4 03 00 00        - cmp [r15+000003A4],r13l
+kyoto_xanadu.exe+42EAF: 75 2B                       - jne kyoto_xanadu.exe+42EDC
+kyoto_xanadu.exe+42EB1: 48 8B 1D 00 77 B3 00        - mov rbx,[kyoto_xanadu.exe+B7A5B8]
+kyoto_xanadu.exe+42EB8: 48 81 C3 E8 16 00 00        - add rbx,000016E8
+kyoto_xanadu.exe+42EBF: BF 0B 00 00 00              - mov edi,0000000B
+kyoto_xanadu.exe+42EC4: 48 8B 0B                    - mov rcx,[rbx]
+kyoto_xanadu.exe+42EC7: 48 8B 01                    - mov rax,[rcx]
 
-// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+42EE2 - Freeze action 1
+// ORIGINAL CODE - INJECTION POINT: kyoto_xanadu.exe+42F02 - Freeze action 1
 
-kyoto_xanadu.exe+42EBA: EB 1C                       - jmp kyoto_xanadu.exe+42ED8
-kyoto_xanadu.exe+42EBC: 48 8B 05 45 AE B2 00        - mov rax,[kyoto_xanadu.exe+B6DD08]
-kyoto_xanadu.exe+42EC3: 48 8B 88 30 17 00 00        - mov rcx,[rax+00001730]
-kyoto_xanadu.exe+42ECA: 48 85 C9                    - test rcx,rcx
-kyoto_xanadu.exe+42ECD: 74 09                       - je kyoto_xanadu.exe+42ED8
-kyoto_xanadu.exe+42ECF: 48 8B 01                    - mov rax,[rcx]
-kyoto_xanadu.exe+42ED2: 0F 28 CE                    - movaps xmm1,xmm6
-kyoto_xanadu.exe+42ED5: FF 50 18                    - call qword ptr [rax+18]
-kyoto_xanadu.exe+42ED8: 48 8B D6                    - mov rdx,rsi
-kyoto_xanadu.exe+42EDB: 48 8B 0D D6 AD B2 00        - mov rcx,[kyoto_xanadu.exe+B6DCB8]
+kyoto_xanadu.exe+42EDA: EB 1C                       - jmp kyoto_xanadu.exe+42EF8
+kyoto_xanadu.exe+42EDC: 48 8B 05 D5 76 B3 00        - mov rax,[kyoto_xanadu.exe+B7A5B8]
+kyoto_xanadu.exe+42EE3: 48 8B 88 30 17 00 00        - mov rcx,[rax+00001730]
+kyoto_xanadu.exe+42EEA: 48 85 C9                    - test rcx,rcx
+kyoto_xanadu.exe+42EED: 74 09                       - je kyoto_xanadu.exe+42EF8
+kyoto_xanadu.exe+42EEF: 48 8B 01                    - mov rax,[rcx]
+kyoto_xanadu.exe+42EF2: 0F 28 CE                    - movaps xmm1,xmm6
+kyoto_xanadu.exe+42EF5: FF 50 18                    - call qword ptr [rax+18]
+kyoto_xanadu.exe+42EF8: 48 8B D6                    - mov rdx,rsi
+kyoto_xanadu.exe+42EFB: 48 8B 0D 66 76 B3 00        - mov rcx,[kyoto_xanadu.exe+B7A568]
 // ---------- INJECTING HERE ----------
-kyoto_xanadu.exe+42EE2: E8 49 24 16 00              - call kyoto_xanadu.exe+1A5330
+kyoto_xanadu.exe+42F02: E8 E9 5F 16 00              - call kyoto_xanadu.exe+1A8EF0
 // ---------- DONE INJECTING  ----------
-kyoto_xanadu.exe+42EE7: 45 38 AF A4 03 00 00        - cmp [r15+000003A4],r13l
-kyoto_xanadu.exe+42EEE: 75 57                       - jne kyoto_xanadu.exe+42F47
-kyoto_xanadu.exe+42EF0: 48 8B 05 C1 AD B2 00        - mov rax,[kyoto_xanadu.exe+B6DCB8]
-kyoto_xanadu.exe+42EF7: 44 39 A8 80 1C 00 00        - cmp [rax+00001C80],r13d
-kyoto_xanadu.exe+42EFE: 75 47                       - jne kyoto_xanadu.exe+42F47
-kyoto_xanadu.exe+42F00: F3 41 0F 10 87 68 03 00 00  - movss xmm0,[r15+00000368]
-kyoto_xanadu.exe+42F09: F3 41 0F 59 87 20 03 00 00  - mulss xmm0,[r15+00000320]
-kyoto_xanadu.exe+42F12: F3 41 0F 59 87 50 03 00 00  - mulss xmm0,[r15+00000350]
-kyoto_xanadu.exe+42F1B: 0F 28 CF                    - movaps xmm1,xmm7
-kyoto_xanadu.exe+42F1E: F3 0F 59 C8                 - mulss xmm1,xmm0
+kyoto_xanadu.exe+42F07: 45 38 AF A4 03 00 00        - cmp [r15+000003A4],r13l
+kyoto_xanadu.exe+42F0E: 75 57                       - jne kyoto_xanadu.exe+42F67
+kyoto_xanadu.exe+42F10: 48 8B 05 51 76 B3 00        - mov rax,[kyoto_xanadu.exe+B7A568]
+kyoto_xanadu.exe+42F17: 44 39 A8 80 1C 00 00        - cmp [rax+00001C80],r13d
+kyoto_xanadu.exe+42F1E: 75 47                       - jne kyoto_xanadu.exe+42F67
+kyoto_xanadu.exe+42F20: F3 41 0F 10 87 68 03 00 00  - movss xmm0,[r15+00000368]
+kyoto_xanadu.exe+42F29: F3 41 0F 59 87 20 03 00 00  - mulss xmm0,[r15+00000320]
+kyoto_xanadu.exe+42F32: F3 41 0F 59 87 50 03 00 00  - mulss xmm0,[r15+00000350]
+kyoto_xanadu.exe+42F3B: 0F 28 CF                    - movaps xmm1,xmm7
+kyoto_xanadu.exe+42F3E: F3 0F 59 C8                 - mulss xmm1,xmm0
 }
 </AssemblerScript>
     </CheatEntry>
