@@ -1484,7 +1484,7 @@ sora_2nd.exe+4E93B3: 48 8B 05 8E 33 77 00     - mov rax,[sora_2nd.exe+C5C748]
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_2nd.exe+C5FE20</Address>
+      <Address>sora_2nd.exe+C60E50</Address>
       <Offsets>
         <Offset>0020B648</Offset>
       </Offsets>
