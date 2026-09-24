@@ -543,7 +543,7 @@ code:
   je @f
   popf
   mov rax,[rsi+00000488]
-  jmp ysx_pn.exe+225F22
+  jmp ysx_pn.exe+2260D2
 @@:
   popf
   mov rax,[rsi+00000488]
@@ -567,31 +567,31 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+225EF3
+// ORIGINAL CODE - INJECTION POINT: ysx_pn.exe+2260A3
 
-ysx_pn.exe+225EC9: 74 03                 - je ysx_pn.exe+225ECE
-ysx_pn.exe+225ECB: 0F 57 FF              - xorps xmm7,xmm7
-ysx_pn.exe+225ECE: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
-ysx_pn.exe+225ED5: E8 B6 21 0D 00        - call ysx_pn.exe+2F8090
-ysx_pn.exe+225EDA: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
-ysx_pn.exe+225EE1: 0F 28 F0              - movaps xmm6,xmm0
-ysx_pn.exe+225EE4: F3 0F 59 F7           - mulss xmm6,xmm7
-ysx_pn.exe+225EE8: 0F 28 CF              - movaps xmm1,xmm7
-ysx_pn.exe+225EEB: 0F 28 D6              - movaps xmm2,xmm6
-ysx_pn.exe+225EEE: E8 AD 71 0D 00        - call ysx_pn.exe+2FD0A0
+ysx_pn.exe+226079: 74 03                 - je ysx_pn.exe+22607E
+ysx_pn.exe+22607B: 0F 57 FF              - xorps xmm7,xmm7
+ysx_pn.exe+22607E: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
+ysx_pn.exe+226085: E8 36 1D 0D 00        - call ysx_pn.exe+2F7DC0
+ysx_pn.exe+22608A: 48 8B 8E 88 04 00 00  - mov rcx,[rsi+00000488]
+ysx_pn.exe+226091: 0F 28 F0              - movaps xmm6,xmm0
+ysx_pn.exe+226094: F3 0F 59 F7           - mulss xmm6,xmm7
+ysx_pn.exe+226098: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+22609B: 0F 28 D6              - movaps xmm2,xmm6
+ysx_pn.exe+22609E: E8 2D 6D 0D 00        - call ysx_pn.exe+2FCDD0
 // ---------- INJECTING HERE ----------
-ysx_pn.exe+225EF3: 48 8B 86 88 04 00 00  - mov rax,[rsi+00000488]
+ysx_pn.exe+2260A3: 48 8B 86 88 04 00 00  - mov rax,[rsi+00000488]
 // ---------- DONE INJECTING  ----------
-ysx_pn.exe+225EFA: 83 B8 60 B9 01 00 01  - cmp dword ptr [rax+0001B960],01
-ysx_pn.exe+225F01: 74 1F                 - je ysx_pn.exe+225F22
-ysx_pn.exe+225F03: 83 B8 50 22 00 00 00  - cmp dword ptr [rax+00002250],00
-ysx_pn.exe+225F0A: 75 16                 - jne ysx_pn.exe+225F22
-ysx_pn.exe+225F0C: 48 8B 8E 80 04 00 00  - mov rcx,[rsi+00000480]
-ysx_pn.exe+225F13: 0F 28 D6              - movaps xmm2,xmm6
-ysx_pn.exe+225F16: 0F 28 CF              - movaps xmm1,xmm7
-ysx_pn.exe+225F19: 48 8B 01              - mov rax,[rcx]
-ysx_pn.exe+225F1C: FF 90 00 01 00 00     - call qword ptr [rax+00000100]
-ysx_pn.exe+225F22: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+2260AA: 83 B8 60 B9 01 00 01  - cmp dword ptr [rax+0001B960],01
+ysx_pn.exe+2260B1: 74 1F                 - je ysx_pn.exe+2260D2
+ysx_pn.exe+2260B3: 83 B8 50 22 00 00 00  - cmp dword ptr [rax+00002250],00
+ysx_pn.exe+2260BA: 75 16                 - jne ysx_pn.exe+2260D2
+ysx_pn.exe+2260BC: 48 8B 8E 80 04 00 00  - mov rcx,[rsi+00000480]
+ysx_pn.exe+2260C3: 0F 28 D6              - movaps xmm2,xmm6
+ysx_pn.exe+2260C6: 0F 28 CF              - movaps xmm1,xmm7
+ysx_pn.exe+2260C9: 48 8B 01              - mov rax,[rcx]
+ysx_pn.exe+2260CC: FF 90 00 01 00 00     - call qword ptr [rax+00000100]
+ysx_pn.exe+2260D2: 0F 28 CF              - movaps xmm1,xmm7
 }
 </AssemblerScript>
     </CheatEntry>
