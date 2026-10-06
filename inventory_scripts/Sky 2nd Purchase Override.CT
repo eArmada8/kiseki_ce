@@ -436,7 +436,6 @@ local ItemList = {
 "3301:Estelle - Turquoise Hair",
 "3380:Estelle - Two-Tone Hair",
 "3468:Estelle's Chef Hat",
-"2995:Estelle (strategy guide bonus, contents TBD)",
 "639:Eternity",
 "640:Eternity+",
 "4010:Evade 1",
@@ -1140,6 +1139,7 @@ local ItemList = {
 "1536:Skull Pendant",
 "1537:Skull Pendant+",
 "3510:Sky Blue Glasses",
+"2995:Sky Blue Swimsuit",
 "540:Slasher",
 "4020:Sleep",
 "4021:Sleep II",
@@ -1484,7 +1484,7 @@ sora_2nd.exe+4E93B3: 48 8B 05 8E 33 77 00     - mov rax,[sora_2nd.exe+C5C748]
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_2nd.exe+C60E50</Address>
+      <Address>sora_2nd.exe+C61360</Address>
       <Offsets>
         <Offset>0020B648</Offset>
       </Offsets>
