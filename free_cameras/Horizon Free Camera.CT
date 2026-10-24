@@ -67,6 +67,56 @@ moveplayer_aob:
 
 {$lua}
 
+-- normalize, cross, computeUp and computeRoll courtesy of Claude AI
+local function normalize(x, y, z)
+  local len = math.sqrt(x*x + y*y + z*z)
+  if len &lt; 1e-8 then return 0, 0, 0 end
+  return x/len, y/len, z/len
+end
+
+local function cross(ax, ay, az, bx, by, bz)
+  return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), roll in radians
+function computeUp(ex, ey, ez, tx, ty, tz, roll)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right = worldUp x forward
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down: pick any right
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+
+  -- level up = forward x right
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local c, s = math.cos(roll), math.sin(roll)
+  return ux*c - rx*s, uy*c - ry*s, uz*c - rz*s
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), current up (px,py,pz) read from render_cam+0x28/0x2c/0x30
+function computeRoll(ex, ey, ez, tx, ty, tz, px, py, pz)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right and level up, same construction as computeUp
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local cosT =  px*ux + py*uy + pz*uz   -- dot(up, level up)
+  local sinT = -(px*rx + py*ry + pz*rz) -- -dot(up, level right)
+  return math.atan(sinT, cosT)          -- radians, range (-pi, pi]
+end
+
 function checkKeys()
   if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
   if (getAddressSafe("[cameracoordinates]")) then
@@ -81,9 +131,14 @@ function checkKeys()
     local camz = readFloat("[cameracoordinates]+0C") -- Camera Z
 
     --Target Coordinates
-    local targetx = readFloat("[cameracoordinates]+18") -- Camera X
-    local targety = readFloat("[cameracoordinates]+20") -- Camera Y
-    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Z
+    local targetx = readFloat("[cameracoordinates]+18") -- Camera Target X
+    local targety = readFloat("[cameracoordinates]+20") -- Camera Target Y
+    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Target Z
+
+    --Camera Up Vector Coordinates
+    local upvx = readFloat("[cameracoordinates]+28") -- Camera Up Vector X
+    local upvy = readFloat("[cameracoordinates]+30") -- Camera Up Vector Y
+    local upvz = readFloat("[cameracoordinates]+2C") -- Camera Up Vector Z
 
     --Prevent endless error loop if camera status is not initiated
     if (targetz == nil) or (targetz == camz and targetx == camx and targety == camy) then
@@ -94,6 +149,9 @@ function checkKeys()
       targetx = 0
       targety = 0
       targetz = 0
+	  upvx = 0
+	  upvy = 0
+	  upvz = 1
     else
 
       local new_mouse_x,new_mouse_y = getMousePos()
@@ -116,6 +174,7 @@ function checkKeys()
       local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
       local tilt = math.atan2(camz - targetz, ((targetx - camx)^2 + (targety - camy)^2)^0.5)
       local pan = math.atan2(targetx - camx, targety - camy) + math.rad(180) -- Horizontal (pan)
+	  local camera_roll = computeRoll(camx, camz, camy, targetx, targetz, targety, upvx, upvz, upvy)
 
       --Sine and Cosine of Rotation Values
       local siny = math.sin(pan) -- Sine of Horizontal (pan)
@@ -193,6 +252,18 @@ function checkKeys()
       if isKeyPressed(VK_K) then
         tilt = math.min(tilt + speed * 0.01, math.rad(89.5))
       end
+      --Roll left
+      if isKeyPressed(VK_Q) then
+          camera_roll = camera_roll - speed * 0.01
+      end
+      --Roll right
+      if isKeyPressed(VK_E) then
+          camera_roll = camera_roll + speed * 0.01
+      end
+      --Roll neutral
+      if isKeyPressed(VK_C) then
+          camera_roll = 0
+      end
 
       if (use_mouse == 1) then
         --Tilt by mouse
@@ -210,16 +281,21 @@ function checkKeys()
       --Create a copy of the entire memory block before alterations.  I do not know if +14, +24 or +34 are used, but this preserves them.
       copyMemory("[cameracoordinates]+08",48,"cameracoordinates+08")
 
+	  targetx = camx - (camdist * math.cos(tilt) * math.sin(pan))
+	  targety = camy - (camdist * math.cos(tilt) * math.cos(pan))
+	  targetz = camz - (camdist * math.sin(tilt))
+      upvx, upvz, upvy = computeUp(camx, camz, camy, targetx, targetz, targety, camera_roll)
+
       --Write new values into the temporary buffer
       writeFloat("cameracoordinates+08", camx)
       writeFloat("cameracoordinates+10", camy)
       writeFloat("cameracoordinates+0C", camz)
-      writeFloat("cameracoordinates+18", camx - (camdist * math.cos(tilt) * math.sin(pan)))
-      writeFloat("cameracoordinates+20", camy - (camdist * math.cos(tilt) * math.cos(pan)))
-      writeFloat("cameracoordinates+1C", camz - (camdist * math.sin(tilt)))
-      writeFloat("cameracoordinates+28", 0) --Anti-vomit settings
-      writeFloat("cameracoordinates+2C", 1)
-      writeFloat("cameracoordinates+30", 0)
+      writeFloat("cameracoordinates+18", targetx)
+      writeFloat("cameracoordinates+20", targety)
+      writeFloat("cameracoordinates+1C", targetz)
+      writeFloat("cameracoordinates+28", upvx)
+      writeFloat("cameracoordinates+30", upvy)
+      writeFloat("cameracoordinates+2C", upvz)
 
       --Copy buffer back into memory read by game engine
       copyMemory("cameracoordinates+08",48,"[cameracoordinates]+08")
@@ -229,9 +305,9 @@ function checkKeys()
     --Speed Modifiers
     if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
       writeFloat("speedModifier", 12)
-    elseif isKeyPressed(VK_MENU) then --If F2 is pressed, double the speed
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
       writeFloat("speedModifier", 6)
-    elseif isKeyPressed(VK_SHIFT) then --If F1 is pressed, slow way down
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
       writeFloat("speedModifier", .5)
     else --If nothing is pressed, speed is normal
       writeFloat("speedModifier", 3)
@@ -783,128 +859,172 @@ kai.exe+30BFCC: 48 8B 46 08              - mov rax,[rsi+08]
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
-      <Description>"Set Camera Min Z to Floor (Use No Clip)"</Description>
+      <Description>"Set Camera Min Z to Floor (Use Unlock Tilt and No Clip)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(cameradistance_aob,kai.exe,F3 0F 11 83 68 01 00 00 F3) // should be unique
-alloc(newmem,$1000,cameradistance_aob)
+aobscanmodule(camera_pitch_sweep_in_aob,kai.exe,72 2D 0F 54 05 D3 63 81 00) // should be unique
+registersymbol(camera_pitch_sweep_in_aob)
+
+camera_pitch_sweep_in_aob:
+  db EB 2D
+
+[DISABLE]
+
+camera_pitch_sweep_in_aob:
+  db 72 2D
+
+unregistersymbol(camera_pitch_sweep_in_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: kai.exe+305AB4
+
+kai.exe+305A77: 44 0F 29 44 24 40           - movaps [rsp+40],xmm8
+kai.exe+305A7D: 45 0F 57 C0                 - xorps xmm8,xmm8
+kai.exe+305A81: 48 C7 44 24 20 00 00 00 00  - mov qword ptr [rsp+20],00000000
+kai.exe+305A8A: C7 44 24 28 00 00 80 3F     - mov [rsp+28],3F800000
+kai.exe+305A92: E8 19 A4 DA FF              - call kai.exe+AFEB0
+kai.exe+305A97: F3 0F 10 44 24 34           - movss xmm0,[rsp+34]
+kai.exe+305A9D: 0F 57 05 6C 76 81 00        - xorps xmm0,[kai.exe+B1D110]
+kai.exe+305AA4: E8 B7 99 36 00              - call kai.exe+66F460
+kai.exe+305AA9: F3 0F 10 15 7F 63 81 00     - movss xmm2,[kai.exe+B1BE30]
+kai.exe+305AB1: 0F 2F D0                    - comiss xmm2,xmm0
+// ---------- INJECTING HERE ----------
+kai.exe+305AB4: 72 2D                       - jb kai.exe+305AE3
+// ---------- DONE INJECTING  ----------
+kai.exe+305AB6: 0F 54 05 D3 63 81 00        - andps xmm0,[kai.exe+B1BE90]
+kai.exe+305ABD: 0F 54 15 CC 63 81 00        - andps xmm2,[kai.exe+B1BE90]
+kai.exe+305AC4: F3 44 0F 10 05 2F 63 81 00  - movss xmm8,[kai.exe+B1BDFC]
+kai.exe+305ACD: F3 0F 5C C2                 - subss xmm0,xmm2
+kai.exe+305AD1: F3 0F 5E 05 0B 45 83 00     - divss xmm0,[kai.exe+B39FE4]
+kai.exe+305AD9: F3 44 0F 5C C0              - subss xmm8,xmm0
+kai.exe+305ADE: F3 44 0F 59 C0              - mulss xmm8,xmm0
+kai.exe+305AE3: F3 0F 5C FE                 - subss xmm7,xmm6
+kai.exe+305AE7: F3 41 0F 59 F8              - mulss xmm7,xmm8
+kai.exe+305AEC: 44 0F 28 44 24 40           - movaps xmm8,[rsp+40]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"Unlock Camera Tilt (Pitch)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(tilt_limit_aob,kai.exe,F3 0F 5C F0 F3 0F 5C F8 75) // should be unique
+alloc(newmem,$1000,tilt_limit_aob)
 
 label(code)
 label(return)
 
+registersymbol(tilt_limit_aob)
+registersymbol(tiltlimitfieldup)
+registersymbol(tiltlimitfielddown)
+
 newmem:
 
 code:
-  mov [rbx+00000168],(float)5
-  movss xmm0,[rbx+00000168]
-  movss [rbx+00000168],xmm0
+  movss xmm6,[tiltlimitfielddown]
+  movss xmm7,[tiltlimitfieldup]
+  subss xmm6,xmm0
+  subss xmm7,xmm0
   jmp return
 
-cameradistance_aob:
+tiltlimitfielddown:
+dd (float)-1.55
+
+tiltlimitfieldup:
+dd (float)1.55
+
+tilt_limit_aob:
   jmp newmem
   nop 3
 return:
-registersymbol(cameradistance_aob)
 
 [DISABLE]
 
-cameradistance_aob:
-  db F3 0F 11 83 68 01 00 00
+tilt_limit_aob:
+  db F3 0F 5C F0 F3 0F 5C F8
 
-unregistersymbol(cameradistance_aob)
+unregistersymbol(tilt_limit_aob)
+unregistersymbol(tiltlimitfieldup)
+unregistersymbol(tiltlimitfielddown)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+30BB55
+// ORIGINAL CODE - INJECTION POINT: kai.exe+30B35E
 
-kai.exe+30BB29: 48 8B 5E 08                       - mov rbx,[rsi+08]
-kai.exe+30BB2D: 75 40                             - jne kai.exe+30BB6F
-kai.exe+30BB2F: F3 45 0F 59 DF                    - mulss xmm11,xmm15
-kai.exe+30BB34: 41 0F 28 C5                       - movaps xmm0,xmm13
-kai.exe+30BB38: 41 0F 28 CB                       - movaps xmm1,xmm11
-kai.exe+30BB3C: E8 53 14 7C 00                    - call kai.exe+ACCF94
-kai.exe+30BB41: F3 0F 10 8B 70 01 00 00           - movss xmm1,[rbx+00000170]
-kai.exe+30BB49: F3 0F 5C CE                       - subss xmm1,xmm6
-kai.exe+30BB4D: F3 0F 59 C1                       - mulss xmm0,xmm1
-kai.exe+30BB51: F3 0F 58 C6                       - addss xmm0,xmm6
+kai.exe+30B323: 4C 8D 86 10 01 00 00     - lea r8,[rsi+00000110]
+kai.exe+30B32A: 48 89 44 24 20           - mov [rsp+20],rax
+kai.exe+30B32F: 48 8D 96 00 01 00 00     - lea rdx,[rsi+00000100]
+kai.exe+30B336: 48 8B CE                 - mov rcx,rsi
+kai.exe+30B339: 4C 8D 4D 88              - lea r9,[rbp-78]
+kai.exe+30B33D: E8 4E B7 FF FF           - call kai.exe+306A90
+kai.exe+30B342: 83 7D 80 04              - cmp dword ptr [rbp-80],04
+kai.exe+30B346: F3 0F 10 86 B0 02 00 00  - movss xmm0,[rsi+000002B0]
+kai.exe+30B34E: F3 0F 10 35 9E EC 82 00  - movss xmm6,[kai.exe+B39FF4]
+kai.exe+30B356: F3 0F 10 3D CE 30 81 00  - movss xmm7,[kai.exe+B1E42C]
 // ---------- INJECTING HERE ----------
-kai.exe+30BB55: F3 0F 11 83 68 01 00 00           - movss [rbx+00000168],xmm0
+kai.exe+30B35E: F3 0F 5C F0              - subss xmm6,xmm0
 // ---------- DONE INJECTING  ----------
-kai.exe+30BB5D: F3 0F 11 83 6C 01 00 00           - movss [rbx+0000016C],xmm0
-kai.exe+30BB65: F3 0F 11 83 70 01 00 00           - movss [rbx+00000170],xmm0
-kai.exe+30BB6D: EB 18                             - jmp kai.exe+30BB87
-kai.exe+30BB6F: F3 0F 11 B3 68 01 00 00           - movss [rbx+00000168],xmm6
-kai.exe+30BB77: F3 0F 11 B3 6C 01 00 00           - movss [rbx+0000016C],xmm6
-kai.exe+30BB7F: F3 0F 11 B3 70 01 00 00           - movss [rbx+00000170],xmm6
-kai.exe+30BB87: 48 C7 83 74 01 00 00 00 00 00 00  - mov qword ptr [rbx+00000174],00000000
-kai.exe+30BB92: 44 89 AB 7C 01 00 00              - mov [rbx+0000017C],r13d
-kai.exe+30BB99: 48 8B 46 08                       - mov rax,[rsi+08]
-kai.exe+30BB9D: 45 84 E4                          - test r12l,r12l
+kai.exe+30B362: F3 0F 5C F8              - subss xmm7,xmm0
+kai.exe+30B366: 75 18                    - jne kai.exe+30B380
+kai.exe+30B368: F3 0F 10 35 88 EC 82 00  - movss xmm6,[kai.exe+B39FF8]
+kai.exe+30B370: F3 0F 10 3D 80 98 81 00  - movss xmm7,[kai.exe+B24BF8]
+kai.exe+30B378: F3 0F 5C F0              - subss xmm6,xmm0
+kai.exe+30B37C: F3 0F 5C F8              - subss xmm7,xmm0
+kai.exe+30B380: F3 41 0F 59 F1           - mulss xmm6,xmm9
+kai.exe+30B385: 0F 28 C6                 - movaps xmm0,xmm6
+kai.exe+30B388: E8 C3 1D 7C 00           - call kai.exe+ACD150
+kai.exe+30B38D: 44 0F 28 D0              - movaps xmm10,xmm0
 }
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
       <ID>4</ID>
-      <Description>"No Clip"</Description>
+      <Description>"No Clip (Characters)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(noclip_aob1,kai.exe,F3 0F 11 83 5C 1F 00 00) // should be unique
-aobscanmodule(noclip_aob2,kai.exe,C7 83 5C 1F 00 00 00 00 00 00 EB 25) // should be unique
-registersymbol(noclip_aob1)
-registersymbol(noclip_aob2)
+aobscanmodule(noclip_aob,kai.exe,72 48 84 C0 74 0C) // should be unique
+registersymbol(noclip_aob)
 
-noclip_aob1:
-  db 90 90 90 90 90 90 90 90
-
-noclip_aob2:
-  db 90 90 90 90 90 90 90 90 90 90
-  
+noclip_aob:
+  db EB 48
 
 [DISABLE]
 
-noclip_aob1:
-  db F3 0F 11 83 5C 1F 00 00
+noclip_aob:
+  db 72 48
 
-noclip_aob2:
-  db C7 83 5C 1F 00 00 00 00 00 00
-
-unregistersymbol(noclip_aob1)
-unregistersymbol(noclip_aob2)
+unregistersymbol(noclip_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kai.exe+2A2227
+// ORIGINAL CODE - INJECTION POINT: kai.exe+2A2259
 
-kai.exe+2A21F9: 72 48                          - jb kai.exe+2A2243
-kai.exe+2A21FB: 84 C0                          - test al,al
-kai.exe+2A21FD: 74 0C                          - je kai.exe+2A220B
-kai.exe+2A21FF: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
-kai.exe+2A2209: EB 5D                          - jmp kai.exe+2A2268
-kai.exe+2A220B: F3 0F 10 8B 68 1F 00 00        - movss xmm1,[rbx+00001F68]
-kai.exe+2A2213: 44 0F 2F C1                    - comiss xmm8,xmm1
-kai.exe+2A2217: F3 0F 10 83 5C 1F 00 00        - movss xmm0,[rbx+00001F5C]
-kai.exe+2A221F: F3 0F 5C C7                    - subss xmm0,xmm7
-kai.exe+2A2223: F3 0F 5F C1                    - maxss xmm0,xmm1
+kai.exe+2A2229: 48 8D 4C 24 30                 - lea rcx,[rsp+30]
+kai.exe+2A222E: E8 9D CA 41 00                 - call kai.exe+6BECD0
+kai.exe+2A2233: 48 8B D7                       - mov rdx,rdi
+kai.exe+2A2236: 48 8D 4C 24 30                 - lea rcx,[rsp+30]
+kai.exe+2A223B: E8 00 C3 41 00                 - call kai.exe+6BE540
+kai.exe+2A2240: 48 8B 0D 11 E0 AB 00           - mov rcx,[kai.exe+D60258]
+kai.exe+2A2247: BA 14 00 00 00                 - mov edx,00000014
+kai.exe+2A224C: 44 0F 28 D0                    - movaps xmm10,xmm0
+kai.exe+2A2250: E8 FB 4F 2B 00                 - call kai.exe+557250
+kai.exe+2A2255: 41 0F 2F F2                    - comiss xmm6,xmm10
 // ---------- INJECTING HERE ----------
-kai.exe+2A2227: F3 0F 11 83 5C 1F 00 00        - movss [rbx+00001F5C],xmm0
+kai.exe+2A2259: 72 48                          - jb kai.exe+2A22A3
 // ---------- DONE INJECTING  ----------
-kai.exe+2A222F: 72 37                          - jb kai.exe+2A2268
-kai.exe+2A2231: 45 0F 2F DA                    - comiss xmm11,xmm10
-kai.exe+2A2235: 72 31                          - jb kai.exe+2A2268
-// ---------- INJECTING HERE ----------
-kai.exe+2A2237: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
-// ---------- DONE INJECTING  ----------
-kai.exe+2A2241: EB 25                          - jmp kai.exe+2A2268
-kai.exe+2A2243: 84 C0                          - test al,al
-kai.exe+2A2245: 74 0C                          - je kai.exe+2A2253
-kai.exe+2A2247: C7 83 5C 1F 00 00 00 00 80 3F  - mov [rbx+00001F5C],3F800000
-kai.exe+2A2251: EB 15                          - jmp kai.exe+2A2268
-kai.exe+2A2253: F3 0F 58 BB 5C 1F 00 00        - addss xmm7,[rbx+00001F5C]
-kai.exe+2A225B: F3 41 0F 5D F9                 - minss xmm7,xmm9
-kai.exe+2A2260: F3 0F 11 BB 5C 1F 00 00        - movss [rbx+00001F5C],xmm7
-kai.exe+2A2268: 48 8D 8B 48 1B 00 00           - lea rcx,[rbx+00001B48]
-kai.exe+2A226F: E8 2C 9B 00 00                 - call kai.exe+2ABDA0
+kai.exe+2A225B: 84 C0                          - test al,al
+kai.exe+2A225D: 74 0C                          - je kai.exe+2A226B
+kai.exe+2A225F: C7 83 5C 1F 00 00 00 00 00 00  - mov [rbx+00001F5C],00000000
+kai.exe+2A2269: EB 5D                          - jmp kai.exe+2A22C8
+kai.exe+2A226B: F3 0F 10 8B 68 1F 00 00        - movss xmm1,[rbx+00001F68]
+kai.exe+2A2273: 44 0F 2F C1                    - comiss xmm8,xmm1
+kai.exe+2A2277: F3 0F 10 83 5C 1F 00 00        - movss xmm0,[rbx+00001F5C]
+kai.exe+2A227F: F3 0F 5C C7                    - subss xmm0,xmm7
+kai.exe+2A2283: F3 0F 5F C1                    - maxss xmm0,xmm1
+kai.exe+2A2287: F3 0F 11 83 5C 1F 00 00        - movss [rbx+00001F5C],xmm0
 }
 </AssemblerScript>
     </CheatEntry>

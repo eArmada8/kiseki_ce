@@ -48,6 +48,56 @@ moveplayer_aob+13:
 
 {$lua}
 
+-- normalize, cross, computeUp and computeRoll courtesy of Claude AI
+local function normalize(x, y, z)
+  local len = math.sqrt(x*x + y*y + z*z)
+  if len &lt; 1e-8 then return 0, 0, 0 end
+  return x/len, y/len, z/len
+end
+
+local function cross(ax, ay, az, bx, by, bz)
+  return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), roll in radians
+function computeUp(ex, ey, ez, tx, ty, tz, roll)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right = worldUp x forward
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down: pick any right
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+
+  -- level up = forward x right
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local c, s = math.cos(roll), math.sin(roll)
+  return ux*c - rx*s, uy*c - ry*s, uz*c - rz*s
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), current up (px,py,pz) read from render_cam+0x28/0x2c/0x30
+function computeRoll(ex, ey, ez, tx, ty, tz, px, py, pz)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right and level up, same construction as computeUp
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local cosT =  px*ux + py*uy + pz*uz   -- dot(up, level up)
+  local sinT = -(px*rx + py*ry + pz*rz) -- -dot(up, level right)
+  return math.atan(sinT, cosT)          -- radians, range (-pi, pi]
+end
+
 function checkKeys()
   if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
   if (getAddressSafe("[cameracoordinates]")) then
@@ -62,9 +112,14 @@ function checkKeys()
     local camz = readFloat("[cameracoordinates]+0C") -- Camera Z
 
     --Target Coordinates
-    local targetx = readFloat("[cameracoordinates]+18") -- Camera X
-    local targety = readFloat("[cameracoordinates]+20") -- Camera Y
-    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Z
+    local targetx = readFloat("[cameracoordinates]+18") -- Camera Target X
+    local targety = readFloat("[cameracoordinates]+20") -- Camera Target Y
+    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Target Z
+
+    --Camera Up Vector Coordinates
+    local upvx = readFloat("[cameracoordinates]+28") -- Camera Up Vector X
+    local upvy = readFloat("[cameracoordinates]+30") -- Camera Up Vector Y
+    local upvz = readFloat("[cameracoordinates]+2C") -- Camera Up Vector Z
 
     --Prevent endless error loop if camera status is not initiated
     if (targetz == nil) or (targetz == camz and targetx == camx and targety == camy) then
@@ -75,6 +130,9 @@ function checkKeys()
       targetx = 0
       targety = 0
       targetz = 0
+	  upvx = 0
+	  upvy = 0
+	  upvz = 1
     else
 
       local new_mouse_x,new_mouse_y = getMousePos()
@@ -97,6 +155,7 @@ function checkKeys()
       local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
       local tilt = math.atan2(camz - targetz, ((targetx - camx)^2 + (targety - camy)^2)^0.5)
       local pan = math.atan2(targetx - camx, targety - camy) + math.rad(180) -- Horizontal (pan)
+	  local camera_roll = computeRoll(camx, camz, camy, targetx, targetz, targety, upvx, upvz, upvy)
 
       --Sine and Cosine of Rotation Values
       local siny = math.sin(pan) -- Sine of Horizontal (pan)
@@ -174,6 +233,18 @@ function checkKeys()
       if isKeyPressed(VK_K) then
         tilt = math.min(tilt + speed * 0.01, math.rad(89.5))
       end
+      --Roll left
+      if isKeyPressed(VK_Q) then
+          camera_roll = camera_roll - speed * 0.01
+      end
+      --Roll right
+      if isKeyPressed(VK_E) then
+          camera_roll = camera_roll + speed * 0.01
+      end
+      --Roll neutral
+      if isKeyPressed(VK_C) then
+          camera_roll = 0
+      end
 
       if (use_mouse == 1) then
         --Tilt by mouse
@@ -191,16 +262,21 @@ function checkKeys()
       --Create a copy of the entire memory block before alterations.  I do not know if +14, +24 or +34 are used, but this preserves them.
       copyMemory("[cameracoordinates]+08",48,"cameracoordinates+08")
 
+	  targetx = camx - (camdist * math.cos(tilt) * math.sin(pan))
+	  targety = camy - (camdist * math.cos(tilt) * math.cos(pan))
+	  targetz = camz - (camdist * math.sin(tilt))
+      upvx, upvz, upvy = computeUp(camx, camz, camy, targetx, targetz, targety, camera_roll)
+
       --Write new values into the temporary buffer
       writeFloat("cameracoordinates+08", camx)
       writeFloat("cameracoordinates+10", camy)
       writeFloat("cameracoordinates+0C", camz)
-      writeFloat("cameracoordinates+18", camx - (camdist * math.cos(tilt) * math.sin(pan)))
-      writeFloat("cameracoordinates+20", camy - (camdist * math.cos(tilt) * math.cos(pan)))
-      writeFloat("cameracoordinates+1C", camz - (camdist * math.sin(tilt)))
-      writeFloat("cameracoordinates+28", 0) --Anti-vomit settings
-      writeFloat("cameracoordinates+2C", 1)
-      writeFloat("cameracoordinates+30", 0)
+      writeFloat("cameracoordinates+18", targetx)
+      writeFloat("cameracoordinates+20", targety)
+      writeFloat("cameracoordinates+1C", targetz)
+      writeFloat("cameracoordinates+28", upvx)
+      writeFloat("cameracoordinates+30", upvy)
+      writeFloat("cameracoordinates+2C", upvz)
 
       --Copy buffer back into memory read by game engine
       copyMemory("cameracoordinates+08",48,"[cameracoordinates]+08")
@@ -210,9 +286,9 @@ function checkKeys()
     --Speed Modifiers
     if isKeyPressed(VK_F3) then --If F3 is pressed, quadruple the speed
       writeFloat("speedModifier", 12)
-    elseif isKeyPressed(VK_MENU) then --If F2 is pressed, double the speed
+    elseif isKeyPressed(VK_F2) then --If F2 is pressed, double the speed
       writeFloat("speedModifier", 6)
-    elseif isKeyPressed(VK_SHIFT) then --If F1 is pressed, slow way down
+    elseif isKeyPressed(VK_F1) then --If F1 is pressed, slow way down
       writeFloat("speedModifier", .5)
     else --If nothing is pressed, speed is normal
       writeFloat("speedModifier", 3)
@@ -724,130 +800,172 @@ kuro2.exe+275759: 0F 28 C2                 - movaps xmm0,xmm2
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
-      <Description>"Set Camera Min Z to Floor (Use No Clip)"</Description>
+      <Description>"Set Camera Min Z to Floor (Use Unlock Tilt and No Clip)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(cameradistance_aob,kuro2.exe,2A 48 8B 46 08 F3 0F 11 80 68 01 00 00) // should be unique
-alloc(newmem,$1000,cameradistance_aob)
+aobscanmodule(camera_pitch_sweep_in_aob,kuro2.exe,77 36 0F 54 0D 40 74 6D 00) // should be unique
+registersymbol(camera_pitch_sweep_in_aob)
+
+camera_pitch_sweep_in_aob:
+  db EB 36
+
+[DISABLE]
+
+camera_pitch_sweep_in_aob:
+  db 77 36
+
+unregistersymbol(camera_pitch_sweep_in_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2786A7
+
+kuro2.exe+278674: F3 0F 5E C8              - divss xmm1,xmm0
+kuro2.exe+278678: F3 0F 10 05 B8 60 6D 00  - movss xmm0,[kuro2.exe+94E738]
+kuro2.exe+278680: F3 41 0F 59 C8           - mulss xmm1,xmm8
+kuro2.exe+278685: 0F 57 0D 94 74 6D 00     - xorps xmm1,[kuro2.exe+94FB20]
+kuro2.exe+27868C: F3 0F 5D CF              - minss xmm1,xmm7
+kuro2.exe+278690: F3 0F 5F C1              - maxss xmm0,xmm1
+kuro2.exe+278694: E8 E0 C6 5F 00           - call kuro2.exe+874D79
+kuro2.exe+278699: F3 0F 10 15 3B 60 6D 00  - movss xmm2,[kuro2.exe+94E6DC]
+kuro2.exe+2786A1: 0F 28 C8                 - movaps xmm1,xmm0
+kuro2.exe+2786A4: 0F 2F CA                 - comiss xmm1,xmm2
+// ---------- INJECTING HERE ----------
+kuro2.exe+2786A7: 77 36                    - ja kuro2.exe+2786DF
+// ---------- DONE INJECTING  ----------
+kuro2.exe+2786A9: 0F 54 0D 40 74 6D 00     - andps xmm1,[kuro2.exe+94FAF0]
+kuro2.exe+2786B0: F3 0F 5C FE              - subss xmm7,xmm6
+kuro2.exe+2786B4: 0F 54 15 35 74 6D 00     - andps xmm2,[kuro2.exe+94FAF0]
+kuro2.exe+2786BB: F3 0F 10 05 55 58 6D 00  - movss xmm0,[kuro2.exe+94DF18]
+kuro2.exe+2786C3: F3 0F 5C CA              - subss xmm1,xmm2
+kuro2.exe+2786C7: F3 0F 5E 0D F9 55 6D 00  - divss xmm1,[kuro2.exe+94DCC8]
+kuro2.exe+2786CF: F3 0F 5C C1              - subss xmm0,xmm1
+kuro2.exe+2786D3: F3 0F 59 C1              - mulss xmm0,xmm1
+kuro2.exe+2786D7: F3 0F 59 C7              - mulss xmm0,xmm7
+kuro2.exe+2786DB: F3 0F 58 F0              - addss xmm6,xmm0
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"Unlock Camera Tilt (Pitch)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(tilt_limit_aob,kuro2.exe,F3 0F 5C F0 F3 0F 5C F8 75) // should be unique
+alloc(newmem,$1000,tilt_limit_aob)
 
 label(code)
 label(return)
 
+registersymbol(tilt_limit_aob)
+registersymbol(tiltlimitfieldup)
+registersymbol(tiltlimitfielddown)
+
 newmem:
 
 code:
-  mov [rax+00000168],(float)5
-  movss xmm0,[rax+00000168]
-  movss [rax+00000168],xmm0
+  movss xmm6,[tiltlimitfielddown]
+  movss xmm7,[tiltlimitfieldup]
+  subss xmm6,xmm0
+  subss xmm7,xmm0
   jmp return
 
-cameradistance_aob+05:
+tiltlimitfielddown:
+dd (float)-1.55
+
+tiltlimitfieldup:
+dd (float)1.55
+
+tilt_limit_aob:
   jmp newmem
   nop 3
 return:
-registersymbol(cameradistance_aob)
 
 [DISABLE]
 
-cameradistance_aob+05:
-  db F3 0F 11 80 68 01 00 00
+tilt_limit_aob:
+  db F3 0F 5C F0 F3 0F 5C F8
 
-unregistersymbol(cameradistance_aob)
+unregistersymbol(tilt_limit_aob)
+unregistersymbol(tiltlimitfieldup)
+unregistersymbol(tiltlimitfielddown)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2752F6
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2763BA
 
-kuro2.exe+2752C3: F3 44 0F 11 8B 1C 01 00 00     - movss [rbx+0000011C],xmm9
-kuro2.exe+2752CC: 41 0F 28 CD                    - movaps xmm1,xmm13
-kuro2.exe+2752D0: 48 8B CE                       - mov rcx,rsi
-kuro2.exe+2752D3: E8 B8 19 00 00                 - call kuro2.exe+276C90
-kuro2.exe+2752D8: F6 86 94 02 00 00 10           - test byte ptr [rsi+00000294],10
-kuro2.exe+2752DF: 48 8B BC 24 88 02 00 00        - mov rdi,[rsp+00000288]
-kuro2.exe+2752E7: 74 09                          - je kuro2.exe+2752F2
-kuro2.exe+2752E9: 44 39 AE 14 05 00 00           - cmp [rsi+00000514],r13d
-kuro2.exe+2752F0: 74 2A                          - je kuro2.exe+27531C
-kuro2.exe+2752F2: 48 8B 46 08                    - mov rax,[rsi+08]
+kuro2.exe+27637C: 4C 8D 86 10 01 00 00     - lea r8,[rsi+00000110]
+kuro2.exe+276383: 48 89 44 24 20           - mov [rsp+20],rax
+kuro2.exe+276388: 48 8D 96 00 01 00 00     - lea rdx,[rsi+00000100]
+kuro2.exe+27638F: 48 8B CE                 - mov rcx,rsi
+kuro2.exe+276392: 4C 8D 8D B8 00 00 00     - lea r9,[rbp+000000B8]
+kuro2.exe+276399: E8 42 0F 00 00           - call kuro2.exe+2772E0
+kuro2.exe+27639E: 83 7D 80 04              - cmp dword ptr [rbp-80],04
+kuro2.exe+2763A2: F3 0F 10 86 78 02 00 00  - movss xmm0,[rsi+00000278]
+kuro2.exe+2763AA: F3 0F 10 35 66 83 6D 00  - movss xmm6,[kuro2.exe+94E718]
+kuro2.exe+2763B2: F3 0F 10 3D 4E 7A 6D 00  - movss xmm7,[kuro2.exe+94DE08]
 // ---------- INJECTING HERE ----------
-kuro2.exe+2752F6: F3 0F 11 80 68 01 00 00        - movss [rax+00000168],xmm0
+kuro2.exe+2763BA: F3 0F 5C F0              - subss xmm6,xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+2752FE: F3 0F 11 80 6C 01 00 00        - movss [rax+0000016C],xmm0
-kuro2.exe+275306: F3 0F 11 80 70 01 00 00        - movss [rax+00000170],xmm0
-kuro2.exe+27530E: 4C 89 A8 74 01 00 00           - mov [rax+00000174],r13
-kuro2.exe+275315: 44 89 A8 7C 01 00 00           - mov [rax+0000017C],r13d
-kuro2.exe+27531C: 48 8B 46 08                    - mov rax,[rsi+08]
-kuro2.exe+275320: 45 84 E4                       - test r12l,r12l
-kuro2.exe+275323: 4C 8B A4 24 80 02 00 00        - mov r12,[rsp+00000280]
-kuro2.exe+27532B: 0F 84 B2 03 00 00              - je kuro2.exe+2756E3
-kuro2.exe+275331: C7 80 98 01 00 00 01 00 00 00  - mov [rax+00000198],00000001
-kuro2.exe+27533B: 48 8B 8E F8 00 00 00           - mov rcx,[rsi+000000F8]
+kuro2.exe+2763BE: F3 0F 5C F8              - subss xmm7,xmm0
+kuro2.exe+2763C2: 75 18                    - jne kuro2.exe+2763DC
+kuro2.exe+2763C4: F3 0F 10 35 74 83 6D 00  - movss xmm6,[kuro2.exe+94E740]
+kuro2.exe+2763CC: F3 0F 10 3D 68 7A 6D 00  - movss xmm7,[kuro2.exe+94DE3C]
+kuro2.exe+2763D4: F3 0F 5C F0              - subss xmm6,xmm0
+kuro2.exe+2763D8: F3 0F 5C F8              - subss xmm7,xmm0
+kuro2.exe+2763DC: F3 41 0F 59 F7           - mulss xmm6,xmm15
+kuro2.exe+2763E1: 0F 28 C6                 - movaps xmm0,xmm6
+kuro2.exe+2763E4: E8 CC E9 5F 00           - call kuro2.exe+874DB5
+kuro2.exe+2763E9: 44 0F 28 C0              - movaps xmm8,xmm0
 }
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
       <ID>4</ID>
-      <Description>"No Clip"</Description>
+      <Description>"No Clip (Characters)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(noclip_aob1,kuro2.exe,F3 0F 11 8B 48 1E 00 00) // should be unique
-aobscanmodule(noclip_aob2,kuro2.exe,44 89 A3 48 1E 00 00) // should be unique
-registersymbol(noclip_aob1)
-registersymbol(noclip_aob2)
+aobscanmodule(noclip_aob,kuro2.exe,72 45 41 F6 86 12 01 00 00 10) // should be unique
+registersymbol(noclip_aob)
 
-noclip_aob1:
-  db 90 90 90 90 90 90 90 90
-
-noclip_aob2:
-  db 90 90 90 90 90 90 90
-  
+noclip_aob:
+  db EB 45
 
 [DISABLE]
 
-noclip_aob1:
-  db F3 0F 11 8B 48 1E 00 00
+noclip_aob:
+  db 72 45
 
-noclip_aob2:
-  db 44 89 A3 48 1E 00 00
-
-unregistersymbol(noclip_aob1)
-unregistersymbol(noclip_aob2)
+unregistersymbol(noclip_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+21A8E2
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+21BFAD
 
-kuro2.exe+21A8B1: 0F 28 D0                       - movaps xmm2,xmm0
-kuro2.exe+21A8B4: F3 0F 10 44 24 24              - movss xmm0,[rsp+24]
-kuro2.exe+21A8BA: 0F 2F C2                       - comiss xmm0,xmm2
-kuro2.exe+21A8BD: 72 45                          - jb kuro2.exe+21A904
-kuro2.exe+21A8BF: 41 F6 86 12 01 00 00 10        - test byte ptr [r14+00000112],10
-kuro2.exe+21A8C7: 75 32                          - jne kuro2.exe+21A8FB
-kuro2.exe+21A8C9: F3 0F 10 8B 48 1E 00 00        - movss xmm1,[rbx+00001E48]
-kuro2.exe+21A8D1: F3 41 0F 5C CA                 - subss xmm1,xmm10
-kuro2.exe+21A8D6: F3 0F 10 83 54 1E 00 00        - movss xmm0,[rbx+00001E54]
-kuro2.exe+21A8DE: F3 0F 5F C8                    - maxss xmm1,xmm0
+kuro2.exe+21BF8B: 0F 2E C1                 - ucomiss xmm0,xmm1
+kuro2.exe+21BF8E: 77 09                    - ja kuro2.exe+21BF99
+kuro2.exe+21BF90: 0F 57 D2                 - xorps xmm2,xmm2
+kuro2.exe+21BF93: F3 0F 51 D1              - sqrtss xmm2,xmm1
+kuro2.exe+21BF97: EB 0B                    - jmp kuro2.exe+21BFA4
+kuro2.exe+21BF99: 0F 28 C1                 - movaps xmm0,xmm1
+kuro2.exe+21BF9C: E8 1A 8E 65 00           - call kuro2.exe+874DBB
+kuro2.exe+21BFA1: 0F 28 D0                 - movaps xmm2,xmm0
+kuro2.exe+21BFA4: F3 0F 10 44 24 24        - movss xmm0,[rsp+24]
+kuro2.exe+21BFAA: 0F 2F C2                 - comiss xmm0,xmm2
 // ---------- INJECTING HERE ----------
-kuro2.exe+21A8E2: F3 0F 11 8B 48 1E 00 00        - movss [rbx+00001E48],xmm1
+kuro2.exe+21BFAD: 72 45                    - jb kuro2.exe+21BFF4
 // ---------- DONE INJECTING  ----------
-kuro2.exe+21A8EA: 44 0F 2F D8                    - comiss xmm11,xmm0
-kuro2.exe+21A8EE: 72 45                          - jb kuro2.exe+21A935
-kuro2.exe+21A8F0: F3 0F 10 44 24 30              - movss xmm0,[rsp+30]
-kuro2.exe+21A8F6: 0F 2F C2                       - comiss xmm0,xmm2
-kuro2.exe+21A8F9: 72 3A                          - jb kuro2.exe+21A935
-// ---------- INJECTING HERE ----------
-kuro2.exe+21A8FB: 44 89 A3 48 1E 00 00           - mov [rbx+00001E48],r12d
-// ---------- DONE INJECTING  ----------
-kuro2.exe+21A902: EB 31                          - jmp kuro2.exe+21A935
-kuro2.exe+21A904: 41 F6 86 12 01 00 00 10        - test byte ptr [r14+00000112],10
-kuro2.exe+21A90C: 74 0C                          - je kuro2.exe+21A91A
-kuro2.exe+21A90E: C7 83 48 1E 00 00 00 00 80 3F  - mov [rbx+00001E48],3F800000
-kuro2.exe+21A918: EB 1B                          - jmp kuro2.exe+21A935
-kuro2.exe+21A91A: F3 44 0F 58 93 48 1E 00 00     - addss xmm10,[rbx+00001E48]
-kuro2.exe+21A923: F3 44 0F 5D 15 E4 22 72 00     - minss xmm10,[kuro2.exe+93CC10]
-kuro2.exe+21A92C: F3 44 0F 11 93 48 1E 00 00     - movss [rbx+00001E48],xmm10    // May need to inject here as well
-kuro2.exe+21A935: F3 44 0F 10 25 8A 21 72 00     - movss xmm12,[kuro2.exe+93CAC8]
-kuro2.exe+21A93E: F3 0F 10 83 48 1E 00 00        - movss xmm0,[rbx+00001E48]
+kuro2.exe+21BFAF: 41 F6 86 12 01 00 00 10  - test byte ptr [r14+00000112],10
+kuro2.exe+21BFB7: 75 32                    - jne kuro2.exe+21BFEB
+kuro2.exe+21BFB9: F3 0F 10 8B 48 1E 00 00  - movss xmm1,[rbx+00001E48]
+kuro2.exe+21BFC1: F3 41 0F 5C CA           - subss xmm1,xmm10
+kuro2.exe+21BFC6: F3 0F 10 83 54 1E 00 00  - movss xmm0,[rbx+00001E54]
+kuro2.exe+21BFCE: F3 0F 5F C8              - maxss xmm1,xmm0
+kuro2.exe+21BFD2: F3 0F 11 8B 48 1E 00 00  - movss [rbx+00001E48],xmm1
+kuro2.exe+21BFDA: 44 0F 2F D8              - comiss xmm11,xmm0
+kuro2.exe+21BFDE: 72 45                    - jb kuro2.exe+21C025
+kuro2.exe+21BFE0: F3 0F 10 44 24 30        - movss xmm0,[rsp+30]
 }
 </AssemblerScript>
     </CheatEntry>

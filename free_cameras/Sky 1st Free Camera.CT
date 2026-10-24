@@ -48,6 +48,56 @@ moveplayer_aob+12:
 
 {$lua}
 
+-- normalize, cross, computeUp and computeRoll courtesy of Claude AI
+local function normalize(x, y, z)
+  local len = math.sqrt(x*x + y*y + z*z)
+  if len &lt; 1e-8 then return 0, 0, 0 end
+  return x/len, y/len, z/len
+end
+
+local function cross(ax, ay, az, bx, by, bz)
+  return ay*bz - az*by, az*bx - ax*bz, ax*by - ay*bx
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), roll in radians
+function computeUp(ex, ey, ez, tx, ty, tz, roll)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right = worldUp x forward
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down: pick any right
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+
+  -- level up = forward x right
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local c, s = math.cos(roll), math.sin(roll)
+  return ux*c - rx*s, uy*c - ry*s, uz*c - rz*s
+end
+
+-- eye (ex,ey,ez), target (tx,ty,tz), current up (px,py,pz) read from render_cam+0x28/0x2c/0x30
+function computeRoll(ex, ey, ez, tx, ty, tz, px, py, pz)
+  local fx, fy, fz = normalize(tx - ex, ty - ey, tz - ez)
+
+  -- level right and level up, same construction as computeUp
+  local rx, ry, rz = cross(0, 1, 0, fx, fy, fz)
+  local rlen = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if rlen &lt; 1e-6 then
+    rx, ry, rz = 1, 0, 0              -- looking straight up or down
+  else
+    rx, ry, rz = rx/rlen, ry/rlen, rz/rlen
+  end
+  local ux, uy, uz = cross(fx, fy, fz, rx, ry, rz)
+
+  local cosT =  px*ux + py*uy + pz*uz   -- dot(up, level up)
+  local sinT = -(px*rx + py*ry + pz*rz) -- -dot(up, level right)
+  return math.atan(sinT, cosT)          -- radians, range (-pi, pi]
+end
+
 function checkKeys()
   if not (getForegroundProcess() == getOpenedProcessID()) then return end -- Only run if in game
   if (getAddressSafe("[cameracoordinates]")) then
@@ -62,9 +112,14 @@ function checkKeys()
     local camz = readFloat("[cameracoordinates]+0C") -- Camera Z
 
     --Target Coordinates
-    local targetx = readFloat("[cameracoordinates]+18") -- Camera X
-    local targety = readFloat("[cameracoordinates]+20") -- Camera Y
-    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Z
+    local targetx = readFloat("[cameracoordinates]+18") -- Camera Target X
+    local targety = readFloat("[cameracoordinates]+20") -- Camera Target Y
+    local targetz = readFloat("[cameracoordinates]+1C") -- Camera Target Z
+
+    --Camera Up Vector Coordinates
+    local upvx = readFloat("[cameracoordinates]+28") -- Camera Up Vector X
+    local upvy = readFloat("[cameracoordinates]+30") -- Camera Up Vector Y
+    local upvz = readFloat("[cameracoordinates]+2C") -- Camera Up Vector Z
 
     --Prevent endless error loop if camera status is not initiated
     if (targetz == nil) or (targetz == camz and targetx == camx and targety == camy) then
@@ -75,6 +130,9 @@ function checkKeys()
       targetx = 0
       targety = 0
       targetz = 0
+	  upvx = 0
+	  upvy = 0
+	  upvz = 1
     else
 
       local new_mouse_x,new_mouse_y = getMousePos()
@@ -97,6 +155,7 @@ function checkKeys()
       local camdist = ((targetx - camx)^2 + (targety - camy)^2 + (targetz - camz)^2)^0.5
       local tilt = math.atan2(camz - targetz, ((targetx - camx)^2 + (targety - camy)^2)^0.5)
       local pan = math.atan2(targetx - camx, targety - camy) + math.rad(180) -- Horizontal (pan)
+	  local camera_roll = computeRoll(camx, camz, camy, targetx, targetz, targety, upvx, upvz, upvy)
 
       --Sine and Cosine of Rotation Values
       local siny = math.sin(pan) -- Sine of Horizontal (pan)
@@ -174,6 +233,18 @@ function checkKeys()
       if isKeyPressed(VK_K) then
         tilt = math.min(tilt + speed * 0.01, math.rad(89.5))
       end
+      --Roll left
+      if isKeyPressed(VK_Q) then
+          camera_roll = camera_roll - speed * 0.01
+      end
+      --Roll right
+      if isKeyPressed(VK_E) then
+          camera_roll = camera_roll + speed * 0.01
+      end
+      --Roll neutral
+      if isKeyPressed(VK_C) then
+          camera_roll = 0
+      end
 
       if (use_mouse == 1) then
         --Tilt by mouse
@@ -191,16 +262,21 @@ function checkKeys()
       --Create a copy of the entire memory block before alterations.  I do not know if +14, +24 or +34 are used, but this preserves them.
       copyMemory("[cameracoordinates]+08",48,"cameracoordinates+08")
 
+	  targetx = camx - (camdist * math.cos(tilt) * math.sin(pan))
+	  targety = camy - (camdist * math.cos(tilt) * math.cos(pan))
+	  targetz = camz - (camdist * math.sin(tilt))
+      upvx, upvz, upvy = computeUp(camx, camz, camy, targetx, targetz, targety, camera_roll)
+
       --Write new values into the temporary buffer
       writeFloat("cameracoordinates+08", camx)
       writeFloat("cameracoordinates+10", camy)
       writeFloat("cameracoordinates+0C", camz)
-      writeFloat("cameracoordinates+18", camx - (camdist * math.cos(tilt) * math.sin(pan)))
-      writeFloat("cameracoordinates+20", camy - (camdist * math.cos(tilt) * math.cos(pan)))
-      writeFloat("cameracoordinates+1C", camz - (camdist * math.sin(tilt)))
-      writeFloat("cameracoordinates+28", 0) --Anti-vomit settings
-      writeFloat("cameracoordinates+2C", 1)
-      writeFloat("cameracoordinates+30", 0)
+      writeFloat("cameracoordinates+18", targetx)
+      writeFloat("cameracoordinates+20", targety)
+      writeFloat("cameracoordinates+1C", targetz)
+      writeFloat("cameracoordinates+28", upvx)
+      writeFloat("cameracoordinates+30", upvy)
+      writeFloat("cameracoordinates+2C", upvz)
 
       --Copy buffer back into memory read by game engine
       copyMemory("cameracoordinates+08",48,"[cameracoordinates]+08")
@@ -682,118 +758,195 @@ sora_1st.exe+375C0: F3 0F 5E F2     - divss xmm6,xmm2
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
-      <Description>"Set Camera Min Z to Floor (Use No Clip)"</Description>
+      <Description>"Set Camera Min Z to Floor (Use Unlock Tilt and No Clip)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(cameradistance_aob,sora_1st.exe,0F 85 8E 00 00 00 41 0F 28 CA) // should be unique
-registersymbol(cameradistance_aob)
+aobscanmodule(camera_pitch_sweep_in_aob,sora_1st.exe,72 2D 0F 54 0D 95 29 7C 00) // should be unique
+registersymbol(camera_pitch_sweep_in_aob)
 
-cameradistance_aob:
-  db E9 8F 00 00 00 90
+camera_pitch_sweep_in_aob:
+  db EB 2D
 
 [DISABLE]
 
-cameradistance_aob:
-  db 0F 85 8E 00 00 00
+camera_pitch_sweep_in_aob:
+  db 72 2D
 
-unregistersymbol(cameradistance_aob)
+unregistersymbol(camera_pitch_sweep_in_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+221386
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+2232A2
 
-sora_1st.exe+22134A: 48 8D 4D D0                 - lea rcx,[rbp-30]
-sora_1st.exe+22134E: E8 5D 93 ED FF              - call sora_1st.exe+FA6B0
-sora_1st.exe+221353: 48 8D 55 D0                 - lea rdx,[rbp-30]
-sora_1st.exe+221357: 49 8B CE                    - mov rcx,r14
-sora_1st.exe+22135A: E8 B1 54 EE FF              - call sora_1st.exe+106810
-sora_1st.exe+22135F: F6 44 24 68 02              - test byte ptr [rsp+68],02
-sora_1st.exe+221364: 44 0F 28 9C 24 70 01 00 00  - movaps xmm11,[rsp+00000170]
-sora_1st.exe+22136D: 44 0F 28 8C 24 90 01 00 00  - movaps xmm9,[rsp+00000190]
-sora_1st.exe+221376: 0F 28 BC 24 B0 01 00 00     - movaps xmm7,[rsp+000001B0]
-sora_1st.exe+22137E: 4C 8B B4 24 D0 01 00 00     - mov r14,[rsp+000001D0]
+sora_1st.exe+223268: C7 44 24 28 00 00 80 3F  - mov [rsp+28],3F800000
+sora_1st.exe+223270: E8 AB 8E E3 FF           - call sora_1st.exe+5C120
+sora_1st.exe+223275: F3 0F 10 4C 24 34        - movss xmm1,[rsp+34]
+sora_1st.exe+22327B: 0F 57 0D EE 29 7C 00     - xorps xmm1,[sora_1st.exe+9E5C70]
+sora_1st.exe+223282: F3 0F 10 05 7E 02 7C 00  - movss xmm0,[sora_1st.exe+9E3508]
+sora_1st.exe+22328A: F3 0F 5D CE              - minss xmm1,xmm6
+sora_1st.exe+22328E: F3 0F 5F C1              - maxss xmm0,xmm1
+sora_1st.exe+223292: E8 65 78 54 00           - call sora_1st.exe+76AAFC
+sora_1st.exe+223297: F3 0F 10 0D 09 02 7C 00  - movss xmm1,[sora_1st.exe+9E34A8]
+sora_1st.exe+22329F: 0F 2F C8                 - comiss xmm1,xmm0
 // ---------- INJECTING HERE ----------
-sora_1st.exe+221386: 0F 85 8E 00 00 00           - jne sora_1st.exe+22141A
+sora_1st.exe+2232A2: 72 2D                    - jb sora_1st.exe+2232D1
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+22138C: 41 0F 28 CA                 - movaps xmm1,xmm10
-sora_1st.exe+221390: 48 8B CE                    - mov rcx,rsi
-sora_1st.exe+221393: E8 B8 1D 00 00              - call sora_1st.exe+223150
-sora_1st.exe+221398: F6 86 DC 02 00 00 10        - test byte ptr [rsi+000002DC],10
-sora_1st.exe+22139F: 0F 28 F0                    - movaps xmm6,xmm0
-sora_1st.exe+2213A2: F3 0F 11 74 24 58           - movss [rsp+58],xmm6
-sora_1st.exe+2213A8: 74 09                       - je sora_1st.exe+2213B3
-sora_1st.exe+2213AA: 83 BE E8 1A 00 00 00        - cmp dword ptr [rsi+00001AE8],00
-sora_1st.exe+2213B1: 75 67                       - jne sora_1st.exe+22141A
-sora_1st.exe+2213B3: 83 BE 5C 1B 00 00 00        - cmp dword ptr [rsi+00001B5C],00
+sora_1st.exe+2232A4: 0F 54 0D 95 29 7C 00     - andps xmm1,[sora_1st.exe+9E5C40]
+sora_1st.exe+2232AB: 0F 28 F8                 - movaps xmm7,xmm0
+sora_1st.exe+2232AE: 0F 54 3D 8B 29 7C 00     - andps xmm7,[sora_1st.exe+9E5C40]
+sora_1st.exe+2232B5: F3 0F 5C F9              - subss xmm7,xmm1
+sora_1st.exe+2232B9: F3 0F 10 0D 7F FA 7B 00  - movss xmm1,[sora_1st.exe+9E2D40]
+sora_1st.exe+2232C1: F3 0F 5E 3D D3 F6 7B 00  - divss xmm7,[sora_1st.exe+9E299C]
+sora_1st.exe+2232C9: F3 0F 5C CF              - subss xmm1,xmm7
+sora_1st.exe+2232CD: F3 0F 59 F9              - mulss xmm7,xmm1
+sora_1st.exe+2232D1: F3 0F 5C B3 28 01 00 00  - subss xmm6,[rbx+00000128]
+sora_1st.exe+2232D9: 48 8B B4 24 80 00 00 00  - mov rsi,[rsp+00000080]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"Unlock Camera Tilt (Pitch)"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(tilt_limit_down_aob,sora_1st.exe,F3 0F 10 B3 B0 09 00 00) // should be unique
+aobscanmodule(tilt_limit_up_aob,sora_1st.exe,F3 0F 10 B3 B4 09 00 00) // should be unique
+alloc(newmem,$1000,tilt_limit_down_aob)
+
+label(code_down)
+label(down_return)
+label(code_up)
+label(up_return)
+registersymbol(tilt_limit_down_aob)
+registersymbol(tilt_limit_up_aob)
+registersymbol(tiltlimitfieldup)
+registersymbol(tiltlimitfielddown)
+
+newmem:
+
+code_down:
+  movss xmm6,[tiltlimitfielddown]
+  jmp down_return
+
+code_up:
+  movss xmm6,[tiltlimitfieldup]
+  jmp up_return
+
+tiltlimitfielddown:
+dd (float)-1.55
+
+tiltlimitfieldup:
+dd (float)1.55
+
+tilt_limit_down_aob:
+  jmp code_down
+  nop 3
+down_return:
+
+tilt_limit_up_aob:
+  jmp code_up
+  nop 3
+up_return:
+
+[DISABLE]
+
+tilt_limit_down_aob:
+  db F3 0F 10 B3 B0 09 00 00
+
+tilt_limit_up_aob:
+  db F3 0F 10 B3 B4 09 00 00
+
+unregistersymbol(tilt_limit_down_aob)
+unregistersymbol(tilt_limit_up_aob)
+unregistersymbol(tiltlimitfieldup)
+unregistersymbol(tiltlimitfielddown)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+220D16
+
+sora_1st.exe+220CE7: 8B 08                    - mov ecx,[rax]
+sora_1st.exe+220CE9: 89 8E 10 01 00 00        - mov [rsi+00000110],ecx
+sora_1st.exe+220CEF: 8B 48 04                 - mov ecx,[rax+04]
+sora_1st.exe+220CF2: 89 8E 14 01 00 00        - mov [rsi+00000114],ecx
+sora_1st.exe+220CF8: 8B 48 08                 - mov ecx,[rax+08]
+sora_1st.exe+220CFB: 89 8E 18 01 00 00        - mov [rsi+00000118],ecx
+sora_1st.exe+220D01: 8B 40 0C                 - mov eax,[rax+0C]
+sora_1st.exe+220D04: 89 86 1C 01 00 00        - mov [rsi+0000011C],eax
+sora_1st.exe+220D0A: 48 8B 5D C8              - mov rbx,[rbp-38]
+sora_1st.exe+220D0E: F3 0F 10 BE C0 02 00 00  - movss xmm7,[rsi+000002C0]
+// ---------- INJECTING HERE ----------
+sora_1st.exe+220D16: F3 0F 10 B3 B0 09 00 00  - movss xmm6,[rbx+000009B0]
+// ---------- DONE INJECTING  ----------
+sora_1st.exe+220D1E: F3 0F 5C F7              - subss xmm6,xmm7
+sora_1st.exe+220D22: F3 41 0F 59 F1           - mulss xmm6,xmm9
+sora_1st.exe+220D27: 0F 28 C6                 - movaps xmm0,xmm6
+sora_1st.exe+220D2A: E8 71 51 53 00           - call sora_1st.exe+755EA0
+sora_1st.exe+220D2F: F3 0F 11 44 24 58        - movss [rsp+58],xmm0
+sora_1st.exe+220D35: 0F 28 C6                 - movaps xmm0,xmm6
+sora_1st.exe+220D38: E8 73 3B 53 00           - call sora_1st.exe+7548B0
+// ---------- INJECTING HERE ----------
+sora_1st.exe+220D3D: F3 0F 10 B3 B4 09 00 00  - movss xmm6,[rbx+000009B4]
+// ---------- DONE INJECTING  ----------
+sora_1st.exe+220D45: F3 0F 5C F7              - subss xmm6,xmm7
+sora_1st.exe+220D49: F3 0F 11 44 24 6C        - movss [rsp+6C],xmm0
+sora_1st.exe+220D4F: F3 41 0F 59 F1           - mulss xmm6,xmm9
+sora_1st.exe+220D54: 0F 28 C6                 - movaps xmm0,xmm6
+sora_1st.exe+220D57: E8 44 51 53 00           - call sora_1st.exe+755EA0
+sora_1st.exe+220D5C: 0F 28 F8                 - movaps xmm7,xmm0
+sora_1st.exe+220D5F: 0F 28 C6                 - movaps xmm0,xmm6
+sora_1st.exe+220D62: E8 49 3B 53 00           - call sora_1st.exe+7548B0
+sora_1st.exe+220D67: 0F 28 C8                 - movaps xmm1,xmm0
+sora_1st.exe+220D6A: 41 8B C4                 - mov eax,r12d
 }
 </AssemblerScript>
     </CheatEntry>
     <CheatEntry>
       <ID>4</ID>
-      <Description>"No Clip"</Description>
+      <Description>"No Clip (Characters)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(noclip_aob1,sora_1st.exe,F3 0F 11 83 3C 24 00 00) // should be unique
-aobscanmodule(noclip_aob2,sora_1st.exe,F3 44 0F 11 8B 3C 24 00 00) // should be unique
-registersymbol(noclip_aob1)
-registersymbol(noclip_aob2)
+aobscanmodule(noclip_aob,sora_1st.exe,72 3E F6 85 02 01 00 00 10) // should be unique
+registersymbol(noclip_aob)
 
-noclip_aob1:
-  db 90 90 90 90 90 90 90 90 72 34 90 90 90 90 90 90
-
-noclip_aob2:
-  db 90 90 90 90 90 90 90 90 90
-  
+noclip_aob:
+  db EB 3E
 
 [DISABLE]
 
-noclip_aob1:
-  db F3 0F 11 83 3C 24 00 00 72 34 89 BB 3C 24 00 00
-noclip_aob2:
-  db F3 44 0F 11 8B 3C 24 00 00
+noclip_aob:
+  db 72 3E
 
-unregistersymbol(noclip_aob1)
-unregistersymbol(noclip_aob2)
+unregistersymbol(noclip_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+1C8F3F
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+1C8F11
 
-sora_1st.exe+1C8F11: 72 3E                          - jb sora_1st.exe+1C8F51
-sora_1st.exe+1C8F13: F6 85 02 01 00 00 10           - test byte ptr [rbp+00000102],10
-sora_1st.exe+1C8F1A: 74 08                          - je sora_1st.exe+1C8F24
-sora_1st.exe+1C8F1C: 89 BB 3C 24 00 00              - mov [rbx+0000243C],edi
-sora_1st.exe+1C8F22: EB 59                          - jmp sora_1st.exe+1C8F7D
-sora_1st.exe+1C8F24: F3 0F 10 83 3C 24 00 00        - movss xmm0,[rbx+0000243C]
-sora_1st.exe+1C8F2C: F3 0F 10 4C 24 24              - movss xmm1,[rsp+24]
-sora_1st.exe+1C8F32: F3 41 0F 5C C1                 - subss xmm0,xmm9
-sora_1st.exe+1C8F37: 0F 2F CF                       - comiss xmm1,xmm7
-sora_1st.exe+1C8F3A: F3 41 0F 5F C3                 - maxss xmm0,xmm11
+sora_1st.exe+1C8EDE: F3 0F 10 05 22 9C 81 00     - movss xmm0,[sora_1st.exe+9E2B08]
+sora_1st.exe+1C8EE6: 84 C0                       - test al,al
+sora_1st.exe+1C8EE8: 74 1E                       - je sora_1st.exe+1C8F08
+sora_1st.exe+1C8EEA: F3 0F 10 35 4E 9E 81 00     - movss xmm6,[sora_1st.exe+9E2D40]
+sora_1st.exe+1C8EF2: 0F 28 F8                    - movaps xmm7,xmm0
+sora_1st.exe+1C8EF5: EB 11                       - jmp sora_1st.exe+1C8F08
+sora_1st.exe+1C8EF7: F3 0F 10 05 09 9C 81 00     - movss xmm0,[sora_1st.exe+9E2B08]
+sora_1st.exe+1C8EFF: F3 44 0F 10 3D 84 9A 81 00  - movss xmm15,[sora_1st.exe+9E298C]
+sora_1st.exe+1C8F08: 0F 2F F7                    - comiss xmm6,xmm7
+sora_1st.exe+1C8F0B: 44 0F 28 74 24 70           - movaps xmm14,[rsp+70]
 // ---------- INJECTING HERE ----------
-sora_1st.exe+1C8F3F: F3 0F 11 83 3C 24 00 00        - movss [rbx+0000243C],xmm0
+sora_1st.exe+1C8F11: 72 3E                       - jb sora_1st.exe+1C8F51
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+1C8F47: 72 34                          - jb sora_1st.exe+1C8F7D
-sora_1st.exe+1C8F49: 89 BB 3C 24 00 00              - mov [rbx+0000243C],edi
-sora_1st.exe+1C8F4F: EB 2C                          - jmp sora_1st.exe+1C8F7D
-sora_1st.exe+1C8F51: F6 85 02 01 00 00 10           - test byte ptr [rbp+00000102],10
-sora_1st.exe+1C8F58: 74 0C                          - je sora_1st.exe+1C8F66
-sora_1st.exe+1C8F5A: C7 83 3C 24 00 00 00 00 80 3F  - mov [rbx+0000243C],3F800000
-sora_1st.exe+1C8F64: EB 17                          - jmp sora_1st.exe+1C8F7D
-sora_1st.exe+1C8F66: F3 44 0F 58 8B 3C 24 00 00     - addss xmm9,[rbx+0000243C]
-sora_1st.exe+1C8F6F: F3 44 0F 5D C8                 - minss xmm9,xmm0
-// ---------- INJECTING HERE ----------
-sora_1st.exe+1C8F74: F3 44 0F 11 8B 3C 24 00 00     - movss [rbx+0000243C],xmm9
-// ---------- DONE INJECTING  ----------
-sora_1st.exe+1C8F7D: F3 0F 10 83 3C 24 00 00        - movss xmm0,[rbx+0000243C]
-sora_1st.exe+1C8F85: F3 0F 59 83 40 24 00 00        - mulss xmm0,[rbx+00002440]
-sora_1st.exe+1C8F8D: F3 0F 59 83 BC 21 00 00        - mulss xmm0,[rbx+000021BC]
-sora_1st.exe+1C8F95: 44 0F 2F D8                    - comiss xmm11,xmm0
-sora_1st.exe+1C8F99: 0F 83 BC 02 00 00              - jae sora_1st.exe+1C925B
-sora_1st.exe+1C8F9F: 49 8B 36                       - mov rsi,[r14]
-sora_1st.exe+1C8FA2: 0F 57 C0                       - xorps xmm0,xmm0
-sora_1st.exe+1C8FA5: 48 8B 46 10                    - mov rax,[rsi+10]
-sora_1st.exe+1C8FA9: 48 05 A0 02 00 00              - add rax,000002A0
-sora_1st.exe+1C8FAF: F3 0F 10 68 10                 - movss xmm5,[rax+10]
+sora_1st.exe+1C8F13: F6 85 02 01 00 00 10        - test byte ptr [rbp+00000102],10
+sora_1st.exe+1C8F1A: 74 08                       - je sora_1st.exe+1C8F24
+sora_1st.exe+1C8F1C: 89 BB 3C 24 00 00           - mov [rbx+0000243C],edi
+sora_1st.exe+1C8F22: EB 59                       - jmp sora_1st.exe+1C8F7D
+sora_1st.exe+1C8F24: F3 0F 10 83 3C 24 00 00     - movss xmm0,[rbx+0000243C]
+sora_1st.exe+1C8F2C: F3 0F 10 4C 24 24           - movss xmm1,[rsp+24]
+sora_1st.exe+1C8F32: F3 41 0F 5C C1              - subss xmm0,xmm9
+sora_1st.exe+1C8F37: 0F 2F CF                    - comiss xmm1,xmm7
+sora_1st.exe+1C8F3A: F3 41 0F 5F C3              - maxss xmm0,xmm11
+sora_1st.exe+1C8F3F: F3 0F 11 83 3C 24 00 00     - movss [rbx+0000243C],xmm0
 }
 </AssemblerScript>
     </CheatEntry>
