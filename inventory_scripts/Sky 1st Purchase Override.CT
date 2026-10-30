@@ -137,7 +137,6 @@ local ItemList = {
 "855:Cestus+",
 "1005:Chain Mail",
 "1006:Chain Mail+",
-"4320:Chaos Blade",
 "2302:Cheesy Chicken Burger",
 "2155:Chewy Spare Ribs",
 "4350:Cloak",
@@ -152,6 +151,7 @@ local ItemList = {
 "1118:Composite",
 "1119:Composite+",
 "2150:Concentrated Espresso",
+"4320:Confuse",
 "1610:Cool Necklace",
 "1611:Cool Necklace+",
 "25:Cooling Spray",
@@ -806,7 +806,7 @@ al[mr2.Index].DisplayAsDropDownListItem = true
 
 {$asm}
 
-aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 A3) // should be unique
+aobscanmodule(overridepurchaseitem_aob,sora_1st.exe,8B 17 44 8B C5 48 8B CE E8 53) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -839,31 +839,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+405970
+// ORIGINAL CODE - INJECTION POINT: sora_1st.exe+406280
 
-sora_1st.exe+405947: 48 85 FF              - test rdi,rdi
-sora_1st.exe+40594A: 74 06                 - je sora_1st.exe+405952
-sora_1st.exe+40594C: 48 8B 7F 10           - mov rdi,[rdi+10]
-sora_1st.exe+405950: EB 03                 - jmp sora_1st.exe+405955
-sora_1st.exe+405952: 49 8B FE              - mov rdi,r14
-sora_1st.exe+405955: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
-sora_1st.exe+40595C: 48 8B 35 BD D6 6D 00  - mov rsi,[sora_1st.exe+AE3020]
-sora_1st.exe+405963: 8B 68 10              - mov ebp,[rax+10]
-sora_1st.exe+405966: 41 83 F8 01           - cmp r8d,01
-sora_1st.exe+40596A: 0F 85 D9 00 00 00     - jne sora_1st.exe+405A49
+sora_1st.exe+406257: 48 85 FF              - test rdi,rdi
+sora_1st.exe+40625A: 74 06                 - je sora_1st.exe+406262
+sora_1st.exe+40625C: 48 8B 7F 10           - mov rdi,[rdi+10]
+sora_1st.exe+406260: EB 03                 - jmp sora_1st.exe+406265
+sora_1st.exe+406262: 49 8B FE              - mov rdi,r14
+sora_1st.exe+406265: 48 8B 82 B0 00 00 00  - mov rax,[rdx+000000B0]
+sora_1st.exe+40626C: 48 8B 35 DD 12 6E 00  - mov rsi,[sora_1st.exe+AE7550]
+sora_1st.exe+406273: 8B 68 10              - mov ebp,[rax+10]
+sora_1st.exe+406276: 41 83 F8 01           - cmp r8d,01
+sora_1st.exe+40627A: 0F 85 D9 00 00 00     - jne sora_1st.exe+406359
 // ---------- INJECTING HERE ----------
-sora_1st.exe+405970: 8B 17                 - mov edx,[rdi]
+sora_1st.exe+406280: 8B 17                 - mov edx,[rdi]
 // ---------- DONE INJECTING  ----------
-sora_1st.exe+405972: 44 8B C5              - mov r8d,ebp
-sora_1st.exe+405975: 48 8B CE              - mov rcx,rsi
-sora_1st.exe+405978: E8 A3 5D F6 FF        - call sora_1st.exe+36B720
-sora_1st.exe+40597D: 84 C0                 - test al,al
-sora_1st.exe+40597F: 0F 84 81 03 00 00     - je sora_1st.exe+405D06
-sora_1st.exe+405985: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
-sora_1st.exe+40598C: 0F 57 C0              - xorps xmm0,xmm0
-sora_1st.exe+40598F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
-sora_1st.exe+405993: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
-sora_1st.exe+40599A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
+sora_1st.exe+406282: 44 8B C5              - mov r8d,ebp
+sora_1st.exe+406285: 48 8B CE              - mov rcx,rsi
+sora_1st.exe+406288: E8 53 5D F6 FF        - call sora_1st.exe+36BFE0
+sora_1st.exe+40628D: 84 C0                 - test al,al
+sora_1st.exe+40628F: 0F 84 81 03 00 00     - je sora_1st.exe+406616
+sora_1st.exe+406295: 48 8B 83 90 02 00 00  - mov rax,[rbx+00000290]
+sora_1st.exe+40629C: 0F 57 C0              - xorps xmm0,xmm0
+sora_1st.exe+40629F: 0F B7 40 22           - movzx eax,word ptr [rax+22]
+sora_1st.exe+4062A3: 0F AF 87 BC 00 00 00  - imul eax,[rdi+000000BC]
+sora_1st.exe+4062AA: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
 }
 </AssemblerScript>
       <CheatEntries>
@@ -881,7 +881,7 @@ sora_1st.exe+40599A: F3 48 0F 2A C0        - cvtsi2ss xmm0,rax
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_1st.exe+AE3020</Address>
+      <Address>sora_1st.exe+AE7550</Address>
       <Offsets>
         <Offset>001F3900</Offset>
       </Offsets>
