@@ -1409,7 +1409,7 @@ al[mr2.Index].DisplayAsDropDownListItem = true
 
 {$asm}
 
-aobscanmodule(overridepurchaseitem_aob,sora_2nd.exe,8B 16 45 8B C6 48 8B CD E8 6D) // should be unique
+aobscanmodule(overridepurchaseitem_aob,sora_2nd.exe,8B 16 45 8B C6 48 8B CD E8 0D) // should be unique
 alloc(newmem,$1000,overridepurchaseitem_aob)
 
 label(code)
@@ -1442,31 +1442,31 @@ unregistersymbol(item_num)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: sora_2nd.exe+4E9386
+// ORIGINAL CODE - INJECTION POINT: sora_2nd.exe+4EAB46
 
-sora_2nd.exe+4E935D: 48 85 F6                 - test rsi,rsi
-sora_2nd.exe+4E9360: 74 06                    - je sora_2nd.exe+4E9368
-sora_2nd.exe+4E9362: 48 8B 76 10              - mov rsi,[rsi+10]
-sora_2nd.exe+4E9366: EB 03                    - jmp sora_2nd.exe+4E936B
-sora_2nd.exe+4E9368: 49 8B F5                 - mov rsi,r13
-sora_2nd.exe+4E936B: 48 8B 82 B0 00 00 00     - mov rax,[rdx+000000B0]
-sora_2nd.exe+4E9372: 48 8B 2D A7 6A 77 00     - mov rbp,[sora_2nd.exe+C5FE20]
-sora_2nd.exe+4E9379: 44 8B 70 10              - mov r14d,[rax+10]
-sora_2nd.exe+4E937D: 41 3B F8                 - cmp edi,r8d
-sora_2nd.exe+4E9380: 0F 85 DC 01 00 00        - jne sora_2nd.exe+4E9562
+sora_2nd.exe+4EAB1D: 48 85 F6                 - test rsi,rsi
+sora_2nd.exe+4EAB20: 74 06                    - je sora_2nd.exe+4EAB28
+sora_2nd.exe+4EAB22: 48 8B 76 10              - mov rsi,[rsi+10]
+sora_2nd.exe+4EAB26: EB 03                    - jmp sora_2nd.exe+4EAB2B
+sora_2nd.exe+4EAB28: 49 8B F5                 - mov rsi,r13
+sora_2nd.exe+4EAB2B: 48 8B 82 B0 00 00 00     - mov rax,[rdx+000000B0]
+sora_2nd.exe+4EAB32: 48 8B 2D 67 79 77 00     - mov rbp,[sora_2nd.exe+C624A0]
+sora_2nd.exe+4EAB39: 44 8B 70 10              - mov r14d,[rax+10]
+sora_2nd.exe+4EAB3D: 41 3B F8                 - cmp edi,r8d
+sora_2nd.exe+4EAB40: 0F 85 DC 01 00 00        - jne sora_2nd.exe+4EAD22
 // ---------- INJECTING HERE ----------
-sora_2nd.exe+4E9386: 8B 16                    - mov edx,[rsi]
+sora_2nd.exe+4EAB46: 8B 16                    - mov edx,[rsi]
 // ---------- DONE INJECTING  ----------
-sora_2nd.exe+4E9388: 45 8B C6                 - mov r8d,r14d
-sora_2nd.exe+4E938B: 48 8B CD                 - mov rcx,rbp
-sora_2nd.exe+4E938E: E8 6D 40 F5 FF           - call sora_2nd.exe+43D400
-sora_2nd.exe+4E9393: 84 C0                    - test al,al
-sora_2nd.exe+4E9395: 0F 84 79 04 00 00        - je sora_2nd.exe+4E9814
-sora_2nd.exe+4E939B: 4C 89 A4 24 90 00 00 00  - mov [rsp+00000090],r12
-sora_2nd.exe+4E93A3: 4C 8B A3 A0 02 00 00     - mov r12,[rbx+000002A0]
-sora_2nd.exe+4E93AA: 4D 85 E4                 - test r12,r12
-sora_2nd.exe+4E93AD: 0F 84 E7 00 00 00        - je sora_2nd.exe+4E949A
-sora_2nd.exe+4E93B3: 48 8B 05 8E 33 77 00     - mov rax,[sora_2nd.exe+C5C748]
+sora_2nd.exe+4EAB48: 45 8B C6                 - mov r8d,r14d
+sora_2nd.exe+4EAB4B: 48 8B CD                 - mov rcx,rbp
+sora_2nd.exe+4EAB4E: E8 0D 40 F5 FF           - call sora_2nd.exe+43EB60
+sora_2nd.exe+4EAB53: 84 C0                    - test al,al
+sora_2nd.exe+4EAB55: 0F 84 79 04 00 00        - je sora_2nd.exe+4EAFD4
+sora_2nd.exe+4EAB5B: 4C 89 A4 24 90 00 00 00  - mov [rsp+00000090],r12
+sora_2nd.exe+4EAB63: 4C 8B A3 A0 02 00 00     - mov r12,[rbx+000002A0]
+sora_2nd.exe+4EAB6A: 4D 85 E4                 - test r12,r12
+sora_2nd.exe+4EAB6D: 0F 84 E7 00 00 00        - je sora_2nd.exe+4EAC5A
+sora_2nd.exe+4EAB73: 48 8B 05 4E 42 77 00     - mov rax,[sora_2nd.exe+C5EDC8]
 }
 </AssemblerScript>
       <CheatEntries>
@@ -1484,7 +1484,7 @@ sora_2nd.exe+4E93B3: 48 8B 05 8E 33 77 00     - mov rax,[sora_2nd.exe+C5C748]
       <Description>"Total Mira"</Description>
       <ShowAsSigned>0</ShowAsSigned>
       <VariableType>4 Bytes</VariableType>
-      <Address>sora_2nd.exe+C61360</Address>
+      <Address>sora_2nd.exe+C624A0</Address>
       <Offsets>
         <Offset>0020B648</Offset>
       </Offsets>
