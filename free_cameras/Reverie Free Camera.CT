@@ -22,6 +22,8 @@ aobscanmodule(camera_aob3,hnk.exe,0F 11 81 20 0B 00 00) // should be unique
 aobscanmodule(camera_tilt_aob1,hnk.exe,0F 11 93 10 0A 00 00 0F C6) // should be unique
 aobscanmodule(player_aob,hnk.exe,E5 0F 5C A0 80 03 00 00) // should be unique
 aobscanmodule(player_movement_aob,hnk.exe,75 10 48 8D 8F A0 CE 06 00) // should be unique
+aobscanmodule(battle_keyboard_controls_aob,hnk.exe,80 E1 01 42 88 4C 00 08) // should be unique
+aobscanmodule(battle_build_aob,hnk.exe,33 D2 48 8B CB 41 B0) // should be unique
 alloc(newmem,$1000,camera_aob1)
 
 label(cameracode)
@@ -37,6 +39,8 @@ registersymbol(camera_aob3)
 registersymbol(camera_tilt_aob1)
 registersymbol(player_aob)
 registersymbol(player_movement_aob)
+registersymbol(battle_keyboard_controls_aob)
+registersymbol(battle_build_aob)
 registersymbol(playercoordinates)
 registersymbol(cameracoordinates)
 
@@ -82,6 +86,12 @@ camera_tilt_aob1:
 
 player_movement_aob:
   db EB 10
+
+battle_keyboard_controls_aob:
+  db 80 E1 00
+  
+battle_build_aob:
+  db B2 01        // mov dl,1 : useCommitted = 1
 
 {$lua}
 
@@ -313,12 +323,20 @@ player_aob+01:
 player_movement_aob:
   db 75 10
 
+battle_keyboard_controls_aob:
+  db 80 E1 01
+
+battle_build_aob:
+  db 33 D2
+
 unregistersymbol(camera_aob1)
 unregistersymbol(camera_aob2)
 unregistersymbol(camera_aob3)
 unregistersymbol(camera_tilt_aob1)
 unregistersymbol(player_aob)
 unregistersymbol(player_movement_aob)
+unregistersymbol(battle_keyboard_controls_aob)
+unregistersymbol(battle_build_aob)
 unregistersymbol(playercoordinates)
 unregistersymbol(cameracoordinates)
 dealloc(newmem)
@@ -481,6 +499,58 @@ hnk.exe+3016D7: 4C 8B B4 24 A8 00 00 00  - mov r14,[rsp+000000A8]
 hnk.exe+3016DF: 48 8B B4 24 E0 00 00 00  - mov rsi,[rsp+000000E0]
 hnk.exe+3016E7: 44 0F 28 44 24 70        - movaps xmm8,[rsp+70]
 hnk.exe+3016ED: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+830190 - Transmits if keyboard key is up (0) or down (1)
+
+hnk.exe+83016E: 0D 44 01 00 00                 - or eax,00000144
+hnk.exe+830173: EB 0F                          - jmp hnk.exe+830184
+hnk.exe+830175: 83 F8 12                       - cmp eax,12
+hnk.exe+830178: 75 0C                          - jne hnk.exe+830186
+hnk.exe+83017A: 8B C1                          - mov eax,ecx
+hnk.exe+83017C: 83 E0 02                       - and eax,02
+hnk.exe+83017F: 0D 48 01 00 00                 - or eax,00000148
+hnk.exe+830184: D1 E8                          - shr eax,1
+hnk.exe+830186: F6 D1                          - not cl
+hnk.exe+830188: 48 8D 94 24 80 00 00 00        - lea rdx,[rsp+00000080]
+// ---------- INJECTING HERE ----------
+hnk.exe+830190: 80 E1 01                       - and cl,01
+// ---------- DONE INJECTING  ----------
+hnk.exe+830193: 42 88 4C 00 08                 - mov [rax+r8+08],cl
+hnk.exe+830198: 41 B8 00 01 00 00              - mov r8d,00000100
+hnk.exe+83019E: 49 8B C9                       - mov rcx,r9
+hnk.exe+8301A1: E8 5F 2E 1E 00                 - call hnk.exe+A13005
+hnk.exe+8301A6: 85 C0                          - test eax,eax
+hnk.exe+8301A8: 0F 84 73 02 00 00              - je hnk.exe+830421
+hnk.exe+8301AE: C7 05 C8 07 5E 00 00 00 00 00  - mov [hnk.exe+E10980],00000000
+hnk.exe+8301B8: E9 64 02 00 00                 - jmp hnk.exe+830421
+hnk.exe+8301BD: E8 AE 87 04 00                 - call hnk.exe+878970
+hnk.exe+8301C2: 48 8B 48 48                    - mov rcx,[rax+48]
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+1CFD3A - Prevent battle mode building camera again
+
+hnk.exe+1CFD06: 0F 10 8B 50 0A 00 00     - movups xmm1,[rbx+00000A50]
+hnk.exe+1CFD0D: 0F 29 84 24 C0 00 00 00  - movaps [rsp+000000C0],xmm0
+hnk.exe+1CFD15: 0F 29 8C 24 B0 00 00 00  - movaps [rsp+000000B0],xmm1
+hnk.exe+1CFD1D: E8 EE F5 FF FF           - call hnk.exe+1CF310
+hnk.exe+1CFD22: 41 0F 28 CA              - movaps xmm1,xmm10
+hnk.exe+1CFD26: 48 8B CB                 - mov rcx,rbx
+hnk.exe+1CFD29: E8 F2 8C 01 00           - call hnk.exe+1E8A20
+hnk.exe+1CFD2E: 41 0F 28 CA              - movaps xmm1,xmm10
+hnk.exe+1CFD32: 48 8B CB                 - mov rcx,rbx
+hnk.exe+1CFD35: E8 86 E6 01 00           - call hnk.exe+1EE3C0
+// ---------- INJECTING HERE ----------
+hnk.exe+1CFD3A: 33 D2                    - xor edx,edx
+// ---------- DONE INJECTING  ----------
+hnk.exe+1CFD3C: 48 8B CB                 - mov rcx,rbx
+hnk.exe+1CFD3F: 41 B0 01                 - mov r8l,01
+hnk.exe+1CFD42: E8 E9 8F 01 00           - call hnk.exe+1E8D30
+hnk.exe+1CFD47: 48 8D 54 24 40           - lea rdx,[rsp+40]
+hnk.exe+1CFD4C: 48 8B CB                 - mov rcx,rbx
+hnk.exe+1CFD4F: E8 FC 97 F6 FF           - call hnk.exe+139550
+hnk.exe+1CFD54: 4C 8D 9C 24 30 01 00 00  - lea r11,[rsp+00000130]
+hnk.exe+1CFD5C: 49 8B 5B 10              - mov rbx,[r11+10]
+hnk.exe+1CFD60: 49 8B 73 18              - mov rsi,[r11+18]
+hnk.exe+1CFD64: 41 0F 28 73 F0           - movaps xmm6,[r11-10]
 }
 </AssemblerScript>
       <Hotkeys>
@@ -502,7 +572,7 @@ hnk.exe+3016ED: 48 8B 9C 24 D8 00 00 00  - mov rbx,[rsp+000000D8]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(forcepauseinject_aob,hnk.exe,E8 DB 82 D4 FF) // should be unique
+aobscanmodule(forcepauseinject_aob,hnk.exe,39 AF 88 4E 00 00) // should be unique
 aobscanmodule(forcepause_aob,hnk.exe,FF 50 18 F3 0F 10 83 7C 4E 00 00) // should be unique
 alloc(newmem,$1000,forcepauseinject_aob)
 
@@ -568,7 +638,7 @@ toggleoff:
   mov [freeze],#0
 
 code:
-  call hnk.exe+80EF0
+  cmp [rdi+00004E88],ebp
   jmp return
 
 pausecode:
@@ -576,6 +646,15 @@ pausecode:
   cmp [freeze],#0
   je @f
   popf
+  mov rcx,[rbx+1DA8]        // scene (RBX = G, preserved across calls)
+  add rcx,10                // camera object
+  xorps xmm1,xmm1           // shakeEnable = 0 (freezes screen shake)
+  call hnk.exe+1E8A20       // Camera_UpdateOrbitAndCommit -> your +1E8C32 hook fires
+  mov rcx,[rbx+1DA8]
+  add rcx,10
+  mov dl,1                  // useCommitted = 1 (B20/B30 = free cam)
+  mov r8d,1                 // applyShake (no-op since shake disabled)
+  call hnk.exe+1E8D30       // Camera_BuildViewProjection
   movss xmm0,[rbx+00004E7C]
   jmp pausereturn
 @@:
@@ -589,6 +668,7 @@ freeze:
 
 forcepauseinject_aob:
   jmp newmem
+  nop
 return:
 
 forcepause_aob:
@@ -599,7 +679,7 @@ pausereturn:
 [DISABLE]
 
 forcepauseinject_aob:
-  db E8 DB 82 D4 FF
+  db 39 AF 88 4E 00 00
 
 forcepause_aob:
   db FF 50 18 F3 0F 10 83 7C 4E 00 00
@@ -610,31 +690,31 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: hnk.exe+338C10 - Safe injection point
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+3386B4 - Safe injection point
 
-hnk.exe+338BED: C3                       - ret 
-hnk.exe+338BEE: CC                       - int 3 
-hnk.exe+338BEF: CC                       - int 3 
-hnk.exe+338BF0: 40 53                    - push rbx
-hnk.exe+338BF2: 48 83 EC 50              - sub rsp,50
-hnk.exe+338BF6: 48 8B D9                 - mov rbx,rcx
-hnk.exe+338BF9: 0F 29 74 24 30           - movaps [rsp+30],xmm6
-hnk.exe+338BFE: 0F 28 F1                 - movaps xmm6,xmm1
-hnk.exe+338C01: F3 0F 11 B1 5C 59 00 00  - movss [rcx+0000595C],xmm6
-hnk.exe+338C09: 48 81 C1 20 4E 00 00     - add rcx,00004E20
+hnk.exe+33868F: E8 8C F5 D7 FF           - call hnk.exe+B7C20
+hnk.exe+338694: 48 8B D8                 - mov rbx,rax
+hnk.exe+338697: 48 8B 08                 - mov rcx,[rax]
+hnk.exe+33869A: 40 38 29                 - cmp [rcx],bpl
+hnk.exe+33869D: 74 09                    - je hnk.exe+3386A8
+hnk.exe+33869F: FF 15 7B D9 8A 00        - call qword ptr [hnk.exe+BE6020]
+hnk.exe+3386A5: 48 8B 0B                 - mov rcx,[rbx]
+hnk.exe+3386A8: 40 38 69 01              - cmp [rcx+01],bpl
+hnk.exe+3386AC: 74 06                    - je hnk.exe+3386B4
+hnk.exe+3386AE: FF 15 B4 C9 8A 00        - call qword ptr [hnk.exe+BE5068]
 // ---------- INJECTING HERE ----------
-hnk.exe+338C10: E8 DB 82 D4 FF           - call hnk.exe+80EF0
+hnk.exe+3386B4: 39 AF 88 4E 00 00        - cmp [rdi+00004E88],ebp
 // ---------- DONE INJECTING  ----------
-hnk.exe+338C15: F3 0F 10 83 38 4E 00 00  - movss xmm0,[rbx+00004E38]
-hnk.exe+338C1D: 0F 2E 83 34 4E 00 00     - ucomiss xmm0,[rbx+00004E34]
-hnk.exe+338C24: 7A 09                    - jp hnk.exe+338C2F
-hnk.exe+338C26: 75 07                    - jne hnk.exe+338C2F
-hnk.exe+338C28: C6 83 60 4E 00 00 00     - mov byte ptr [rbx+00004E60],00
-hnk.exe+338C2F: 48 8D 8B 40 4E 00 00     - lea rcx,[rbx+00004E40]
-hnk.exe+338C36: 0F 28 CE                 - movaps xmm1,xmm6
-hnk.exe+338C39: E8 B2 82 D4 FF           - call hnk.exe+80EF0
-hnk.exe+338C3E: F3 0F 10 8B 50 4E 00 00  - movss xmm1,[rbx+00004E50]
-hnk.exe+338C46: 0F 2E 0D C7 5D 93 00     - ucomiss xmm1,[hnk.exe+C6EA14]
+hnk.exe+3386BA: 75 1B                    - jne hnk.exe+3386D7
+hnk.exe+3386BC: F3 0F 10 87 90 1D 00 00  - movss xmm0,[rdi+00001D90]
+hnk.exe+3386C4: 0F 5A C0                 - cvtps2pd xmm0,xmm0
+hnk.exe+3386C7: F2 0F 58 87 60 59 00 00  - addsd xmm0,[rdi+00005960]
+hnk.exe+3386CF: F2 0F 11 87 60 59 00 00  - movsd [rdi+00005960],xmm0
+hnk.exe+3386D7: 48 8B 87 A8 1D 00 00     - mov rax,[rdi+00001DA8]
+hnk.exe+3386DE: 48 85 C0                 - test rax,rax
+hnk.exe+3386E1: 74 59                    - je hnk.exe+33873C
+hnk.exe+3386E3: 48 8B 80 20 85 01 00     - mov rax,[rax+00018520]
+hnk.exe+3386EA: F3 0F 10 97 90 1D 00 00  - movss xmm2,[rdi+00001D90]
 
 // ORIGINAL CODE - INJECTION POINT: hnk.exe+338C7C - Freeze Action
 
@@ -663,13 +743,6 @@ hnk.exe+338CA0: 48 8B 03                 - mov rax,[rbx]
 hnk.exe+338CA3: F3 0F 10 8B 58 59 00 00  - movss xmm1,[rbx+00005958]
 }
 </AssemblerScript>
-      <CheatEntries>
-        <CheatEntry>
-          <ID>201</ID>
-          <Description>"Enable Free Camera BEFORE pausing"</Description>
-          <GroupHeader>1</GroupHeader>
-        </CheatEntry>
-      </CheatEntries>
     </CheatEntry>
     <CheatEntry>
       <ID>3</ID>
@@ -892,6 +965,55 @@ hnk.exe+1EE394: 45 0F 28 AB 78 FF FF FF  - movaps xmm13,[r11-00000088]
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
+      <ID>41</ID>
+      <Description>"No Clip (Field)"</Description>
+      <Options moHideChildren="1"/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(noclip_aob,hnk.exe,0F 94 C2 88 44 24 20) // should be unique
+registersymbol(noclip_aob)
+
+noclip_aob:
+  db 30 D2 90
+
+[DISABLE]
+
+noclip_aob:
+  db 0F 94 C2
+
+unregistersymbol(noclip_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+2E3EA4
+
+hnk.exe+2E3E86: 4C 3B 87 A8 85 01 00        - cmp r8,[rdi+000185A8]
+hnk.exe+2E3E8D: 74 10                       - je hnk.exe+2E3E9F
+hnk.exe+2E3E8F: 48 8B CF                    - mov rcx,rdi
+hnk.exe+2E3E92: E8 29 71 01 00              - call hnk.exe+2FAFC0
+hnk.exe+2E3E97: 84 C0                       - test al,al
+hnk.exe+2E3E99: 75 04                       - jne hnk.exe+2E3E9F
+hnk.exe+2E3E9B: B0 01                       - mov al,01
+hnk.exe+2E3E9D: EB 02                       - jmp hnk.exe+2E3EA1
+hnk.exe+2E3E9F: 32 C0                       - xor al,al
+hnk.exe+2E3EA1: 80 FA 02                    - cmp dl,02
+// ---------- INJECTING HERE ----------
+hnk.exe+2E3EA4: 0F 94 C2                    - sete dl
+// ---------- DONE INJECTING  ----------
+hnk.exe+2E3EA7: 88 44 24 20                 - mov [rsp+20],al
+hnk.exe+2E3EAB: 44 8B 8F A0 87 01 00        - mov r9d,[rdi+000187A0]
+hnk.exe+2E3EB2: F3 41 0F 10 90 F8 06 00 00  - movss xmm2,[r8+000006F8]
+hnk.exe+2E3EBB: 49 8B C8                    - mov rcx,r8
+hnk.exe+2E3EBE: E8 CD 35 27 00              - call hnk.exe+557490
+hnk.exe+2E3EC3: FF C6                       - inc esi
+hnk.exe+2E3EC5: 48 83 C3 08                 - add rbx,08
+hnk.exe+2E3EC9: 81 FE FF 0F 00 00           - cmp esi,00000FFF
+hnk.exe+2E3ECF: 72 A1                       - jb hnk.exe+2E3E72
+hnk.exe+2E3ED1: C6 87 C6 CB 06 00 00        - mov byte ptr [rdi+0006CBC6],00
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
       <ID>5</ID>
       <Description>"Hide Minimap"</Description>
       <VariableType>Auto Assembler Script</VariableType>
@@ -1061,6 +1183,351 @@ hnk.exe+6E685A: FF 50 38              - call qword ptr [rax+38]
 hnk.exe+6E685D: 48 8B 0D 7C 58 79 00  - mov rcx,[hnk.exe+E7C0E0]
 hnk.exe+6E6864: 48 C7 C0 FF FF FF FF  - mov rax,FFFFFFFFFFFFFFFF
 hnk.exe+6E686B: 0F 1F 44 00 00        - nop dword ptr [rax+rax+00]
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>8</ID>
+      <Description>"Hide Battle HUD"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(battle_ui_aob,hnk.exe,E8 FD 63 00 00) // should be unique
+registersymbol(battle_ui_aob)
+
+battle_ui_aob:
+  db 90 90 90 90 90
+
+[DISABLE]
+
+battle_ui_aob:
+  db E8 FD 63 00 00
+
+unregistersymbol(battle_ui_aob)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+31619E
+
+hnk.exe+31616E: 66 83 B8 F8 08 5F 00 00  - cmp word ptr [rax+005F08F8],00
+hnk.exe+316176: 0F 85 7A 03 00 00        - jne hnk.exe+3164F6
+hnk.exe+31617C: 48 85 D2                 - test rdx,rdx
+hnk.exe+31617F: 0F 84 71 03 00 00        - je hnk.exe+3164F6
+hnk.exe+316185: 8B 82 D0 00 00 00        - mov eax,[rdx+000000D0]
+hnk.exe+31618B: C1 E8 03                 - shr eax,03
+hnk.exe+31618E: A8 01                    - test al,01
+hnk.exe+316190: 0F 84 60 03 00 00        - je hnk.exe+3164F6
+hnk.exe+316196: E8 45 1B 28 00           - call hnk.exe+597CE0
+hnk.exe+31619B: 48 8B CE                 - mov rcx,rsi
+// ---------- INJECTING HERE ----------
+hnk.exe+31619E: E8 FD 63 00 00           - call hnk.exe+31C5A0
+// ---------- DONE INJECTING  ----------
+hnk.exe+3161A3: 48 8B 9E 60 CB 06 00     - mov rbx,[rsi+0006CB60]
+hnk.exe+3161AA: 48 85 DB                 - test rbx,rbx
+hnk.exe+3161AD: 74 25                    - je hnk.exe+3161D4
+hnk.exe+3161AF: 48 83 C3 08              - add rbx,08
+hnk.exe+3161B3: BF 02 00 00 00           - mov edi,00000002
+hnk.exe+3161B8: 48 8B 0B                 - mov rcx,[rbx]
+hnk.exe+3161BB: 48 85 C9                 - test rcx,rcx
+hnk.exe+3161BE: 74 0A                    - je hnk.exe+3161CA
+hnk.exe+3161C0: BA 0F 00 00 00           - mov edx,0000000F
+hnk.exe+3161C5: E8 B6 CD F9 FF           - call hnk.exe+2B2F80
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"Model Viewer: Increase Camera Tilt, Height and Zoom In Limits"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(mv_tilt_limit_aob_up,hnk.exe,F3 0F 5D 05 CB 9D A8 00) // should be unique
+aobscanmodule(mv_tilt_limit_aob_down,hnk.exe,F3 0F 10 05 8B BB A8 00) // should be unique
+aobscanmodule(mv_zoom_in_aob,hnk.exe,C7 45 40 00 00 80 3F 44) // should be unique
+aobscanmodule(mv_height_limit_aob,hnk.exe,F3 0F 58 0D 2C 99 A8 00) // should be unique
+alloc(newmem,$1000,mv_tilt_limit_aob_down)
+
+label(code_up)
+label(return_up)
+label(code_down)
+label(return_down)
+label(code_zoom)
+label(return_zoom)
+label(code_height)
+label(return_height)
+
+registersymbol(mv_tilt_limit_aob_up)
+registersymbol(mv_tilt_limit_aob_down)
+registersymbol(mv_zoom_in_aob)
+registersymbol(mv_height_limit_aob)
+registersymbol(tiltlimitviewerup)
+registersymbol(tiltlimitviewerdown)
+registersymbol(heightlimitviewerfloor)
+
+newmem:
+
+code_up:
+  movss xmm0,[tiltlimitviewerup]
+  jmp return_up
+
+code_down:
+  movss xmm0,[tiltlimitviewerdown]
+  jmp return_down
+
+code_zoom:
+  mov [rbp+40],(float)0.01
+  jmp return_zoom
+
+code_height:
+  addss xmm1,[heightlimitviewerfloor]
+  mov rax,[rcx+08]
+  mov [rax+18],(float)5 //height max
+  jmp return_height
+
+tiltlimitviewerup:
+dd (float)1.55
+
+tiltlimitviewerdown:
+dd (float)-1.55
+
+heightlimitviewerfloor:
+dd (float)-1
+
+mv_tilt_limit_aob_up:
+  jmp code_up
+  nop 3
+return_up:
+
+mv_tilt_limit_aob_down:
+  jmp code_down
+  nop 3
+return_down:
+
+mv_zoom_in_aob:
+  jmp code_zoom
+  nop 2
+return_zoom:
+
+mv_height_limit_aob:
+  jmp code_height
+  nop 7
+return_height:
+
+[DISABLE]
+
+mv_tilt_limit_aob_up:
+  db F3 0F 5D 05 CB 9D A8 00
+
+mv_tilt_limit_aob_down:
+  db F3 0F 10 05 8B BB A8 00
+
+mv_zoom_in_aob:
+  db C7 45 40 00 00 80 3F
+  
+mv_height_limit_aob:
+  db F3 0F 58 0D 2C 99 A8 00 48 8B 41 08
+
+
+unregistersymbol(mv_tilt_limit_aob_up)
+unregistersymbol(mv_tilt_limit_aob_down)
+unregistersymbol(mv_zoom_in_aob)
+unregistersymbol(mv_height_limit_aob)
+unregistersymbol(tiltlimitviewerup)
+unregistersymbol(tiltlimitviewerdown)
+unregistersymbol(heightlimitviewerfloor)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+247DA1 - Tilt limits
+
+hnk.exe+247D7E: 0F 54 EE                 - andps xmm5,xmm6
+hnk.exe+247D81: 0F 5C E0                 - subps xmm4,xmm0
+hnk.exe+247D84: F3 0F 10 43 28           - movss xmm0,[rbx+28]
+hnk.exe+247D89: F3 0F 5C C2              - subss xmm0,xmm2
+hnk.exe+247D8D: 0F 59 E3                 - mulps xmm4,xmm3
+hnk.exe+247D90: 0F 59 E6                 - mulps xmm4,xmm6
+hnk.exe+247D93: 0F 55 CC                 - andnps xmm1,xmm4
+hnk.exe+247D96: 0F 56 CD                 - orps xmm1,xmm5
+hnk.exe+247D99: 0F 54 CF                 - andps xmm1,xmm7
+hnk.exe+247D9C: E8 D2 B3 7C 00           - call hnk.exe+A13173
+// ---------- INJECTING HERE ----------
+hnk.exe+247DA1: F3 0F 5D 05 CB 9D A8 00  - minss xmm0,[hnk.exe+CD1B74]
+// ---------- DONE INJECTING  ----------
+hnk.exe+247DA9: 4C 8D 44 24 20           - lea r8,[rsp+20]
+hnk.exe+247DAE: 48 8D 54 24 30           - lea rdx,[rsp+30]
+hnk.exe+247DB3: 48 8D 4C 24 40           - lea rcx,[rsp+40]
+hnk.exe+247DB8: F3 44 0F 5D C8           - minss xmm9,xmm0
+// ---------- INJECTING HERE ----------
+hnk.exe+247DBD: F3 0F 10 05 8B BB A8 00  - movss xmm0,[hnk.exe+CD3950]
+// ---------- DONE INJECTING  ----------
+hnk.exe+247DC5: F3 41 0F 5F C1           - maxss xmm0,xmm9
+hnk.exe+247DCA: F3 0F 11 43 34           - movss [rbx+34],xmm0
+hnk.exe+247DCF: F3 0F 10 43 30           - movss xmm0,[rbx+30]
+hnk.exe+247DD4: 0F C6 C0 00              - shufps xmm0,xmm0,00
+hnk.exe+247DD8: 0F 59 05 F1 27 9D 00     - mulps xmm0,[hnk.exe+C1A5D0]
+hnk.exe+247DDF: 0F 29 44 24 40           - movaps [rsp+40],xmm0
+hnk.exe+247DE4: E8 D7 BD E3 FF           - call hnk.exe+83BC0
+hnk.exe+247DE9: 0F 57 FF                 - xorps xmm7,xmm7
+hnk.exe+247DEC: 0F C6 7C 24 30 50        - shufps xmm7,[rsp+30],50
+hnk.exe+247DF2: 41 0F C6 F8 EC           - shufps xmm7,xmm8,-14
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+2479EE - Zoom-in Limit
+
+hnk.exe+2479BF: 44 0F 28 D7                 - movaps xmm10,xmm7
+hnk.exe+2479C3: 48 8B 41 70                 - mov rax,[rcx+70]
+hnk.exe+2479C7: 4C 8D 4C 24 20              - lea r9,[rsp+20]
+hnk.exe+2479CC: 0F 10 86 10 0A 00 00        - movups xmm0,[rsi+00000A10]
+hnk.exe+2479D3: 4C 8D 44 24 30              - lea r8,[rsp+30]
+hnk.exe+2479D8: 48 8D 55 40                 - lea rdx,[rbp+40]
+hnk.exe+2479DC: 0F 29 44 24 40              - movaps [rsp+40],xmm0
+hnk.exe+2479E1: 0F 29 44 24 20              - movaps [rsp+20],xmm0
+hnk.exe+2479E6: 48 8B 48 10                 - mov rcx,[rax+10]
+hnk.exe+2479EA: 48 8B 43 40                 - mov rax,[rbx+40]
+// ---------- INJECTING HERE ----------
+hnk.exe+2479EE: C7 45 40 00 00 80 3F        - mov [rbp+40],3F800000
+// ---------- DONE INJECTING  ----------
+hnk.exe+2479F5: 44 0F 10 A1 80 03 00 00     - movups xmm12,[rcx+00000380]
+hnk.exe+2479FD: 48 8B CB                    - mov rcx,rbx
+hnk.exe+247A00: F3 0F 10 70 10              - movss xmm6,[rax+10]
+hnk.exe+247A05: 44 0F 29 64 24 60           - movaps [rsp+60],xmm12
+hnk.exe+247A0B: 44 0F 29 64 24 30           - movaps [rsp+30],xmm12
+hnk.exe+247A11: E8 1A FD FF FF              - call hnk.exe+247730
+hnk.exe+247A16: 80 7B 78 00                 - cmp byte ptr [rbx+78],00
+hnk.exe+247A1A: F3 44 0F 10 05 91 A4 A8 00  - movss xmm8,[hnk.exe+CD1EB4]
+hnk.exe+247A23: 0F 84 90 00 00 00           - je hnk.exe+247AB9
+hnk.exe+247A29: E8 42 29 61 00              - call hnk.exe+85A370
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+248090 - Height Limit
+
+hnk.exe+24805E: F3 0F 58 D1              - addss xmm2,xmm1
+hnk.exe+248062: F3 0F 11 53 2C           - movss [rbx+2C],xmm2
+hnk.exe+248067: EB 03                    - jmp hnk.exe+24806C
+hnk.exe+248069: 0F 28 D1                 - movaps xmm2,xmm1
+hnk.exe+24806C: 48 8B 4B 70              - mov rcx,[rbx+70]
+hnk.exe+248070: 44 0F 28 64 24 60        - movaps xmm12,[rsp+60]
+hnk.exe+248076: F3 44 0F 10 5B 20        - movss xmm11,[rbx+20]
+hnk.exe+24807C: 48 8B 41 10              - mov rax,[rcx+10]
+hnk.exe+248080: F3 0F 10 80 84 03 00 00  - movss xmm0,[rax+00000384]
+hnk.exe+248088: F3 0F 10 88 84 03 00 00  - movss xmm1,[rax+00000384]
+// ---------- INJECTING HERE ----------
+hnk.exe+248090: F3 0F 58 0D 2C 99 A8 00  - addss xmm1,[hnk.exe+CD19C4]
+// ---------- DONE INJECTING  ----------
+hnk.exe+248098: 48 8B 41 08              - mov rax,[rcx+08]
+hnk.exe+24809C: F3 0F 58 40 18           - addss xmm0,[rax+18]
+hnk.exe+2480A1: F3 0F 5D D0              - minss xmm2,xmm0
+hnk.exe+2480A5: F3 0F 5F CA              - maxss xmm1,xmm2
+hnk.exe+2480A9: F3 0F 11 4B 2C           - movss [rbx+2C],xmm1
+hnk.exe+2480AE: F3 0F 5C 4B 28           - subss xmm1,[rbx+28]
+hnk.exe+2480B3: F3 0F 59 0D 09 99 A8 00  - mulss xmm1,[hnk.exe+CD19C4]
+hnk.exe+2480BB: F3 0F 58 4B 28           - addss xmm1,[rbx+28]
+hnk.exe+2480C0: 0F 28 C1                 - movaps xmm0,xmm1
+hnk.exe+2480C3: F3 0F 11 4B 28           - movss [rbx+28],xmm1
+}
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>91</ID>
+      <Description>"Model Viewer (VR): Increase Camera Height Limits"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(vr_mv_height_limit,hnk.exe,F3 0F 58 42 18 F3) // should be unique
+aobscanmodule(vr_snap_mv_height_limit,hnk.exe,F3 0F 58 4A 18) // should be unique
+alloc(newmem,$1000,vr_mv_height_limit)
+registersymbol(vr_mv_height_limit)
+registersymbol(vr_snap_mv_height_limit)
+
+label(code)
+label(return)
+label(code2)
+label(return2)
+
+newmem:
+
+code:
+  mov [rdx+18],(float)12
+  mov [rdx+1C],(float)-5
+  addss xmm0,[rdx+18]
+  jmp return
+
+code2:
+  mov [rdx+18],(float)12
+  mov [rdx+1C],(float)-5
+  addss xmm1,[rdx+18]
+  jmp return2
+
+vr_mv_height_limit:
+  jmp code
+return:
+
+vr_snap_mv_height_limit:
+  jmp code2
+return2:
+registersymbol(vr_snap_mv_height_limit)
+
+[DISABLE]
+
+vr_mv_height_limit:
+  db F3 0F 58 42 18
+
+vr_snap_mv_height_limit:
+  db F3 0F 58 4A 18
+
+unregistersymbol(vr_mv_height_limit)
+unregistersymbol(vr_snap_mv_height_limit)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+24893A
+
+hnk.exe+24890C: 0F 28 F5                    - movaps xmm6,xmm5
+hnk.exe+24890F: 0F 28 FD                    - movaps xmm7,xmm5
+hnk.exe+248912: 0F 28 DD                    - movaps xmm3,xmm5
+hnk.exe+248915: 0F C6 F5 C9                 - shufps xmm6,xmm5,-37
+hnk.exe+248919: 48 8B 48 10                 - mov rcx,[rax+10]
+hnk.exe+24891D: 44 0F 28 CC                 - movaps xmm9,xmm4
+hnk.exe+248921: 48 8B 50 08                 - mov rdx,[rax+08]
+hnk.exe+248925: 44 0F C6 CC 39              - shufps xmm9,xmm4,39
+hnk.exe+24892A: 44 0F 59 0D 6E BE A8 00     - mulps xmm9,[hnk.exe+CD47A0]
+hnk.exe+248932: F3 0F 10 81 84 03 00 00     - movss xmm0,[rcx+00000384]
+// ---------- INJECTING HERE ----------
+hnk.exe+24893A: F3 0F 58 42 18              - addss xmm0,[rdx+18]
+// ---------- DONE INJECTING  ----------
+hnk.exe+24893F: F3 44 0F 10 81 84 03 00 00  - movss xmm8,[rcx+00000384]
+hnk.exe+248948: 48 8D 4D A7                 - lea rcx,[rbp-59]
+hnk.exe+24894C: F3 44 0F 58 42 1C           - addss xmm8,[rdx+1C]
+hnk.exe+248952: 0F C6 DD FF                 - shufps xmm3,xmm5,-01
+hnk.exe+248956: 48 8D 55 97                 - lea rdx,[rbp-69]
+hnk.exe+24895A: 0F C6 FD D2                 - shufps xmm7,xmm5,-2E
+hnk.exe+24895E: 0F 28 2D 1B B7 A8 00        - movaps xmm5,[hnk.exe+CD4080]
+hnk.exe+248965: F3 0F 5D C8                 - minss xmm1,xmm0
+hnk.exe+248969: 0F 59 EE                    - mulps xmm5,xmm6
+hnk.exe+24896C: 41 0F 28 C2                 - movaps xmm0,xmm10
+
+// ORIGINAL CODE - INJECTION POINT: hnk.exe+248FEC
+
+hnk.exe+248FC0: 0F 28 E5                 - movaps xmm4,xmm5
+hnk.exe+248FC3: 0F C6 E5 FF              - shufps xmm4,xmm5,-01
+hnk.exe+248FC7: 0F 28 FD                 - movaps xmm7,xmm5
+hnk.exe+248FCA: 48 8B 48 10              - mov rcx,[rax+10]
+hnk.exe+248FCE: 0F 28 DD                 - movaps xmm3,xmm5
+hnk.exe+248FD1: 48 8B 50 08              - mov rdx,[rax+08]
+hnk.exe+248FD5: 44 0F 28 C5              - movaps xmm8,xmm5
+hnk.exe+248FD9: 0F C6 DD 39              - shufps xmm3,xmm5,39
+hnk.exe+248FDD: 0F 59 1D BC B7 A8 00     - mulps xmm3,[hnk.exe+CD47A0]
+hnk.exe+248FE4: F3 0F 10 89 84 03 00 00  - movss xmm1,[rcx+00000384]
+// ---------- INJECTING HERE ----------
+hnk.exe+248FEC: F3 0F 58 4A 18           - addss xmm1,[rdx+18]
+// ---------- DONE INJECTING  ----------
+hnk.exe+248FF1: F3 0F 10 91 84 03 00 00  - movss xmm2,[rcx+00000384]
+hnk.exe+248FF9: F3 0F 58 52 1C           - addss xmm2,[rdx+1C]
+hnk.exe+248FFE: 0F C6 FD C9              - shufps xmm7,xmm5,-37
+hnk.exe+249002: 0F 59 F7                 - mulps xmm6,xmm7
+hnk.exe+249005: F3 0F 5D C1              - minss xmm0,xmm1
+hnk.exe+249009: 44 0F C6 C5 D2           - shufps xmm8,xmm5,-2E
+hnk.exe+24900E: 41 0F 28 C8              - movaps xmm1,xmm8
+hnk.exe+249012: 0F 59 0D 87 B7 A8 00     - mulps xmm1,[hnk.exe+CD47A0]
+hnk.exe+249019: F3 0F 5F D0              - maxss xmm2,xmm0
+hnk.exe+24901D: F3 0F 11 53 2C           - movss [rbx+2C],xmm2
 }
 </AssemblerScript>
     </CheatEntry>
