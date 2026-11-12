@@ -17,8 +17,8 @@ globalalloc(mouseSensitivity,8)
 mouseSensitivity:
 dd (float)8
 
-aobscanmodule(cameracoordinates_aob,kuro2.exe,48 8B 8F 90 06 00 00 8B 84 3E C8) // should be unique
-aobscanmodule(moveplayer_aob,kuro2.exe,AC 01 00 00 48 63 04 BB 83 F8 FF 74 1E 48 8B 0B 0F 28 CE FF 54 C3 08 8B 44 BB 08) // should be unique
+aobscanmodule(cameracoordinates_aob,kuro2.exe,48 8B 8F 90 06 00 00 8B 86 C8) // should be unique
+aobscanmodule(moveplayer_aob,kuro2.exe,AC 01 00 00 48 63 04 BB 83 F8 FF 74 21 48 8B 54 C3 08) // should be unique
 alloc(newmem,$100,cameracoordinates_aob)
 alloc(cameracoordinates,$100,cameracoordinates_aob)
 registersymbol(cameracoordinates_aob)
@@ -40,11 +40,11 @@ cameracoordinates_aob:
   nop 2
 return:
 
-cameracoordinates_aob+E:
-  db 90 90 90 8B 84 3E CC 01 00 00 90 90 90 8B 84 3E D0 01 00 00 90 90 90 48 8B 8F 90 06 00 00 8B 84 3E 04 02 00 00 90 90 90 8B 84 3E 08 02 00 00 90 90 90 8B 84 3E 0C 02 00 00 90 90 90 8B 84 3E 40 02 00 00 48 8B 8F 90 06 00 00 90 90 90 8B 84 3E 44 02 00 00 90 90 90 8B 84 3E 48 02 00 00 90 90 90
+cameracoordinates_aob+D:
+  db 90 90 90 8B 86 CC 01 00 00 90 90 90 8B 86 D0 01 00 00 90 90 90 48 8B 8F 90 06 00 00 8B 86 04 02 00 00 90 90 90 8B 86 08 02 00 00 90 90 90 8B 86 0C 02 00 00 90 90 90 8B 86 40 02 00 00 48 8B 8F 90 06 00 00 90 90 90 8B 86 44 02 00 00 90 90 90 8B 86 48 02 00 00 90 90 90
 
-moveplayer_aob+13:
-  db 90 90 90 90 90 90 90 90
+moveplayer_aob+0B:
+  db EB 21
 
 {$lua}
 
@@ -319,11 +319,11 @@ timer_setEnabled(t, false)
 cameracoordinates_aob:
   db 48 8B 8F 90 06 00 00
 
-cameracoordinates_aob+E:
-  db 89 41 08 8B 84 3E CC 01 00 00 89 41 0C 8B 84 3E D0 01 00 00 89 41 10 48 8B 8F 90 06 00 00 8B 84 3E 04 02 00 00 89 41 18 8B 84 3E 08 02 00 00 89 41 1C 8B 84 3E 0C 02 00 00 89 41 20 8B 84 3E 40 02 00 00 48 8B 8F 90 06 00 00 89 41 28 8B 84 3E 44 02 00 00 89 41 2C 8B 84 3E 48 02 00 00 89 41 30
+cameracoordinates_aob+D:
+  db 89 41 08 8B 86 CC 01 00 00 89 41 0C 8B 86 D0 01 00 00 89 41 10 48 8B 8F 90 06 00 00 8B 86 04 02 00 00 89 41 18 8B 86 08 02 00 00 89 41 1C 8B 86 0C 02 00 00 89 41 20 8B 86 40 02 00 00 48 8B 8F 90 06 00 00 89 41 28 8B 86 44 02 00 00 89 41 2C 8B 86 48 02 00 00 89 41 30
 
-moveplayer_aob+13:
-  db FF 54 C3 08 8B 44 BB 08
+moveplayer_aob+0B:
+  db 74 21
 
 unregistersymbol(cameracoordinates_aob)
 unregistersymbol(moveplayer_aob)
@@ -332,80 +332,79 @@ dealloc(cameracoordinates)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+10EE62
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+10DCAF - Camera coordinates and control
 
-kuro2.exe+10EE3C: 41 B6 01                 - mov r14l,01
-kuro2.exe+10EE3F: F3 44 0F 58 E1           - addss xmm12,xmm1
-kuro2.exe+10EE44: F3 44 0F 58 E8           - addss xmm13,xmm0
-kuro2.exe+10EE49: 48 83 C3 40              - add rbx,40
-kuro2.exe+10EE4D: 48 3B DD                 - cmp rbx,rbp
-kuro2.exe+10EE50: 75 9E                    - jne kuro2.exe+10EDF0
-kuro2.exe+10EE52: 8B 87 34 07 00 00        - mov eax,[rdi+00000734]
-kuro2.exe+10EE58: D1 E8                    - shr eax,1
-kuro2.exe+10EE5A: A8 01                    - test al,01
-kuro2.exe+10EE5C: 0F 85 0C 01 00 00        - jne kuro2.exe+10EF6E
+kuro2.exe+10DC80: F3 44 0F 58 54 24 2C     - addss xmm10,[rsp+2C]
+kuro2.exe+10DC87: 40 B5 01                 - mov bpl,01
+kuro2.exe+10DC8A: F3 44 0F 58 DA           - addss xmm11,xmm2
+kuro2.exe+10DC8F: F3 44 0F 58 E1           - addss xmm12,xmm1
+kuro2.exe+10DC94: F3 44 0F 58 E8           - addss xmm13,xmm0
+kuro2.exe+10DC99: 48 83 C3 40              - add rbx,40
+kuro2.exe+10DC9D: 49 3B DE                 - cmp rbx,r14
+kuro2.exe+10DCA0: 75 9E                    - jne kuro2.exe+10DC40
+kuro2.exe+10DCA2: F6 87 34 07 00 00 02     - test byte ptr [rdi+00000734],02
+kuro2.exe+10DCA9: 0F 85 02 01 00 00        - jne kuro2.exe+10DDB1
 // ---------- INJECTING HERE ----------
-kuro2.exe+10EE62: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kuro2.exe+10DCAF: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
 // ---------- DONE INJECTING  ----------
-kuro2.exe+10EE69: 8B 84 3E C8 01 00 00     - mov eax,[rsi+rdi+000001C8]
+kuro2.exe+10DCB6: 8B 86 C8 01 00 00        - mov eax,[rsi+000001C8]
 // ---------- INJECTING HERE ----------
-kuro2.exe+10EE70: 89 41 08                 - mov [rcx+08],eax
-kuro2.exe+10EE73: 8B 84 3E CC 01 00 00     - mov eax,[rsi+rdi+000001CC]
-kuro2.exe+10EE7A: 89 41 0C                 - mov [rcx+0C],eax
-kuro2.exe+10EE7D: 8B 84 3E D0 01 00 00     - mov eax,[rsi+rdi+000001D0]
-kuro2.exe+10EE84: 89 41 10                 - mov [rcx+10],eax
-kuro2.exe+10EE87: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kuro2.exe+10EE8E: 8B 84 3E 04 02 00 00     - mov eax,[rsi+rdi+00000204]
-kuro2.exe+10EE95: 89 41 18                 - mov [rcx+18],eax
-kuro2.exe+10EE98: 8B 84 3E 08 02 00 00     - mov eax,[rsi+rdi+00000208]
-kuro2.exe+10EE9F: 89 41 1C                 - mov [rcx+1C],eax
-kuro2.exe+10EEA2: 8B 84 3E 0C 02 00 00     - mov eax,[rsi+rdi+0000020C]
-kuro2.exe+10EEA9: 89 41 20                 - mov [rcx+20],eax
-kuro2.exe+10EEAC: 8B 84 3E 40 02 00 00     - mov eax,[rsi+rdi+00000240]
-kuro2.exe+10EEB3: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kuro2.exe+10EEBA: 89 41 28                 - mov [rcx+28],eax
-kuro2.exe+10EEBD: 8B 84 3E 44 02 00 00     - mov eax,[rsi+rdi+00000244]
-kuro2.exe+10EEC4: 89 41 2C                 - mov [rcx+2C],eax
-kuro2.exe+10EEC7: 8B 84 3E 48 02 00 00     - mov eax,[rsi+rdi+00000248]
-kuro2.exe+10EECE: 89 41 30                 - mov [rcx+30],eax
+kuro2.exe+10DCBC: 89 41 08                 - mov [rcx+08],eax
+kuro2.exe+10DCBF: 8B 86 CC 01 00 00        - mov eax,[rsi+000001CC]
+kuro2.exe+10DCC5: 89 41 0C                 - mov [rcx+0C],eax
+kuro2.exe+10DCC8: 8B 86 D0 01 00 00        - mov eax,[rsi+000001D0]
+kuro2.exe+10DCCE: 89 41 10                 - mov [rcx+10],eax
+kuro2.exe+10DCD1: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kuro2.exe+10DCD8: 8B 86 04 02 00 00        - mov eax,[rsi+00000204]
+kuro2.exe+10DCDE: 89 41 18                 - mov [rcx+18],eax
+kuro2.exe+10DCE1: 8B 86 08 02 00 00        - mov eax,[rsi+00000208]
+kuro2.exe+10DCE7: 89 41 1C                 - mov [rcx+1C],eax
+kuro2.exe+10DCEA: 8B 86 0C 02 00 00        - mov eax,[rsi+0000020C]
+kuro2.exe+10DCF0: 89 41 20                 - mov [rcx+20],eax
+kuro2.exe+10DCF3: 8B 86 40 02 00 00        - mov eax,[rsi+00000240]
+kuro2.exe+10DCF9: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
+kuro2.exe+10DD00: 89 41 28                 - mov [rcx+28],eax
+kuro2.exe+10DD03: 8B 86 44 02 00 00        - mov eax,[rsi+00000244]
+kuro2.exe+10DD09: 89 41 2C                 - mov [rcx+2C],eax
+kuro2.exe+10DD0C: 8B 86 48 02 00 00        - mov eax,[rsi+00000248]
+kuro2.exe+10DD12: 89 41 30                 - mov [rcx+30],eax
 // ---------- DONE INJECTING  ----------
-kuro2.exe+10EED1: 83 BF 30 07 00 00 00     - cmp dword ptr [rdi+00000730],00
-kuro2.exe+10EED8: 0F 10 84 3E 28 03 00 00  - movups xmm0,[rsi+rdi+00000328]
-kuro2.exe+10EEE0: 0F 11 44 24 30           - movups [rsp+30],xmm0
-kuro2.exe+10EEE5: 75 1D                    - jne kuro2.exe+10EF04
-kuro2.exe+10EEE7: E8 E4 BF 55 00           - call kuro2.exe+66AED0
-kuro2.exe+10EEEC: F3 0F 10 80 D4 03 00 00  - movss xmm0,[rax+000003D4]
-kuro2.exe+10EEF4: F3 0F 5E 80 D0 03 00 00  - divss xmm0,[rax+000003D0]
-kuro2.exe+10EEFC: F3 0F 59 44 24 34        - mulss xmm0,[rsp+34]
-kuro2.exe+10EF02: EB 06                    - jmp kuro2.exe+10EF0A
-kuro2.exe+10EF04: F3 0F 10 44 24 38        - movss xmm0,[rsp+38]
-kuro2.exe+10EF0A: 48 8B 87 90 06 00 00     - mov rax,[rdi+00000690]
+kuro2.exe+10DD15: 83 BF 30 07 00 00 00     - cmp dword ptr [rdi+00000730],00
+kuro2.exe+10DD1C: 0F 10 86 28 03 00 00     - movups xmm0,[rsi+00000328]
+kuro2.exe+10DD23: 0F 11 44 24 30           - movups [rsp+30],xmm0
+kuro2.exe+10DD28: 75 1D                    - jne kuro2.exe+10DD47
+kuro2.exe+10DD2A: E8 E1 E5 55 00           - call kuro2.exe+66C310
+kuro2.exe+10DD2F: F3 0F 10 80 D4 03 00 00  - movss xmm0,[rax+000003D4]
+kuro2.exe+10DD37: F3 0F 5E 80 D0 03 00 00  - divss xmm0,[rax+000003D0]
+kuro2.exe+10DD3F: F3 0F 59 44 24 34        - mulss xmm0,[rsp+34]
+kuro2.exe+10DD45: EB 06                    - jmp kuro2.exe+10DD4D
+kuro2.exe+10DD47: F3 0F 10 44 24 38        - movss xmm0,[rsp+38]
 
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2D2DCE - Lock Player Movement
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2CE9A6 - Lock Player Movement
 
-kuro2.exe+2D2DA8: 89 83 A8 01 00 00  - mov [rbx+000001A8],eax
-kuro2.exe+2D2DAE: 89 44 BB 08        - mov [rbx+rdi*4+08],eax
-kuro2.exe+2D2DB2: 8B 44 BB 04        - mov eax,[rbx+rdi*4+04]
-kuro2.exe+2D2DB6: 89 04 BB           - mov [rbx+rdi*4],eax
-kuro2.exe+2D2DB9: 89 83 AC 01 00 00  - mov [rbx+000001AC],eax
-kuro2.exe+2D2DBF: 48 63 04 BB        - movsxd  rax,dword ptr [rbx+rdi*4]
-kuro2.exe+2D2DC3: 83 F8 FF           - cmp eax,-01
-kuro2.exe+2D2DC6: 74 1E              - je kuro2.exe+2D2DE6
-kuro2.exe+2D2DC8: 48 8B 0B           - mov rcx,[rbx]
-kuro2.exe+2D2DCB: 0F 28 CE           - movaps xmm1,xmm6
+kuro2.exe+2CE97F: FF D0              - call rax
+kuro2.exe+2CE981: 48 8B 74 24 40     - mov rsi,[rsp+40]
+kuro2.exe+2CE986: 33 C0              - xor eax,eax
+kuro2.exe+2CE988: 89 83 A8 01 00 00  - mov [rbx+000001A8],eax
+kuro2.exe+2CE98E: 89 44 BB 08        - mov [rbx+rdi*4+08],eax
+kuro2.exe+2CE992: 8B 44 BB 04        - mov eax,[rbx+rdi*4+04]
+kuro2.exe+2CE996: 89 04 BB           - mov [rbx+rdi*4],eax
+kuro2.exe+2CE999: 89 83 AC 01 00 00  - mov [rbx+000001AC],eax
+kuro2.exe+2CE99F: 48 63 04 BB        - movsxd  rax,dword ptr [rbx+rdi*4]
+kuro2.exe+2CE9A3: 83 F8 FF           - cmp eax,-01
 // ---------- INJECTING HERE ----------
-kuro2.exe+2D2DCE: FF 54 C3 08        - call qword ptr [rbx+rax*8+08]
+kuro2.exe+2CE9A6: 74 21              - je kuro2.exe+2CE9C9
 // ---------- DONE INJECTING  ----------
-kuro2.exe+2D2DD2: 8B 44 BB 08        - mov eax,[rbx+rdi*4+08]
-kuro2.exe+2D2DD6: B9 F8 FF FF 7F     - mov ecx,7FFFFFF8
-kuro2.exe+2D2DDB: FF C0              - inc eax
-kuro2.exe+2D2DDD: 3B C1              - cmp eax,ecx
-kuro2.exe+2D2DDF: 0F 4F C1           - cmovg eax,ecx
-kuro2.exe+2D2DE2: 89 44 BB 08        - mov [rbx+rdi*4+08],eax
-kuro2.exe+2D2DE6: 48 8B 5C 24 48     - mov rbx,[rsp+48]
-kuro2.exe+2D2DEB: 0F 28 74 24 20     - movaps xmm6,[rsp+20]
-kuro2.exe+2D2DF0: 48 83 C4 30        - add rsp,30
-kuro2.exe+2D2DF4: 5F                 - pop rdi
+kuro2.exe+2CE9A8: 48 8B 54 C3 08     - mov rdx,[rbx+rax*8+08]
+kuro2.exe+2CE9AD: 0F 28 CE           - movaps xmm1,xmm6
+kuro2.exe+2CE9B0: 48 8B 0B           - mov rcx,[rbx]
+kuro2.exe+2CE9B3: FF D2              - call rdx
+kuro2.exe+2CE9B5: 8B 44 BB 08        - mov eax,[rbx+rdi*4+08]
+kuro2.exe+2CE9B9: B9 F8 FF FF 7F     - mov ecx,7FFFFFF8
+kuro2.exe+2CE9BE: FF C0              - inc eax
+kuro2.exe+2CE9C0: 3B C1              - cmp eax,ecx
+kuro2.exe+2CE9C2: 0F 4F C1           - cmovg eax,ecx
+kuro2.exe+2CE9C5: 89 44 BB 08        - mov [rbx+rdi*4+08],eax
 }
 </AssemblerScript>
       <Hotkeys>
@@ -497,7 +496,7 @@ kuro2.exe+2D2DF4: 5F                 - pop rdi
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(fov_aob,kuro2.exe,F3 0F 10 89 70 01 00 00 F2) // should be unique
+aobscanmodule(fov_aob,kuro2.exe,F3 0F 10 B1 70 01 00 00) // should be unique
 aobscanmodule(unlockfov1_aob,kuro2.exe,F3 0F 11 80 70 01 00 00 4C 89 A8 74 01 00 00 44 89 A8 7C 01 00 00 48) // should be unique
 aobscanmodule(unlock_dialogue_fov_aob,kuro2.exe,F3 0F 11 80 70 01 00 00 4C 89 A8 74 01 00 00 44 89 A8 7C 01 00 00 44) // should be unique
 aobscanmodule(unlockfov2_aob,kuro2.exe,F3 0F 11 41 08 48 83 C4 30) // should be unique
@@ -544,11 +543,11 @@ toggleon:
   test ax,8001
   pop rax
   jz toggleoff
-  movss xmm1,[rcx+00000170]
-  addss xmm1,[fov_step]
-  minss xmm1,[fov_max]
-  movss [fov_set],xmm1
-  movss [rcx+00000170],xmm1
+  movss xmm6,[rcx+00000170]
+  addss xmm6,[fov_step]
+  minss xmm6,[fov_max]
+  movss [fov_set],xmm6
+  movss [rcx+00000170],xmm6
   jmp code
 
 toggleoff:
@@ -572,15 +571,15 @@ toggleoff:
   test ax,8001
   pop rax
   jz code
-  movss xmm1,[rcx+00000170]
-  subss xmm1,[fov_step]
-  maxss xmm1,[fov_min]
-  movss [fov_set],xmm1
-  movss [rcx+00000170],xmm1
+  movss xmm6,[rcx+00000170]
+  subss xmm6,[fov_step]
+  maxss xmm6,[fov_min]
+  movss [fov_set],xmm6
+  movss [rcx+00000170],xmm6
 
 code:
   mov [fov],rcx
-  movss xmm1,[rcx+00000170]
+  movss xmm6,[rcx+00000170]
   jmp return
 
 writecode:
@@ -631,7 +630,7 @@ unlockfov2_aob:
 [DISABLE]
 
 fov_aob:
-  db F3 0F 10 89 70 01 00 00
+  db F3 0F 10 B1 70 01 00 00
 
 unlockfov1_aob:
   db F3 0F 11 80 70 01 00 00
@@ -652,109 +651,109 @@ dealloc(fov)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+10A552 - Read FOV
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+1094D3 - Read FOV
 
-kuro2.exe+10A51D: 48 8B 4B 08                 - mov rcx,[rbx+08]
-kuro2.exe+10A521: 41 0F 28 C8                 - movaps xmm1,xmm8
-kuro2.exe+10A525: 48 81 C1 2C 01 00 00        - add rcx,0000012C
-kuro2.exe+10A52C: E8 0F 41 00 00              - call kuro2.exe+10E640
-kuro2.exe+10A531: 48 8B 4B 08                 - mov rcx,[rbx+08]
-kuro2.exe+10A535: 41 0F 28 C8                 - movaps xmm1,xmm8
-kuro2.exe+10A539: 48 81 C1 68 01 00 00        - add rcx,00000168
-kuro2.exe+10A540: E8 2B AD F2 FF              - call kuro2.exe+35270
-kuro2.exe+10A545: 48 8B 4B 08                 - mov rcx,[rbx+08]
-kuro2.exe+10A549: 44 0F 28 8C 24 90 00 00 00  - movaps xmm9,[rsp+00000090]
+kuro2.exe+1094AC: 77 2D                    - ja kuro2.exe+1094DB
+kuro2.exe+1094AE: 0F 28 C6                 - movaps xmm0,xmm6
+kuro2.exe+1094B1: F3 0F 58 C2              - addss xmm0,xmm2
+kuro2.exe+1094B5: 0F 2F C8                 - comiss xmm1,xmm0
+kuro2.exe+1094B8: 77 21                    - ja kuro2.exe+1094DB
+kuro2.exe+1094BA: 40 88 B3 F4 00 00 00     - mov [rbx+000000F4],sil
+kuro2.exe+1094C1: EB 18                    - jmp kuro2.exe+1094DB
+kuro2.exe+1094C3: 48 8B 4B 08              - mov rcx,[rbx+08]
+kuro2.exe+1094C7: 8B 81 70 01 00 00        - mov eax,[rcx+00000170]
+kuro2.exe+1094CD: 89 83 98 00 00 00        - mov [rbx+00000098],eax
 // ---------- INJECTING HERE ----------
-kuro2.exe+10A552: F3 0F 10 89 70 01 00 00     - movss xmm1,[rcx+00000170]
+kuro2.exe+1094D3: F3 0F 10 B1 70 01 00 00  - movss xmm6,[rcx+00000170]
 // ---------- DONE INJECTING  ----------
-kuro2.exe+10A55A: F2 0F 10 81 78 01 00 00     - movsd xmm0,[rcx+00000178]
-kuro2.exe+10A562: 0F 2E C9                    - ucomiss xmm1,xmm1
-kuro2.exe+10A565: F2 0F 11 45 B7              - movsd [rbp-49],xmm0
-kuro2.exe+10A56A: 0F 9A C0                    - setp al
-kuro2.exe+10A56D: 3C 01                       - cmp al,01
-kuro2.exe+10A56F: 74 22                       - je kuro2.exe+10A593
-kuro2.exe+10A571: F3 0F 10 89 70 01 00 00     - movss xmm1,[rcx+00000170]
-kuro2.exe+10A579: 0F 54 0D 60 43 83 00        - andps xmm1,[kuro2.exe+93E8E0]
-kuro2.exe+10A580: 0F 2F 0D 39 43 83 00        - comiss xmm1,[kuro2.exe+93E8C0]
-kuro2.exe+10A587: F2 0F 11 45 B7              - movsd [rbp-49],xmm0
+kuro2.exe+1094DB: 48 8B 43 08              - mov rax,[rbx+08]
+kuro2.exe+1094DF: 4C 8D 45 B7              - lea r8,[rbp-49]
+kuro2.exe+1094E3: F3 0F 10 55 B7           - movss xmm2,[rbp-49]
+kuro2.exe+1094E8: 48 8D 55 F7              - lea rdx,[rbp-09]
+kuro2.exe+1094EC: F3 0F 10 4D BB           - movss xmm1,[rbp-45]
+kuro2.exe+1094F1: 48 8D 4D E7              - lea rcx,[rbp-19]
+kuro2.exe+1094F5: F3 0F 10 45 BF           - movss xmm0,[rbp-41]
+kuro2.exe+1094FA: 40 88 B3 F5 00 00 00     - mov [rbx+000000F5],sil
+kuro2.exe+109501: F3 0F 59 D6              - mulss xmm2,xmm6
+kuro2.exe+109505: 89 75 B7                 - mov [rbp-49],esi
 
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+275306 - Unlock FOV1
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+271E74 - Unlock FOV1
 
-kuro2.exe+2752D0: 48 8B CE                       - mov rcx,rsi
-kuro2.exe+2752D3: E8 B8 19 00 00                 - call kuro2.exe+276C90
-kuro2.exe+2752D8: F6 86 94 02 00 00 10           - test byte ptr [rsi+00000294],10
-kuro2.exe+2752DF: 48 8B BC 24 88 02 00 00        - mov rdi,[rsp+00000288]
-kuro2.exe+2752E7: 74 09                          - je kuro2.exe+2752F2
-kuro2.exe+2752E9: 44 39 AE 14 05 00 00           - cmp [rsi+00000514],r13d
-kuro2.exe+2752F0: 74 2A                          - je kuro2.exe+27531C
-kuro2.exe+2752F2: 48 8B 46 08                    - mov rax,[rsi+08]
-kuro2.exe+2752F6: F3 0F 11 80 68 01 00 00        - movss [rax+00000168],xmm0
-kuro2.exe+2752FE: F3 0F 11 80 6C 01 00 00        - movss [rax+0000016C],xmm0
+kuro2.exe+271E42: 41 0F 28 CE                    - movaps xmm1,xmm14
+kuro2.exe+271E46: 48 8B CE                       - mov rcx,rsi
+kuro2.exe+271E49: E8 D2 18 00 00                 - call kuro2.exe+273720
+kuro2.exe+271E4E: F6 86 94 02 00 00 10           - test byte ptr [rsi+00000294],10
+kuro2.exe+271E55: 74 09                          - je kuro2.exe+271E60
+kuro2.exe+271E57: 44 39 AE 14 05 00 00           - cmp [rsi+00000514],r13d
+kuro2.exe+271E5E: 74 2A                          - je kuro2.exe+271E8A
+kuro2.exe+271E60: 48 8B 46 08                    - mov rax,[rsi+08]
+kuro2.exe+271E64: F3 0F 11 80 68 01 00 00        - movss [rax+00000168],xmm0
+kuro2.exe+271E6C: F3 0F 11 80 6C 01 00 00        - movss [rax+0000016C],xmm0
 // ---------- INJECTING HERE ----------
-kuro2.exe+275306: F3 0F 11 80 70 01 00 00        - movss [rax+00000170],xmm0
+kuro2.exe+271E74: F3 0F 11 80 70 01 00 00        - movss [rax+00000170],xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+27530E: 4C 89 A8 74 01 00 00           - mov [rax+00000174],r13
-kuro2.exe+275315: 44 89 A8 7C 01 00 00           - mov [rax+0000017C],r13d
-kuro2.exe+27531C: 48 8B 46 08                    - mov rax,[rsi+08]
-kuro2.exe+275320: 45 84 E4                       - test r12l,r12l
-kuro2.exe+275323: 4C 8B A4 24 80 02 00 00        - mov r12,[rsp+00000280]
-kuro2.exe+27532B: 0F 84 B2 03 00 00              - je kuro2.exe+2756E3
-kuro2.exe+275331: C7 80 98 01 00 00 01 00 00 00  - mov [rax+00000198],00000001
-kuro2.exe+27533B: 48 8B 8E F8 00 00 00           - mov rcx,[rsi+000000F8]
-kuro2.exe+275342: 48 8B 01                       - mov rax,[rcx]
-kuro2.exe+275345: FF 50 10                       - call qword ptr [rax+10]
+kuro2.exe+271E7C: 4C 89 A8 74 01 00 00           - mov [rax+00000174],r13
+kuro2.exe+271E83: 44 89 A8 7C 01 00 00           - mov [rax+0000017C],r13d
+kuro2.exe+271E8A: 48 8B 46 08                    - mov rax,[rsi+08]
+kuro2.exe+271E8E: 45 84 E4                       - test r12l,r12l
+kuro2.exe+271E91: 4C 8B A4 24 70 02 00 00        - mov r12,[rsp+00000270]
+kuro2.exe+271E99: 0F 84 86 03 00 00              - je kuro2.exe+272225
+kuro2.exe+271E9F: C7 80 98 01 00 00 01 00 00 00  - mov [rax+00000198],00000001
+kuro2.exe+271EA9: 48 8B 8E F8 00 00 00           - mov rcx,[rsi+000000F8]
+kuro2.exe+271EB0: 48 8B 01                       - mov rax,[rcx]
+kuro2.exe+271EB3: FF 50 10                       - call qword ptr [rax+10]
 
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+3528D - Unlock FOV2
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+3518D - Unlock FOV2
 
-kuro2.exe+3526E: CC              - int 3 
-kuro2.exe+3526F: CC              - int 3 
-kuro2.exe+35270: 40 53           - push rbx
-kuro2.exe+35272: 48 83 EC 30     - sub rsp,30
-kuro2.exe+35276: F3 0F 10 41 10  - movss xmm0,[rcx+10]
-kuro2.exe+3527B: 48 8B D9        - mov rbx,rcx
-kuro2.exe+3527E: F3 0F 10 51 0C  - movss xmm2,[rcx+0C]
-kuro2.exe+35283: 0F 2F C2        - comiss xmm0,xmm2
-kuro2.exe+35286: 72 10           - jb kuro2.exe+35298
-kuro2.exe+35288: F3 0F 10 41 04  - movss xmm0,[rcx+04]
+kuro2.exe+3516E: CC              - int 3 
+kuro2.exe+3516F: CC              - int 3 
+kuro2.exe+35170: 40 53           - push rbx
+kuro2.exe+35172: 48 83 EC 30     - sub rsp,30
+kuro2.exe+35176: F3 0F 10 51 0C  - movss xmm2,[rcx+0C]
+kuro2.exe+3517B: 48 8B D9        - mov rbx,rcx
+kuro2.exe+3517E: F3 0F 10 41 10  - movss xmm0,[rcx+10]
+kuro2.exe+35183: 0F 2F C2        - comiss xmm0,xmm2
+kuro2.exe+35186: 72 10           - jb kuro2.exe+35198
+kuro2.exe+35188: F3 0F 10 41 04  - movss xmm0,[rcx+04]
 // ---------- INJECTING HERE ----------
-kuro2.exe+3528D: F3 0F 11 41 08  - movss [rcx+08],xmm0
+kuro2.exe+3518D: F3 0F 11 41 08  - movss [rcx+08],xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+35292: 48 83 C4 30     - add rsp,30
-kuro2.exe+35296: 5B              - pop rbx
-kuro2.exe+35297: C3              - ret 
-kuro2.exe+35298: 0F 29 74 24 20  - movaps [rsp+20],xmm6
-kuro2.exe+3529D: F3 0F 58 C1     - addss xmm0,xmm1
-kuro2.exe+352A1: 0F 28 F2        - movaps xmm6,xmm2
-kuro2.exe+352A4: F3 0F 5D F0     - minss xmm6,xmm0
-kuro2.exe+352A8: F3 0F 11 71 10  - movss [rcx+10],xmm6
-kuro2.exe+352AD: 8B 49 14        - mov ecx,[rcx+14]
-kuro2.exe+352B0: F3 0F 5E F2     - divss xmm6,xmm2
+kuro2.exe+35192: 48 83 C4 30     - add rsp,30
+kuro2.exe+35196: 5B              - pop rbx
+kuro2.exe+35197: C3              - ret 
+kuro2.exe+35198: 0F 29 74 24 20  - movaps [rsp+20],xmm6
+kuro2.exe+3519D: F3 0F 58 C1     - addss xmm0,xmm1
+kuro2.exe+351A1: 0F 28 F2        - movaps xmm6,xmm2
+kuro2.exe+351A4: F3 0F 5D F0     - minss xmm6,xmm0
+kuro2.exe+351A8: F3 0F 11 71 10  - movss [rcx+10],xmm6
+kuro2.exe+351AD: 8B 49 14        - mov ecx,[rcx+14]
+kuro2.exe+351B0: F3 0F 5E F2     - divss xmm6,xmm2
 
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+27571F - Prevent Dialogue FOV change
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+272261 - Prevent Dialogue FOV change
 
-kuro2.exe+2756EA: E9 C1 02 00 00           - jmp kuro2.exe+2759B0
-kuro2.exe+2756EF: 48 8B 05 FA 52 7E 00     - mov rax,[kuro2.exe+A5A9F0]
-kuro2.exe+2756F6: F6 80 12 01 00 00 08     - test byte ptr [rax+00000112],08
-kuro2.exe+2756FD: 74 36                    - je kuro2.exe+275735
-kuro2.exe+2756FF: 41 0F 28 CD              - movaps xmm1,xmm13
-kuro2.exe+275703: 48 8B CE                 - mov rcx,rsi
-kuro2.exe+275706: E8 85 15 00 00           - call kuro2.exe+276C90
-kuro2.exe+27570B: 48 8B 46 08              - mov rax,[rsi+08]
-kuro2.exe+27570F: F3 0F 11 80 68 01 00 00  - movss [rax+00000168],xmm0
-kuro2.exe+275717: F3 0F 11 80 6C 01 00 00  - movss [rax+0000016C],xmm0
+kuro2.exe+27222C: E9 0B 03 00 00           - jmp kuro2.exe+27253C
+kuro2.exe+272231: 48 8B 05 68 F2 80 00     - mov rax,[kuro2.exe+A814A0]
+kuro2.exe+272238: F6 80 12 01 00 00 08     - test byte ptr [rax+00000112],08
+kuro2.exe+27223F: 74 36                    - je kuro2.exe+272277
+kuro2.exe+272241: 41 0F 28 CE              - movaps xmm1,xmm14
+kuro2.exe+272245: 48 8B CE                 - mov rcx,rsi
+kuro2.exe+272248: E8 D3 14 00 00           - call kuro2.exe+273720
+kuro2.exe+27224D: 48 8B 46 08              - mov rax,[rsi+08]
+kuro2.exe+272251: F3 0F 11 80 68 01 00 00  - movss [rax+00000168],xmm0
+kuro2.exe+272259: F3 0F 11 80 6C 01 00 00  - movss [rax+0000016C],xmm0
 // ---------- INJECTING HERE ----------
-kuro2.exe+27571F: F3 0F 11 80 70 01 00 00  - movss [rax+00000170],xmm0
+kuro2.exe+272261: F3 0F 11 80 70 01 00 00  - movss [rax+00000170],xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+275727: 4C 89 A8 74 01 00 00     - mov [rax+00000174],r13
-kuro2.exe+27572E: 44 89 A8 7C 01 00 00     - mov [rax+0000017C],r13d
-kuro2.exe+275735: 44 39 AE 14 05 00 00     - cmp [rsi+00000514],r13d
-kuro2.exe+27573C: 0F 84 6E 02 00 00        - je kuro2.exe+2759B0
-kuro2.exe+275742: 0F 10 96 10 01 00 00     - movups xmm2,[rsi+00000110]
-kuro2.exe+275749: 48 8B 46 08              - mov rax,[rsi+08]
-kuro2.exe+27574D: 48 05 F0 00 00 00        - add rax,000000F0
-kuro2.exe+275753: 0F 10 E2                 - movups xmm4,xmm2
-kuro2.exe+275756: 0F 10 DA                 - movups xmm3,xmm2
-kuro2.exe+275759: 0F 28 C2                 - movaps xmm0,xmm2
+kuro2.exe+272269: 4C 89 A8 74 01 00 00     - mov [rax+00000174],r13
+kuro2.exe+272270: 44 89 A8 7C 01 00 00     - mov [rax+0000017C],r13d
+kuro2.exe+272277: 44 39 AE 14 05 00 00     - cmp [rsi+00000514],r13d
+kuro2.exe+27227E: 0F 84 B8 02 00 00        - je kuro2.exe+27253C
+kuro2.exe+272284: 0F 10 96 10 01 00 00     - movups xmm2,[rsi+00000110]
+kuro2.exe+27228B: 48 8B 46 08              - mov rax,[rsi+08]
+kuro2.exe+27228F: 0F 10 E2                 - movups xmm4,xmm2
+kuro2.exe+272292: 0F 10 DA                 - movups xmm3,xmm2
+kuro2.exe+272295: 0F 28 C2                 - movaps xmm0,xmm2
+kuro2.exe+272298: 0F 28 CA                 - movaps xmm1,xmm2
 }
 </AssemblerScript>
       <Hotkeys>
@@ -804,7 +803,7 @@ kuro2.exe+275759: 0F 28 C2                 - movaps xmm0,xmm2
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(camera_pitch_sweep_in_aob,kuro2.exe,77 36 0F 54 0D 40 74 6D 00) // should be unique
+aobscanmodule(camera_pitch_sweep_in_aob,kuro2.exe,77 36 0F 54 0D F0 E2 6D 00) // should be unique
 registersymbol(camera_pitch_sweep_in_aob)
 
 camera_pitch_sweep_in_aob:
@@ -818,31 +817,31 @@ camera_pitch_sweep_in_aob:
 unregistersymbol(camera_pitch_sweep_in_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2786A7
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2738B7
 
-kuro2.exe+278674: F3 0F 5E C8              - divss xmm1,xmm0
-kuro2.exe+278678: F3 0F 10 05 B8 60 6D 00  - movss xmm0,[kuro2.exe+94E738]
-kuro2.exe+278680: F3 41 0F 59 C8           - mulss xmm1,xmm8
-kuro2.exe+278685: 0F 57 0D 94 74 6D 00     - xorps xmm1,[kuro2.exe+94FB20]
-kuro2.exe+27868C: F3 0F 5D CF              - minss xmm1,xmm7
-kuro2.exe+278690: F3 0F 5F C1              - maxss xmm0,xmm1
-kuro2.exe+278694: E8 E0 C6 5F 00           - call kuro2.exe+874D79
-kuro2.exe+278699: F3 0F 10 15 3B 60 6D 00  - movss xmm2,[kuro2.exe+94E6DC]
-kuro2.exe+2786A1: 0F 28 C8                 - movaps xmm1,xmm0
-kuro2.exe+2786A4: 0F 2F CA                 - comiss xmm1,xmm2
+kuro2.exe+273884: F3 0F 5E C8              - divss xmm1,xmm0
+kuro2.exe+273888: F3 0F 10 05 48 D2 6D 00  - movss xmm0,[kuro2.exe+950AD8]
+kuro2.exe+273890: F3 41 0F 59 C8           - mulss xmm1,xmm8
+kuro2.exe+273895: 0F 57 0D 44 E3 6D 00     - xorps xmm1,[kuro2.exe+951BE0]
+kuro2.exe+27389C: F3 0F 5D CF              - minss xmm1,xmm7
+kuro2.exe+2738A0: F3 0F 5F C1              - maxss xmm0,xmm1
+kuro2.exe+2738A4: E8 F0 10 60 00           - call kuro2.exe+874999
+kuro2.exe+2738A9: F3 0F 10 15 DB D1 6D 00  - movss xmm2,[kuro2.exe+950A8C]
+kuro2.exe+2738B1: 0F 28 C8                 - movaps xmm1,xmm0
+kuro2.exe+2738B4: 0F 2F CA                 - comiss xmm1,xmm2
 // ---------- INJECTING HERE ----------
-kuro2.exe+2786A7: 77 36                    - ja kuro2.exe+2786DF
+kuro2.exe+2738B7: 77 36                    - ja kuro2.exe+2738EF
 // ---------- DONE INJECTING  ----------
-kuro2.exe+2786A9: 0F 54 0D 40 74 6D 00     - andps xmm1,[kuro2.exe+94FAF0]
-kuro2.exe+2786B0: F3 0F 5C FE              - subss xmm7,xmm6
-kuro2.exe+2786B4: 0F 54 15 35 74 6D 00     - andps xmm2,[kuro2.exe+94FAF0]
-kuro2.exe+2786BB: F3 0F 10 05 55 58 6D 00  - movss xmm0,[kuro2.exe+94DF18]
-kuro2.exe+2786C3: F3 0F 5C CA              - subss xmm1,xmm2
-kuro2.exe+2786C7: F3 0F 5E 0D F9 55 6D 00  - divss xmm1,[kuro2.exe+94DCC8]
-kuro2.exe+2786CF: F3 0F 5C C1              - subss xmm0,xmm1
-kuro2.exe+2786D3: F3 0F 59 C1              - mulss xmm0,xmm1
-kuro2.exe+2786D7: F3 0F 59 C7              - mulss xmm0,xmm7
-kuro2.exe+2786DB: F3 0F 58 F0              - addss xmm6,xmm0
+kuro2.exe+2738B9: 0F 54 0D F0 E2 6D 00     - andps xmm1,[kuro2.exe+951BB0]
+kuro2.exe+2738C0: F3 0F 5C FE              - subss xmm7,xmm6
+kuro2.exe+2738C4: 0F 54 15 E5 E2 6D 00     - andps xmm2,[kuro2.exe+951BB0]
+kuro2.exe+2738CB: F3 0F 10 05 FD C9 6D 00  - movss xmm0,[kuro2.exe+9502D0]
+kuro2.exe+2738D3: F3 0F 5C CA              - subss xmm1,xmm2
+kuro2.exe+2738D7: F3 0F 5E 0D A1 C7 6D 00  - divss xmm1,[kuro2.exe+950080]
+kuro2.exe+2738DF: F3 0F 5C C1              - subss xmm0,xmm1
+kuro2.exe+2738E3: F3 0F 59 C1              - mulss xmm0,xmm1
+kuro2.exe+2738E7: F3 0F 59 C7              - mulss xmm0,xmm7
+kuro2.exe+2738EB: F3 0F 58 F0              - addss xmm6,xmm0
 }
 </AssemblerScript>
     </CheatEntry>
@@ -852,7 +851,7 @@ kuro2.exe+2786DB: F3 0F 58 F0              - addss xmm6,xmm0
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(tilt_limit_aob,kuro2.exe,F3 0F 5C F0 F3 0F 5C F8 75) // should be unique
+aobscanmodule(tilt_limit_aob,kuro2.exe,F3 0F 5C F0 F3 0F 5C F8 83) // should be unique
 alloc(newmem,$1000,tilt_limit_aob)
 
 label(code)
@@ -893,31 +892,31 @@ unregistersymbol(tiltlimitfielddown)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+2763BA
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+27165F
 
-kuro2.exe+27637C: 4C 8D 86 10 01 00 00     - lea r8,[rsi+00000110]
-kuro2.exe+276383: 48 89 44 24 20           - mov [rsp+20],rax
-kuro2.exe+276388: 48 8D 96 00 01 00 00     - lea rdx,[rsi+00000100]
-kuro2.exe+27638F: 48 8B CE                 - mov rcx,rsi
-kuro2.exe+276392: 4C 8D 8D B8 00 00 00     - lea r9,[rbp+000000B8]
-kuro2.exe+276399: E8 42 0F 00 00           - call kuro2.exe+2772E0
-kuro2.exe+27639E: 83 7D 80 04              - cmp dword ptr [rbp-80],04
-kuro2.exe+2763A2: F3 0F 10 86 78 02 00 00  - movss xmm0,[rsi+00000278]
-kuro2.exe+2763AA: F3 0F 10 35 66 83 6D 00  - movss xmm6,[kuro2.exe+94E718]
-kuro2.exe+2763B2: F3 0F 10 3D 4E 7A 6D 00  - movss xmm7,[kuro2.exe+94DE08]
+kuro2.exe+27161E: F3 44 0F 11 74 24 28     - movss [rsp+28],xmm14
+kuro2.exe+271625: 4C 8D 86 10 01 00 00     - lea r8,[rsi+00000110]
+kuro2.exe+27162C: 48 89 44 24 20           - mov [rsp+20],rax
+kuro2.exe+271631: 48 8D 96 00 01 00 00     - lea rdx,[rsi+00000100]
+kuro2.exe+271638: 48 8B CE                 - mov rcx,rsi
+kuro2.exe+27163B: 4C 8D 8D A8 00 00 00     - lea r9,[rbp+000000A8]
+kuro2.exe+271642: E8 A9 0F 00 00           - call kuro2.exe+2725F0
+kuro2.exe+271647: F3 0F 10 86 78 02 00 00  - movss xmm0,[rsi+00000278]
+kuro2.exe+27164F: F3 0F 10 35 69 F4 6D 00  - movss xmm6,[kuro2.exe+950AC0]
+kuro2.exe+271657: F3 0F 10 3D 5D EB 6D 00  - movss xmm7,[kuro2.exe+9501BC]
 // ---------- INJECTING HERE ----------
-kuro2.exe+2763BA: F3 0F 5C F0              - subss xmm6,xmm0
+kuro2.exe+27165F: F3 0F 5C F0              - subss xmm6,xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+2763BE: F3 0F 5C F8              - subss xmm7,xmm0
-kuro2.exe+2763C2: 75 18                    - jne kuro2.exe+2763DC
-kuro2.exe+2763C4: F3 0F 10 35 74 83 6D 00  - movss xmm6,[kuro2.exe+94E740]
-kuro2.exe+2763CC: F3 0F 10 3D 68 7A 6D 00  - movss xmm7,[kuro2.exe+94DE3C]
-kuro2.exe+2763D4: F3 0F 5C F0              - subss xmm6,xmm0
-kuro2.exe+2763D8: F3 0F 5C F8              - subss xmm7,xmm0
-kuro2.exe+2763DC: F3 41 0F 59 F7           - mulss xmm6,xmm15
-kuro2.exe+2763E1: 0F 28 C6                 - movaps xmm0,xmm6
-kuro2.exe+2763E4: E8 CC E9 5F 00           - call kuro2.exe+874DB5
-kuro2.exe+2763E9: 44 0F 28 C0              - movaps xmm8,xmm0
+kuro2.exe+271663: F3 0F 5C F8              - subss xmm7,xmm0
+kuro2.exe+271667: 83 FF 04                 - cmp edi,04
+kuro2.exe+27166A: 75 18                    - jne kuro2.exe+271684
+kuro2.exe+27166C: F3 0F 10 35 6C F4 6D 00  - movss xmm6,[kuro2.exe+950AE0]
+kuro2.exe+271674: F3 0F 10 3D 74 EB 6D 00  - movss xmm7,[kuro2.exe+9501F0]
+kuro2.exe+27167C: F3 0F 5C F0              - subss xmm6,xmm0
+kuro2.exe+271680: F3 0F 5C F8              - subss xmm7,xmm0
+kuro2.exe+271684: F3 41 0F 59 F1           - mulss xmm6,xmm9
+kuro2.exe+271689: 0F 28 C6                 - movaps xmm0,xmm6
+kuro2.exe+27168C: E8 44 33 60 00           - call kuro2.exe+8749D5
 }
 </AssemblerScript>
     </CheatEntry>
@@ -927,7 +926,7 @@ kuro2.exe+2763E9: 44 0F 28 C0              - movaps xmm8,xmm0
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 
-aobscanmodule(noclip_aob,kuro2.exe,72 45 41 F6 86 12 01 00 00 10) // should be unique
+aobscanmodule(noclip_aob,kuro2.exe,72 45 41 F6 87 12 01 00 00 10) // should be unique
 registersymbol(noclip_aob)
 
 noclip_aob:
@@ -941,31 +940,31 @@ noclip_aob:
 unregistersymbol(noclip_aob)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+21BFAD
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+217DA9
 
-kuro2.exe+21BF8B: 0F 2E C1                 - ucomiss xmm0,xmm1
-kuro2.exe+21BF8E: 77 09                    - ja kuro2.exe+21BF99
-kuro2.exe+21BF90: 0F 57 D2                 - xorps xmm2,xmm2
-kuro2.exe+21BF93: F3 0F 51 D1              - sqrtss xmm2,xmm1
-kuro2.exe+21BF97: EB 0B                    - jmp kuro2.exe+21BFA4
-kuro2.exe+21BF99: 0F 28 C1                 - movaps xmm0,xmm1
-kuro2.exe+21BF9C: E8 1A 8E 65 00           - call kuro2.exe+874DBB
-kuro2.exe+21BFA1: 0F 28 D0                 - movaps xmm2,xmm0
-kuro2.exe+21BFA4: F3 0F 10 44 24 24        - movss xmm0,[rsp+24]
-kuro2.exe+21BFAA: 0F 2F C2                 - comiss xmm0,xmm2
+kuro2.exe+217D89: 0F 57 C0                 - xorps xmm0,xmm0
+kuro2.exe+217D8C: 0F 2E C1                 - ucomiss xmm0,xmm1
+kuro2.exe+217D8F: 77 09                    - ja kuro2.exe+217D9A
+kuro2.exe+217D91: 0F 57 D2                 - xorps xmm2,xmm2
+kuro2.exe+217D94: F3 0F 51 D1              - sqrtss xmm2,xmm1
+kuro2.exe+217D98: EB 0B                    - jmp kuro2.exe+217DA5
+kuro2.exe+217D9A: 0F 28 C1                 - movaps xmm0,xmm1
+kuro2.exe+217D9D: E8 39 CC 65 00           - call kuro2.exe+8749DB
+kuro2.exe+217DA2: 0F 28 D0                 - movaps xmm2,xmm0
+kuro2.exe+217DA5: 44 0F 2F FA              - comiss xmm15,xmm2
 // ---------- INJECTING HERE ----------
-kuro2.exe+21BFAD: 72 45                    - jb kuro2.exe+21BFF4
+kuro2.exe+217DA9: 72 45                    - jb kuro2.exe+217DF0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+21BFAF: 41 F6 86 12 01 00 00 10  - test byte ptr [r14+00000112],10
-kuro2.exe+21BFB7: 75 32                    - jne kuro2.exe+21BFEB
-kuro2.exe+21BFB9: F3 0F 10 8B 48 1E 00 00  - movss xmm1,[rbx+00001E48]
-kuro2.exe+21BFC1: F3 41 0F 5C CA           - subss xmm1,xmm10
-kuro2.exe+21BFC6: F3 0F 10 83 54 1E 00 00  - movss xmm0,[rbx+00001E54]
-kuro2.exe+21BFCE: F3 0F 5F C8              - maxss xmm1,xmm0
-kuro2.exe+21BFD2: F3 0F 11 8B 48 1E 00 00  - movss [rbx+00001E48],xmm1
-kuro2.exe+21BFDA: 44 0F 2F D8              - comiss xmm11,xmm0
-kuro2.exe+21BFDE: 72 45                    - jb kuro2.exe+21C025
-kuro2.exe+21BFE0: F3 0F 10 44 24 30        - movss xmm0,[rsp+30]
+kuro2.exe+217DAB: 41 F6 87 12 01 00 00 10  - test byte ptr [r15+00000112],10
+kuro2.exe+217DB3: 75 32                    - jne kuro2.exe+217DE7
+kuro2.exe+217DB5: F3 0F 10 8F 54 1E 00 00  - movss xmm1,[rdi+00001E54]
+kuro2.exe+217DBD: F3 0F 10 87 48 1E 00 00  - movss xmm0,[rdi+00001E48]
+kuro2.exe+217DC5: F3 41 0F 5C C2           - subss xmm0,xmm10
+kuro2.exe+217DCA: F3 0F 5F C1              - maxss xmm0,xmm1
+kuro2.exe+217DCE: F3 0F 11 87 48 1E 00 00  - movss [rdi+00001E48],xmm0
+kuro2.exe+217DD6: 44 0F 2F D9              - comiss xmm11,xmm1
+kuro2.exe+217DDA: 72 45                    - jb kuro2.exe+217E21
+kuro2.exe+217DDC: F3 0F 10 44 24 24        - movss xmm0,[rsp+24]
 }
 </AssemblerScript>
     </CheatEntry>
@@ -975,7 +974,7 @@ kuro2.exe+21BFE0: F3 0F 10 44 24 30        - movss xmm0,[rsp+30]
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 aobscanmodule(freezemonitorinjectionpoint_aob,kuro2.exe,48 63 84 B7 40 01 00 00) // should be unique
-aobscanmodule(freezeaction_aob1,kuro2.exe,E8 E9 B9 25 00) // should be unique
+aobscanmodule(freezeaction_aob1,kuro2.exe,E8 B9 73 25 00) // should be unique
 alloc(newmem,$1000,freezeaction_aob1)
 registersymbol(freezemonitorinjectionpoint_aob)
 registersymbol(freezeaction_aob1)
@@ -1050,7 +1049,7 @@ code1:
   jmp return1
 @@:
   popf
-  call kuro2.exe+28F1A0
+  call kuro2.exe+28A250
   jmp return1
 
 freeze:
@@ -1071,7 +1070,7 @@ freezemonitorinjectionpoint_aob:
   db 48 63 84 B7 40 01 00 00
 
 freezeaction_aob1:
-  db E8 E9 B9 25 00
+  db E8 B9 73 25 00
 
 unregistersymbol(freezemonitorinjectionpoint_aob)
 unregistersymbol(freezeaction_aob1)
@@ -1079,153 +1078,57 @@ unregistersymbol(freeze)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+34085 - Safe injection point to check keypresses
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+337A6 - Safe injection point to check keypresses
 
-kuro2.exe+3404E: 48 85 C0                 - test rax,rax
-kuro2.exe+34051: 74 0F                    - je kuro2.exe+34062
-kuro2.exe+34053: 8B 97 84 01 00 00        - mov edx,[rdi+00000184]
-kuro2.exe+34059: 48 8B 8F 08 01 00 00     - mov rcx,[rdi+00000108]
-kuro2.exe+34060: FF D0                    - call rax
-kuro2.exe+34062: 44 89 BF 80 01 00 00     - mov [rdi+00000180],r15d
-kuro2.exe+34069: 44 89 BC B7 48 01 00 00  - mov [rdi+rsi*4+00000148],r15d
-kuro2.exe+34071: 8B 84 B7 44 01 00 00     - mov eax,[rdi+rsi*4+00000144]
-kuro2.exe+34078: 89 84 B7 40 01 00 00     - mov [rdi+rsi*4+00000140],eax
-kuro2.exe+3407F: 89 87 84 01 00 00        - mov [rdi+00000184],eax
+kuro2.exe+3376F: 48 85 C0                 - test rax,rax
+kuro2.exe+33772: 74 0F                    - je kuro2.exe+33783
+kuro2.exe+33774: 8B 97 84 01 00 00        - mov edx,[rdi+00000184]
+kuro2.exe+3377A: 48 8B 8F 08 01 00 00     - mov rcx,[rdi+00000108]
+kuro2.exe+33781: FF D0                    - call rax
+kuro2.exe+33783: 44 89 BF 80 01 00 00     - mov [rdi+00000180],r15d
+kuro2.exe+3378A: 44 89 BC B7 48 01 00 00  - mov [rdi+rsi*4+00000148],r15d
+kuro2.exe+33792: 8B 84 B7 44 01 00 00     - mov eax,[rdi+rsi*4+00000144]
+kuro2.exe+33799: 89 84 B7 40 01 00 00     - mov [rdi+rsi*4+00000140],eax
+kuro2.exe+337A0: 89 87 84 01 00 00        - mov [rdi+00000184],eax
 // ---------- INJECTING HERE ----------
-kuro2.exe+34085: 48 63 84 B7 40 01 00 00  - movsxd  rax,dword ptr [rdi+rsi*4+00000140]
+kuro2.exe+337A6: 48 63 84 B7 40 01 00 00  - movsxd  rax,dword ptr [rdi+rsi*4+00000140]
 // ---------- DONE INJECTING  ----------
-kuro2.exe+3408D: 41 BC F8 FF FF 7F        - mov r12d,7FFFFFF8
-kuro2.exe+34093: 83 F8 FF                 - cmp eax,-01
-kuro2.exe+34096: 74 2B                    - je kuro2.exe+340C3
-kuro2.exe+34098: 48 8B 94 C7 10 01 00 00  - mov rdx,[rdi+rax*8+00000110]
-kuro2.exe+340A0: 0F 28 CE                 - movaps xmm1,xmm6
-kuro2.exe+340A3: 48 8B 8F 08 01 00 00     - mov rcx,[rdi+00000108]
-kuro2.exe+340AA: FF D2                    - call rdx
-kuro2.exe+340AC: 8B 84 B7 48 01 00 00     - mov eax,[rdi+rsi*4+00000148]
-kuro2.exe+340B3: FF C0                    - inc eax
-kuro2.exe+340B5: 41 3B C4                 - cmp eax,r12d
+kuro2.exe+337AE: 41 BC F8 FF FF 7F        - mov r12d,7FFFFFF8
+kuro2.exe+337B4: 83 F8 FF                 - cmp eax,-01
+kuro2.exe+337B7: 74 2B                    - je kuro2.exe+337E4
+kuro2.exe+337B9: 48 8B 94 C7 10 01 00 00  - mov rdx,[rdi+rax*8+00000110]
+kuro2.exe+337C1: 0F 28 CE                 - movaps xmm1,xmm6
+kuro2.exe+337C4: 48 8B 8F 08 01 00 00     - mov rcx,[rdi+00000108]
+kuro2.exe+337CB: FF D2                    - call rdx
+kuro2.exe+337CD: 8B 84 B7 48 01 00 00     - mov eax,[rdi+rsi*4+00000148]
+kuro2.exe+337D4: FF C0                    - inc eax
+kuro2.exe+337D6: 41 3B C4                 - cmp eax,r12d
 
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+337B2 - Freeze action 1
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+32E92 - Freeze action 1
 
-kuro2.exe+33789: 0F 1F 80 00 00 00 00     - nop dword ptr [rax+00000000]
-kuro2.exe+33790: 48 8B 0F                 - mov rcx,[rdi]
-kuro2.exe+33793: 0F 28 CE                 - movaps xmm1,xmm6
-kuro2.exe+33796: 48 8B 01                 - mov rax,[rcx]
-kuro2.exe+33799: FF 50 18                 - call qword ptr [rax+18]
-kuro2.exe+3379C: 48 8D 7F 08              - lea rdi,[rdi+08]
-kuro2.exe+337A0: 49 83 EE 01              - sub r14,01
-kuro2.exe+337A4: 75 EA                    - jne kuro2.exe+33790
-kuro2.exe+337A6: 48 8B 0D 43 AC A4 00     - mov rcx,[kuro2.exe+A7E3F0]
-kuro2.exe+337AD: 48 8D 54 24 20           - lea rdx,[rsp+20]
+kuro2.exe+32E69: 0F 1F 80 00 00 00 00     - nop dword ptr [rax+00000000]
+kuro2.exe+32E70: 48 8B 0F                 - mov rcx,[rdi]
+kuro2.exe+32E73: 0F 28 CE                 - movaps xmm1,xmm6
+kuro2.exe+32E76: 48 8B 01                 - mov rax,[rcx]
+kuro2.exe+32E79: FF 50 18                 - call qword ptr [rax+18]
+kuro2.exe+32E7C: 48 8D 7F 08              - lea rdi,[rdi+08]
+kuro2.exe+32E80: 49 83 EE 01              - sub r14,01
+kuro2.exe+32E84: 75 EA                    - jne kuro2.exe+32E70
+kuro2.exe+32E86: 48 8B 0D A3 E5 A4 00     - mov rcx,[kuro2.exe+A81430]
+kuro2.exe+32E8D: 48 8D 54 24 20           - lea rdx,[rsp+20]
 // ---------- INJECTING HERE ----------
-kuro2.exe+337B2: E8 E9 B9 25 00           - call kuro2.exe+28F1A0
+kuro2.exe+32E92: E8 B9 73 25 00           - call kuro2.exe+28A250
 // ---------- DONE INJECTING  ----------
-kuro2.exe+337B7: 48 8B 05 32 AC A4 00     - mov rax,[kuro2.exe+A7E3F0]
-kuro2.exe+337BE: 32 C9                    - xor cl,cl
-kuro2.exe+337C0: 0F 28 B4 24 80 00 00 00  - movaps xmm6,[rsp+00000080]
-kuro2.exe+337C8: 4C 8B B4 24 90 00 00 00  - mov r14,[rsp+00000090]
-kuro2.exe+337D0: 48 8B BC 24 C8 00 00 00  - mov rdi,[rsp+000000C8]
-kuro2.exe+337D8: 48 8B 80 88 06 00 00     - mov rax,[rax+00000688]
-kuro2.exe+337DF: 48 85 C0                 - test rax,rax
-kuro2.exe+337E2: 74 1F                    - je kuro2.exe+33803
-kuro2.exe+337E4: 48 8B 80 60 01 00 00     - mov rax,[rax+00000160]
-kuro2.exe+337EB: 48 85 C0                 - test rax,rax
-
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+334B1 - Freeze action 2 - preserves flourishes but characters disappear when you go through them
-
-kuro2.exe+33484: 0F 28 F9              - movaps xmm7,xmm1
-kuro2.exe+33487: 49 89 7B 20           - mov [r11+20],rdi
-kuro2.exe+3348B: 48 8B F1              - mov rsi,rcx
-kuro2.exe+3348E: 48 8B 89 88 01 00 00  - mov rcx,[rcx+00000188]
-kuro2.exe+33495: 4D 89 73 E8           - mov [r11-18],r14
-kuro2.exe+33499: 41 0F 29 73 D8        - movaps [r11-28],xmm6
-kuro2.exe+3349E: 45 0F 29 43 B8        - movaps [r11-48],xmm8
-kuro2.exe+334A3: 45 0F 29 4B A8        - movaps [r11-58],xmm9
-kuro2.exe+334A8: 45 0F 29 53 98        - movaps [r11-68],xmm10
-kuro2.exe+334AD: 44 0F 28 D1           - movaps xmm10,xmm1
-// ---------- INJECTING HERE ----------
-kuro2.exe+334B1: E8 8A A1 2F 00        - call kuro2.exe+32D640
-// ---------- DONE INJECTING  ----------
-kuro2.exe+334B6: 48 8B 9E 88 01 00 00  - mov rbx,[rsi+00000188]
-kuro2.exe+334BD: F3 0F 59 F8           - mulss xmm7,xmm0
-kuro2.exe+334C1: 48 63 43 58           - movsxd  rax,dword ptr [rbx+58]
-kuro2.exe+334C5: 89 43 5C              - mov [rbx+5C],eax
-kuro2.exe+334C8: 48 8D 3C 40           - lea rdi,[rax+rax*2]
-kuro2.exe+334CC: 44 8B 44 BB 2C        - mov r8d,[rbx+rdi*4+2C]
-kuro2.exe+334D1: 44 3B 44 BB 28        - cmp r8d,[rbx+rdi*4+28]
-kuro2.exe+334D6: 74 26                 - je kuro2.exe+334FE
-kuro2.exe+334D8: 48 8B 43 60           - mov rax,[rbx+60]
-kuro2.exe+334DC: 48 85 C0              - test rax,rax
-
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+10EDCE - Cutscene camera lock
-
-kuro2.exe+10EDA1: 48 8B 05 D8 78 8E 00     - mov rax,[kuro2.exe+9F6680]
-kuro2.exe+10EDA8: 48 33 C4                 - xor rax,rsp
-kuro2.exe+10EDAB: 48 89 44 24 48           - mov [rsp+48],rax
-kuro2.exe+10EDB0: 49 63 C0                 - movsxd  rax,r8d
-kuro2.exe+10EDB3: 48 8B F9                 - mov rdi,rcx
-kuro2.exe+10EDB6: 48 69 F0 A0 01 00 00     - imul rsi,rax,000001A0
-kuro2.exe+10EDBD: 44 0F 28 F1              - movaps xmm14,xmm1
-kuro2.exe+10EDC1: 48 8B 8C C1 98 06 00 00  - mov rcx,[rcx+rax*8+00000698]
-kuro2.exe+10EDC9: 48 85 C9                 - test rcx,rcx
-kuro2.exe+10EDCC: 74 06                    - je kuro2.exe+10EDD4
-// ---------- INJECTING HERE ----------
-kuro2.exe+10EDCE: 48 8B 01                 - mov rax,[rcx]
-// ---------- DONE INJECTING  ----------
-kuro2.exe+10EDD1: FF 50 20                 - call qword ptr [rax+20]
-kuro2.exe+10EDD4: 48 8D 9F B0 06 00 00     - lea rbx,[rdi+000006B0]
-kuro2.exe+10EDDB: 45 32 F6                 - xor r14l,r14l
-kuro2.exe+10EDDE: 48 8D AB 80 00 00 00     - lea rbp,[rbx+00000080]
-kuro2.exe+10EDE5: 45 0F 57 C9              - xorps xmm9,xmm9
-kuro2.exe+10EDE9: 45 0F 57 DB              - xorps xmm11,xmm11
-kuro2.exe+10EDED: 45 0F 57 E4              - xorps xmm12,xmm12
-kuro2.exe+10EDF1: 45 0F 57 ED              - xorps xmm13,xmm13
-kuro2.exe+10EDF5: 45 0F 57 D2              - xorps xmm10,xmm10
-kuro2.exe+10EDF9: 0F 57 F6                 - xorps xmm6,xmm6
-kuro2.exe+10EDFC: 0F 57 FF                 - xorps xmm7,xmm7
-kuro2.exe+10EDFF: 45 0F 57 C0              - xorps xmm8,xmm8
-kuro2.exe+10EE03: 48 3B DD                 - cmp rbx,rbp
-kuro2.exe+10EE06: 74 6A                    - je kuro2.exe+10EE72
-kuro2.exe+10EE08: 0F 1F 84 00 00 00 00 00  - nop dword ptr [rax+rax+00000000]
-kuro2.exe+10EE10: F3 0F 10 43 04           - movss xmm0,[rbx+04]
-kuro2.exe+10EE15: 41 0F 2F C1              - comiss xmm0,xmm9
-kuro2.exe+10EE19: 76 4E                    - jna kuro2.exe+10EE69
-kuro2.exe+10EE1B: 41 0F 28 D6              - movaps xmm2,xmm14
-kuro2.exe+10EE1F: 48 8D 54 24 20           - lea rdx,[rsp+20]
-kuro2.exe+10EE24: 48 8B CB                 - mov rcx,rbx
-kuro2.exe+10EE27: E8 24 02 44 00           - call kuro2.exe+54F050
-kuro2.exe+10EE2C: F6 03 04                 - test byte ptr [rbx],04
-kuro2.exe+10EE2F: F3 0F 10 44 24 28        - movss xmm0,[rsp+28]
-kuro2.exe+10EE35: F3 0F 10 4C 24 24        - movss xmm1,[rsp+24]
-kuro2.exe+10EE3B: F3 0F 10 54 24 20        - movss xmm2,[rsp+20]
-kuro2.exe+10EE41: 75 0D                    - jne kuro2.exe+10EE50
-kuro2.exe+10EE43: F3 0F 58 F2              - addss xmm6,xmm2
-kuro2.exe+10EE47: F3 0F 58 F9              - addss xmm7,xmm1
-kuro2.exe+10EE4B: F3 44 0F 58 C0           - addss xmm8,xmm0
-kuro2.exe+10EE50: F3 44 0F 58 54 24 2C     - addss xmm10,[rsp+2C]
-kuro2.exe+10EE57: F3 44 0F 58 DA           - addss xmm11,xmm2
-kuro2.exe+10EE5C: 41 B6 01                 - mov r14l,01
-kuro2.exe+10EE5F: F3 44 0F 58 E1           - addss xmm12,xmm1
-kuro2.exe+10EE64: F3 44 0F 58 E8           - addss xmm13,xmm0
-kuro2.exe+10EE69: 48 83 C3 40              - add rbx,40
-kuro2.exe+10EE6D: 48 3B DD                 - cmp rbx,rbp
-kuro2.exe+10EE70: 75 9E                    - jne kuro2.exe+10EE10
-kuro2.exe+10EE72: 8B 87 34 07 00 00        - mov eax,[rdi+00000734]
-kuro2.exe+10EE78: D1 E8                    - shr eax,1
-kuro2.exe+10EE7A: A8 01                    - test al,01
-// ---------- INJECTING HERE ----------
-kuro2.exe+10EE7C: 0F 85 0C 01 00 00        - jne kuro2.exe+10EF8E
-// ---------- DONE INJECTING  ----------
-kuro2.exe+10EE82: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kuro2.exe+10EE89: 8B 84 3E C8 01 00 00     - mov eax,[rsi+rdi+000001C8]
-kuro2.exe+10EE90: 89 41 08                 - mov [rcx+08],eax
-kuro2.exe+10EE93: 8B 84 3E CC 01 00 00     - mov eax,[rsi+rdi+000001CC]
-kuro2.exe+10EE9A: 89 41 0C                 - mov [rcx+0C],eax
-kuro2.exe+10EE9D: 8B 84 3E D0 01 00 00     - mov eax,[rsi+rdi+000001D0]
-kuro2.exe+10EEA4: 89 41 10                 - mov [rcx+10],eax
-kuro2.exe+10EEA7: 48 8B 8F 90 06 00 00     - mov rcx,[rdi+00000690]
-kuro2.exe+10EEAE: 8B 84 3E 04 02 00 00     - mov eax,[rsi+rdi+00000204]
-kuro2.exe+10EEB5: 89 41 18                 - mov [rcx+18],eax
+kuro2.exe+32E97: 48 8B 0D 92 E5 A4 00     - mov rcx,[kuro2.exe+A81430]
+kuro2.exe+32E9E: 32 C0                    - xor al,al
+kuro2.exe+32EA0: 0F 28 B4 24 80 00 00 00  - movaps xmm6,[rsp+00000080]
+kuro2.exe+32EA8: 4C 8B B4 24 90 00 00 00  - mov r14,[rsp+00000090]
+kuro2.exe+32EB0: 48 8B BC 24 C8 00 00 00  - mov rdi,[rsp+000000C8]
+kuro2.exe+32EB8: 48 8B 91 88 06 00 00     - mov rdx,[rcx+00000688]
+kuro2.exe+32EBF: 48 85 D2                 - test rdx,rdx
+kuro2.exe+32EC2: 74 23                    - je kuro2.exe+32EE7
+kuro2.exe+32EC4: 48 8B 82 60 01 00 00     - mov rax,[rdx+00000160]
+kuro2.exe+32ECB: 48 85 C0                 - test rax,rax
 }
 </AssemblerScript>
     </CheatEntry>
@@ -1234,7 +1137,7 @@ kuro2.exe+10EEB5: 89 41 18                 - mov [rcx+18],eax
       <Description>"Hide HUD / Dialogue / Interface (F7 Toggle)"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
-aobscanmodule(showinterface_aob,kuro2.exe,F3 0F 11 47 68 48 85 D2) // should be unique
+aobscanmodule(showinterface_aob,kuro2.exe,F3 0F 11 47 68 48 85 C9 0F) // should be unique
 alloc(newmem,$1000,showinterface_aob)
 
 label(code)
@@ -1260,31 +1163,31 @@ unregistersymbol(showinterface_aob)
 dealloc(newmem)
 
 {
-// ORIGINAL CODE - INJECTION POINT: kuro2.exe+556B8D
+// ORIGINAL CODE - INJECTION POINT: kuro2.exe+553BE0
 
-kuro2.exe+556B58: 89 47 58                 - mov [rdi+58],eax
-kuro2.exe+556B5B: 8B 87 FC 01 00 00        - mov eax,[rdi+000001FC]
-kuro2.exe+556B61: 89 47 5C                 - mov [rdi+5C],eax
-kuro2.exe+556B64: 8B 87 00 02 00 00        - mov eax,[rdi+00000200]
-kuro2.exe+556B6A: 89 47 60                 - mov [rdi+60],eax
-kuro2.exe+556B6D: F3 0F 10 86 D4 00 00 00  - movss xmm0,[rsi+000000D4]
-kuro2.exe+556B75: F3 0F 59 87 1C 02 00 00  - mulss xmm0,[rdi+0000021C]
-kuro2.exe+556B7D: 48 8B 57 70              - mov rdx,[rdi+70]
-kuro2.exe+556B81: 8B 87 D8 00 00 00        - mov eax,[rdi+000000D8]
-kuro2.exe+556B87: 89 87 DC 00 00 00        - mov [rdi+000000DC],eax
+kuro2.exe+553BAB: 89 47 58                 - mov [rdi+58],eax
+kuro2.exe+553BAE: 8B 87 FC 01 00 00        - mov eax,[rdi+000001FC]
+kuro2.exe+553BB4: 89 47 5C                 - mov [rdi+5C],eax
+kuro2.exe+553BB7: 8B 87 00 02 00 00        - mov eax,[rdi+00000200]
+kuro2.exe+553BBD: 89 47 60                 - mov [rdi+60],eax
+kuro2.exe+553BC0: F3 0F 10 86 D4 00 00 00  - movss xmm0,[rsi+000000D4]
+kuro2.exe+553BC8: F3 0F 59 87 1C 02 00 00  - mulss xmm0,[rdi+0000021C]
+kuro2.exe+553BD0: 48 8B 4F 70              - mov rcx,[rdi+70]
+kuro2.exe+553BD4: 8B 87 D8 00 00 00        - mov eax,[rdi+000000D8]
+kuro2.exe+553BDA: 89 87 DC 00 00 00        - mov [rdi+000000DC],eax
 // ---------- INJECTING HERE ----------
-kuro2.exe+556B8D: F3 0F 11 47 68           - movss [rdi+68],xmm0
+kuro2.exe+553BE0: F3 0F 11 47 68           - movss [rdi+68],xmm0
 // ---------- DONE INJECTING  ----------
-kuro2.exe+556B92: 48 85 D2                 - test rdx,rdx
-kuro2.exe+556B95: 0F 84 FF 01 00 00        - je kuro2.exe+556D9A
-kuro2.exe+556B9B: 8B 8F BC 00 00 00        - mov ecx,[rdi+000000BC]
-kuro2.exe+556BA1: 8B C1                    - mov eax,ecx
-kuro2.exe+556BA3: 83 E0 06                 - and eax,06
-kuro2.exe+556BA6: 3C 06                    - cmp al,06
-kuro2.exe+556BA8: 75 3D                    - jne kuro2.exe+556BE7
-kuro2.exe+556BAA: F6 C1 08                 - test cl,08
-kuro2.exe+556BAD: 74 38                    - je kuro2.exe+556BE7
-kuro2.exe+556BAF: 48 8D 4A 08              - lea rcx,[rdx+08]
+kuro2.exe+553BE5: 48 85 C9                 - test rcx,rcx
+kuro2.exe+553BE8: 0F 84 2C 03 00 00        - je kuro2.exe+553F1A
+kuro2.exe+553BEE: 8B 87 BC 00 00 00        - mov eax,[rdi+000000BC]
+kuro2.exe+553BF4: 83 E0 0E                 - and eax,0E
+kuro2.exe+553BF7: 3C 0E                    - cmp al,0E
+kuro2.exe+553BF9: 0F 85 90 00 00 00        - jne kuro2.exe+553C8F
+kuro2.exe+553BFF: 48 83 C1 08              - add rcx,08
+kuro2.exe+553C03: 4C 8D 43 30              - lea r8,[rbx+30]
+kuro2.exe+553C07: 48 8D 55 B0              - lea rdx,[rbp-50]
+kuro2.exe+553C0B: E8 C0 5E B7 FF           - call kuro2.exe+C9AD0
 }
 </AssemblerScript>
       <Hotkeys>
